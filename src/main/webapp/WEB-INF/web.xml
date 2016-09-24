@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
+
+<session-config>
+    <tracking-mode>COOKIE</tracking-mode>
+</session-config>
+
+  <context-param>
+    <param-name>contextClass</param-name>
+    <param-value>
+          org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+      </param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>com.phoenix.config.ApplicationConfig</param-value>
+  </context-param>
+  
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  
+  <servlet>
+    <servlet-name>dispatcher</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+      <param-name>contextClass</param-name>
+      <param-value>
+		org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+		</param-value>
+    </init-param>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>com.phoenix.config.MvcConfig</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>dispatcher</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  
+  <filter>
+  	<filter-name>rememberMeFilter</filter-name>
+  	<filter-class>
+  	com.phoenix.authentication.RememberMeFilter
+  	</filter-class>
+  </filter>
+  
+  <filter>
+    <filter-name>authenticationFilter</filter-name>
+    <filter-class>
+  	com.phoenix.authentication.AuthenticationFilter
+  	</filter-class>
+  </filter>
+  
+  <filter>
+    <filter-name>authorizationFilter</filter-name>
+    <filter-class>
+  	com.phoenix.authentication.AuthorizationFilter
+  	</filter-class>
+  </filter>
+  
+  <filter-mapping>
+  	<filter-name>rememberMeFilter</filter-name>
+  	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <filter-mapping>
+    <filter-name>authenticationFilter</filter-name>
+    <url-pattern>/login/*</url-pattern>
+  </filter-mapping>
+  
+  <filter-mapping>
+    <filter-name>authorizationFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  <error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/ErrorHandler</location>
+  </error-page>
+  
+  <servlet>
+    <servlet-name>PhoenixExceptionHandler</servlet-name>
+    <servlet-class>com.phoenix.authentication.PhoenixExceptionHandler</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>PhoenixExceptionHandler</servlet-name>
+    <url-pattern>/ErrorHandler</url-pattern>
+  </servlet-mapping>
+</web-app>

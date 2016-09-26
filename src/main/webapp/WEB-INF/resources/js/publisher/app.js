@@ -8,7 +8,7 @@ app.controller('publisher', ['$rootScope', '$scope','userService', 'ngProgressFa
 	$rootScope.progress = ngProgressFactory.createInstance();
 	$rootScope.progress.setParent(document.getElementById('pageLoadingBar'));
 	$rootScope.progress.setHeight('6px');
-	$rootScope.progress.setColor('#F66D7A');
+	$rootScope.progress.setColor('#ec3543');
 	$rootScope.progress.start();
 	$rootScope.notification = {message : "هیچ اعلانی وجود ندارد.", count : 0};
 	$rootScope.globalMessage = "";

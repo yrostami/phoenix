@@ -1,7 +1,11 @@
 @font-face {
   font-family: 'phoenix';
   src: url('../font/icon.eot?91068025');
-  src: url('../font/icon.woff2?91068025') format('woff2');
+  src: url('../font/icon.eot?91068025#iefix') format('embedded-opentype'),
+       url('../font/icon.woff2?91068025') format('woff2'),
+       url('../font/icon.woff?91068025') format('woff'),
+       url('../font/icon.ttf?91068025') format('truetype'),
+       url('../font/icon.svg?91068025#phoenix') format('svg');
   font-weight: normal;
   font-style: normal;
 }

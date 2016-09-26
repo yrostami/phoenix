@@ -17,14 +17,13 @@ body
 padding: 0px;
 width: 330px;
 margin:  auto;
-margin-top: 16%;
+margin-top: 150px;
 background-color: white;
-border: 2px solid	rgb(0,171,189);
-border-radius: 10px;
 }
 
 #header
 {
+	width: 100%;
 	display: table;
     padding: 0px;
     border-width: 0px;
@@ -33,9 +32,6 @@ border-radius: 10px;
     padding-top: 20px;
     padding-bottom:20px;
     background-color:  	rgb(0,171,189);
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
-    width: 100%;
 }
 
 .icon-container
@@ -45,8 +41,8 @@ border-radius: 10px;
 	height: 45px;
 	margin-right: 10px;
 	border-radius: 27px;
-	background-color: #F66D7A;
-	color: white;
+	background-color: white;
+	color: #ec3543;
 	text-align: center;
 	font-size: 30px;
 }
@@ -67,7 +63,7 @@ border-radius: 10px;
 
 #content
 {
-    width: 50%;
+    width: 60%;
     margin:0px auto;
     padding: 0px;
 }
@@ -83,28 +79,31 @@ label
 .errorMessage
 {
     color: red;
+    font-size: 15px;
 }
 
 .textinput
 {
     width: 100%;
     height: 30px;
-    border-radius: 5px;
     padding-right: 5px;
     margin-top:7px;
     margin-bottom: 10px;
     font-family: bmitra;
     font-size: 18px;
-    border: 2px solid #F66D7A;
+    border: none;
+    border-top: 2px solid #00abbd;
+    border-bottom: 2px solid #00abbd;
 }
 
 .textinput:focus{
     background-color: rgba(0,171,189,0.2);
+    border-color: #ec3543;
     
 }
 
 .error {
-  border:2px solid red;
+  border-color:red;
 }
 
 #buttonContainer
@@ -118,21 +117,19 @@ margin-bottom:20px;
 #button
 {
     width: 100%;
-    color: ivory;
+    color: white;
     font-family: bmitra;
     font-size: 20px;
     font-weight: bold;
     height: 40px;
-    border-radius: 5px;
     cursor: pointer;
-    color: rgb(246,109,122);
-    background-color: rgba(0,171,189,0.2);
-    border:2px solid rgb(246,109,122);
+    background-color: rgb(0,171,189);
+    border: none;
 }
 
 #button:hover
 {
-    background-color: #F66D7A;
+    background-color: #ec3543;
     color: white;
 }
 
@@ -147,7 +144,7 @@ margin-bottom:20px;
 #forget a:hover
 {
     color: white;
-    background-color:#F66D7A;
+    background-color:#ec3543;
 }
 
 #footer
@@ -158,6 +155,4 @@ margin-bottom:20px;
     color: white;
     text-decoration: none;
     margin-bottom: 0px;
-    border-bottom-left-radius: 7px;
-    border-bottom-right-radius: 7px;
 }

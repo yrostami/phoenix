@@ -27,7 +27,7 @@ body
 
 #pageLoading h3,h5{
 	margin:0px auto;
-	color: rgb(0,171,189);
+	color: #008291;
 	badding: 0px;
 }
 
@@ -56,7 +56,7 @@ body
 .notification-icon{
 	float: right;
 	margin: 7px 20px 0px 0px;  
-	color: #F66D7A;
+	color: #ec3543;
 	font-size: 25px;
 	position: relative;
 	cursor: default;
@@ -96,9 +96,9 @@ body
 	width: 45px;
 	height: 45px;
 	border-radius: 25px;
-	border: 1px solid #F66D7A;
+	border: 1px solid #ec3543;
 	background-color: white;
-	color: #F66D7A;
+	color: #ec3543;
 	text-align: center;
 	font-size: 30px;
 	cursor: default;
@@ -108,7 +108,7 @@ body
 
 .icon-container:hover
 {
-	background-color: #F66D7A;
+	background-color: #ec3543;
 	color: white;
 }
 
@@ -118,8 +118,8 @@ body
 	height: 25px;
 	border-radius: 12.5px;
 	background: none;
-	border:1px solid #F66D7A;
-	color: #F66D7A;
+	border:1px solid #ec3543;
+	color: #ec3543;
 	text-align: center;
 	font-size: 18px;
 	cursor: default;
@@ -198,11 +198,11 @@ body
 }
 
 .popup-item:hover{
-	background-color: rgba(0,171,189,0.15);
+	background-color: rgba(0,171,189,0.25);
 }
 
 .popup-item span{
-	color: #F66D7A;
+	color: #ec3543;
 	margin-right: 5px;
 }
 
@@ -237,20 +237,20 @@ body
 	height: auto;
 	text-align: center;
 	font-size: 22px;
-	color: rgb(0,171,189);
+	color: #008291;
 	background-color: white;
 	cursor: pointer;
 	border-top: 5px solid rgb(0,171,189);
 }
 
 .tab:hover{
-	color: rgb(246,109,122);
+	color: #ec3543;
 }
 
 #tabs .selected{
-	background-color: rgba(246,109,122,0.15);
-	border-color: #F66D7A;
-	color: #F66D7A;
+	background-color: rgba(236,53,67,0.2);
+	border-color: #ec3543;
+	color: #ec3543;
 	cursor: default;
 }
 .tabContent{
@@ -262,22 +262,22 @@ body
 	background-color: white;
 	-webkit-animation: fadeIn 0.6s;
     animation: fadeIn 0.6s;
-   	height: 650px;
+   	height: 550px;
 }
 
 .list{
 	width: 240px;
-	height: 600px;
+	height: 500px;
 	float: right;
 	margin: 25px;
 	margin-left: 0px;
 	margin-top: 0px;
 	max-width: 240px;
-	max-height: 600px;
+	max-height: 500px;
 	overflow-y: auto;
 	overflow-x: hidden;
-	border-top: 2px solid #F66D7A;  	
-	border-bottom: 2px solid #F66D7A;
+	border-top: 2px solid #ec3543;  	
+	border-bottom: 2px solid #ec3543;
 }
 
 
@@ -296,15 +296,15 @@ body
 	height: 30px;
 	float: right;
 	padding-top: 5px;
-	color: #F66D7A;
-	background-color: #FDE9EB;
+	color: #ec3543;
+	background-color: rgba(236,53,67,0.2);
 	font-size: 20px;
 	cursor: pointer;
 }
 
 .list-item .item-modal-btn:hover{
 	color: white;
-	background-color: #F66D7A;
+	background-color: #ec3543;
 }
 
 .item-name {
@@ -312,12 +312,12 @@ body
 	width: 205px;
 	height: 35px;
 	float: right;
-	color: rgb(0,171,189);
+	color: #008291;
 	text-align: right;
 	font-size: 20px;
 	cursor: pointer;
 	padding-right: 5px;
-	background-color: #D9F2F5;
+	background-color: #bce8ed;
 }
 
 .wide-item{
@@ -325,24 +325,24 @@ body
 }
 
 .item-name:hover{
-	color:#F66D7A;
+	color:#ec3543;
 }
 
 .list-item .selected{
-	color:#F66D7A;
-	background-color: rgba(246,109,122,0.15);
+	color:#ec3543;
+	background-color: rgba(236,53,67,0.2);
 	cursor: default;
 }
 
 .list-item-content{
 	float: right;
 	width: 585px;
-	height: 600px;
-	max-height: 600px;
+	height: 500px;
+	max-height: 500px;
 	overflow-y: auto;
 	overflow-x: hidden;
-	border-top: 2px solid #F66D7A;
-	border-bottom: 2px solid #F66D7A;
+	border-top: 2px solid #ec3543;
+	border-bottom: 2px solid #ec3543;
 	margin: 25px;
 	margin-top: 0px;
 	margin-bottom: 0px;
@@ -351,7 +351,7 @@ body
 .accordion-item{
 	width: 585px;
 	max-width: 575px;
-	color: rgb(0,171,189);
+	color: #008291;
 	font-size: 20px;
 	float: right;
 	margin-top: 5px;
@@ -365,12 +365,12 @@ body
 .accordion-item-info{
 	width: 80%;
 	height:35px;
-	background-color: #D9F2F5;
+	background-color: #bce8ed;
 	float: right;
 }
 
 .accorrdion-open , .accordion-item-info:hover{
-	color: #F66D7A;
+	color: #ec3543;
 }
 
 .btn-icon{
@@ -389,16 +389,16 @@ body
 }
 
 .follow-btn{
-	background-color: #FDE9EB;
+	background-color: rgba(236,53,67,0.2);
 	width:20%;
 	height: 35px;
-	color: #F66D7A;
+	color: #ec3543;
 	float: right;
 	display: block;
 }
 
 .follow-btn:hover{
-	background-color: #F66D7A;
+	background-color: #ec3543;
 	color: white;
 }
 
@@ -425,7 +425,7 @@ body
 	}
 
 .accordion-item-show{
-	background-color: #F2FAFB;
+	background-color: #e1f4f7;
 	margin-top: 5px; 
 	padding-top: 15px;
 	padding-bottom: 15px;
@@ -470,7 +470,7 @@ body
 }
 
 .button:hover{
-	background-color: #F66D7A;
+	background-color: #ec3543;
 }
 
 .input{
@@ -489,14 +489,14 @@ body
 	display: block;
 	margin-top: 10px;
 	font-size: 18px;
-	color: rgb(0, 171, 189);
+	color: #008291;
 	font-weight: 500;
 }
 
 .input:focus{
-	background-color: #D9F2F5;
-	border-top: 2px solid #F66D7A;
-	border-bottom: 2px solid #F66D7A;
+	background-color: #bce8ed;
+	border-top: 2px solid #ec3543;
+	border-bottom: 2px solid #ec3543;
 }
 
 .texterea{
@@ -508,10 +508,10 @@ body
 
 .form-container{
 	width: 600px;
-	height: 600px;
+	height: 500px;
 	margin: auto;
-	border-top: 2px solid #F66D7A;
-	border-bottom: 2px solid #F66D7A;
+	border-top: 2px solid #ec3543;
+	border-bottom: 2px solid #ec3543;
 	margin-top: 42px;
 	-webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
@@ -534,7 +534,7 @@ body
 }
 
 .form-btn:hover{
-	background-color: #F66D7A;
+	background-color: #ec3543;
 }
 
 .buttons-bar{

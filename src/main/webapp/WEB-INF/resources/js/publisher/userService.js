@@ -14,7 +14,7 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 		if(response.status == 406) 
 			return " انجام نشد. خطا: اطلاعات فرستاده شده قابل قبول نیست.";
 		else
-			return " انجام نشد. خطا: انجام نشد." + "\nstatus : " + response.status.toString();
+			return " انجام نشد. خطا: انجام نشد." + "\nstatus : " + response.status;
 	};
 	
 	var services = {
@@ -86,15 +86,25 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 				    return deferred.promise;
 				});
 		},
-		sendPost : function(newPost){
+		sendPost : function(postData, boardId, fileFlag){
 		    var deferred = $q.defer();
+		    var URL = '/phoenix/publisher/' + boardId + '/post';
+		    var formData = new FormData();
+		    var newPostBlob = new Blob([angular.toJson(postData.boardPost)],
+			    {type: 'application/json'});
+	                formData.append("boardPost", newPostBlob);
+	                formData.append("file", postData.file);
 		    return $http({
 			method:'POST',
-			url: '/phoenix/publisher/boardpost',
-			headers:{'Content-Type':false},
-			transformRequest: function(data){},
-			data: newPost
-		    }).then(function success(response){
+			url: URL,
+			headers:{'Content-Type': undefined},
+			transformRequest: angular.identity,
+//			transformRequest: function(data){
+//			    
+//		                return formData;
+//			},
+			data: formData })
+			.then(function success(response){
 			deferred.resolve(response.data);
 	                return deferred.promise;
 		    	}, 

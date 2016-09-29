@@ -28,3 +28,10 @@ function validation() {
     return flag;
 }
 
+var checkBoxOnClick = function(checkBoxId,labelId){
+
+    var checkBox = document.getElementById(checkBoxId); 
+    var label = document.getElementById(labelId);
+    if(checkBox.checked) label.classList.add("checked");
+    else label.classList.remove("checked");
+}

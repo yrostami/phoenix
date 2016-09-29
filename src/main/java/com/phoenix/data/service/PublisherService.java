@@ -2,6 +2,8 @@ package com.phoenix.data.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.phoenix.data.entity.BoardCategory;
 import com.phoenix.data.entity.BoardInfo;
 import com.phoenix.data.entity.BoardPost;
@@ -15,4 +17,5 @@ public interface PublisherService {
 	public void savePost(BoardPost newPost);
 	public List<UserInfo> getChannelSubscribers();
 	public boolean isValid(BoardCategory category);
+	public boolean saveFile(MultipartFile file, String path);
 }

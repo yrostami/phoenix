@@ -105,27 +105,39 @@
 			<i class="demo-icon  icon-plus-1"></i>
 			</div>
 			<span>
-			ایجاد برد جدید 
+			برد اطلاع رسانی جدید 
 			</span>
 			</div>
+			
 		</div>
 			<div class="list">
 			<div class="list-item" ng-repeat="board in user.myBoards">
 				<div class="item-modal-btn" ng-click="showMyBoardInfo($index)">
 					<i class="demo-icon icon-ellipsis-vert"></i>
 				</div>
-				<span class="item-name" ng-click="showMyPosts($index)">
+				<span id="myBoard{{$index}}" class="item-name" ng-click="selectBoard($index)">
 					{{board.name}}
 				</span>
 			</div>	
 			</div>
 			
-			<div id="myBoradPostPane" class="list-item-content"></div>			
+			<div id="myBoradPostPane" class="list-item-content">
+				<div class="buttons-bar">
+				<div class="button" ng-click="showNewPostPanel()">
+					<div class="btn-icon">
+						<i class="demo-icon  icon-plus-1"></i>
+					</div>
+					<span>
+						نصب اطلاعیه جدید روی برد
+					</span>
+				</div>
+			</div>
+			</div>			
 			
 		</div>
 		
 		<div class="form-container" ng-show="newBoardPanelShow">
-			<div class="fom-content">
+			<div class="form-content">
 			<label class="label">&rsaquo; نام برد اطلاع رسانی جدید:</label>
 			<input ng-model="newBoard.name" class="input" type="text" placeholder="نام را اینجا وارد کنید">
 			<label class="vlidation-message" ng-hide="validationMessageHide[0]">&rsaquo; نام برد اطلاع رسانی باید شامل حداقل پنج و حداکثر صد حرف باشد.</label>
@@ -146,7 +158,39 @@
 						منصرف شدم
 					</span>
 				</div>
-				<div class="form-btn" ng-click="validationAndSend()">
+				<div class="form-btn" ng-click="newBoardValidationAndSend()">
+					<span>
+						ایجاد کن
+					</span>
+				</div>
+			</div>
+		</div>
+		
+		<div class="form-container" ng-show="newPostPanelShow">
+			<div class="form-content">
+				<label class="label">&rsaquo; عنوان اطلاعیه:</label>
+				<input ng-model="newPost.title" class="input" type="text" placeholder="عنوان اطلاعیه را اینجا وارد کنید">
+				<label class="vlidation-message" ng-hide="validationMessageHide[0]">&rsaquo; عنوان اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 150 حرف باشد.</label>
+				<label class="label">&rsaquo; متن اطلاعیه:</label>
+			<textarea ng-model="newPost.content" class="input texterea" rows="5" cols="40" maxlength="1500" placeholder="متن اطلاعیه را اینجا بنویسید ..." ></textarea>
+			<label class="vlidation-message" ng-hide="validationMessageHide[1]">&rsaquo; متن اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 1500 حرف باشد.</label>
+ 				<div id="imageCheckDiv" class="checkbox"><input type="checkbox" id="imageCheck" ng-click="checked('imageCheck')">پیوست عکس</div>
+ 				<div id="fileCheckDiv" class="checkbox"><input type="checkbox" id="fileCheck" ng-click="checked('fileCheck')">پیوست فایل</div>
+				<div id="uploadInput" class="file-upload-container">
+					<div class="form-btn file-upload"> 
+    					<span>{{uploadInputTitle}}</span>
+    					<input id="uploadFile" type="file" class="upload" file-upload>
+					</div>
+					<label>{{fileName}}</label>
+				</div>
+			</div>
+			<div class="buttons-bar">
+				<div class="form-btn" ng-click="hideNewPostPanel()">
+					<span>
+						منصرف شدم
+					</span>
+				</div>
+				<div class="form-btn" ng-click="newPostValidationAndSend()">
 					<span>
 						ایجاد کن
 					</span>

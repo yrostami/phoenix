@@ -16,6 +16,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 @Configuration
 @EnableTransactionManagement
@@ -59,10 +60,19 @@ public class ApplicationConfig {
 		txManager.setSessionFactory(s);
 		return txManager;
 	}
+	
 	@Bean
 	public HttpHeaders responseHeader(){
 	HttpHeaders responseTypeHeader = new HttpHeaders();
 	responseTypeHeader.add("Content-Type", "application/json; charset=utf-8");
     return responseTypeHeader;
 	}
+	
+	@Bean
+	public CommonsMultipartResolver multipartResolver() {
+	    CommonsMultipartResolver resolver=new CommonsMultipartResolver();
+	    resolver.setDefaultEncoding("utf-8");
+	    return resolver;
+	}
+	
 }

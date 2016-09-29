@@ -54,7 +54,7 @@
                 <input class="textinput" id="password" name="password" type="password" minlength="8" maxlength="50" required />
                 <label class="errorMessage" id="passwordValidationErrorMessage">
                 </label>
-                <input id="checkbox" name="rememberMe" type="checkbox" ><label>مرا به یاد داشته باش.</label>
+                <input id="remeberMeCheckBox" name="rememberMe" onclick="checkBoxOnClick('remeberMeCheckBox','remeberMeLabel');" type="checkbox" ><label id="remeberMeLabel">مرا به یاد داشته باش.</label>
             </div>
             <br/>
             <div id="buttonContainer">

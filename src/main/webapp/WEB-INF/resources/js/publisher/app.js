@@ -87,10 +87,8 @@ app.directive('fileUpload', function () {
         link: function (scope, el, attrs) {
             el.bind('change', function (event) {
                 var files = event.target.files;
-
-                for (var i = 0;i<files.length;i++) {
-                    scope.$emit("fileSelected", { file: files[i] });
-                }                                       
+                console.log("file.name");
+                scope.$emit("fileSelected", { file: files[0] });                      
             });
         }
     };

@@ -67,7 +67,7 @@ public class PublisherController {
 	@RequestMapping(value = "/{boardId}/post", method = RequestMethod.POST)
 	public ResponseEntity<BoardPost> addPost(HttpSession session, @PathVariable int boardId,
 			@RequestPart("file") MultipartFile file ,
-			@Valid @RequestPart("boardPost") BoardPost newPost, Errors error) throws ValidationException 
+			@RequestPart("boardPost") BoardPost newPost, Errors error) throws ValidationException 
 	{
 		if (!error.hasErrors())
 		{

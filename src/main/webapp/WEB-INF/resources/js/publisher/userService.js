@@ -86,7 +86,7 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 				    return deferred.promise;
 				});
 		},
-		sendPost : function(postData, boardId, fileFlag){
+		sendPost : function(postData, boardId){
 		    var deferred = $q.defer();
 		    var URL = '/phoenix/publisher/' + boardId + '/post';
 		    var formData = new FormData();
@@ -99,10 +99,6 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 			url: URL,
 			headers:{'Content-Type': undefined},
 			transformRequest: angular.identity,
-//			transformRequest: function(data){
-//			    
-//		                return formData;
-//			},
 			data: formData })
 			.then(function success(response){
 			deferred.resolve(response.data);
@@ -112,6 +108,20 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 		    	    deferred.reject(getErrorMessage(response));
 		    	    return deferred.promise;
 		    	});
+		},
+		
+		getSystemInfo: function(){
+		    var deferred = $q.defer();
+		    return $http({method:'GET', url:'/phoenix/subscriber/systeminfo'})
+		    .then(function success(response){
+			deferred.resolve(response.data);
+			return deferred.promise;
+		    },
+		    function fail(response){
+			deferred.reject(getErrorMessage(response));
+		    	return deferred.promise;
+		    });
+		    return $http();
 		}
 	};
 	 return services;

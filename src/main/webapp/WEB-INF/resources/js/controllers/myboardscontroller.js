@@ -1,8 +1,5 @@
-app.controller('myboardscontroller', [
-		'$scope',
-		'$rootScope',
-		'userService',
-		function($scope, $rootScope, userService)
+app.controller('myboardscontroller', 
+	['$scope','$rootScope','userService', function($scope, $rootScope, userService)
 		{
 			$scope.newBoardPanelShow = false;
 			$scope.newPostPanelShow = false;
@@ -10,29 +7,36 @@ app.controller('myboardscontroller', [
 			var firstNewBoardCreate = true;
 			$scope.newBoard = {};
 			$scope.newPost = {};
-			$scope.selectedItemValue= "-1"; //new board select element item index
+			$scope.selectedItemValue= "-1"; // new board select
+							// element item index
 			$scope.validationMessageHide= [true,true,true];
 			$scope.selectFirstOptionShow = true;
 			$scope.file = {};
 			$scope.fileName = "هیچ فایلی انتخاب نشده است";
 			$scope.boardIndex = -1;
-			    
-			
+			$scope.loaderShow = true;
+			$scope.boardContentShow = false;
+		
 			$scope.selectBoard = function(index){
-			    if($scope.boardIndex == -1)
-				document.getElementById("myBoard"+index).classList.add('selected');
-			    else{
-			    document.getElementById("myBoard"+$scope.boardIndex).classList.remove('selected');
-			    document.getElementById("myBoard"+index).classList.add('selected');
-			    }
-			    $scope.boardIndex = index;
-			    $scope.selectedBoard = $rootScope.user.myBoards[index];
+//			    if(index !== $scope.boardIndex)
+//			    {
+				if($scope.boardIndex == -1)
+				    $rootScope.classEditor.add(document.getElementById("myBoard"+index), 'selected');
+				else{
+				    $rootScope.classEditor.remove(document.getElementById("myBoard"+$scope.boardIndex), 'selected')
+				    $rootScope.classEditor.add(document.getElementById("myBoard"+index), 'selected');
+				}
+				$scope.boardIndex = index;
+				$scope.selectedBoard = $rootScope.user.myBoards[index];
 			    
-			    if($scope.selectedBoard.posts == undefined || $scope.selectedBoard.posts == null)
-			    {
-				$scope.selectedBoard.posts = [];
-				//load board posts ...
-			    }
+				if($scope.selectedBoard.posts == undefined || $scope.selectedBoard.posts == null)
+				{
+				    $scope.selectedBoard.posts = [];
+					// load board posts ...
+				    
+			    	}
+				$scope.loaderShow = !$scope.loaderShow;
+//			    }
 			}
 
 			// توابع مربوط به ایجاد برد جدید
@@ -98,7 +102,7 @@ app.controller('myboardscontroller', [
 								$scope.hideNewBoardPanel();
 							},
 							function fail(msg){
-								$rootScope.globalMessage = msg;
+								$rootScope.showGlobalMsg("ایجاد برد چدید انجام نشد."+"\n"+msg, 5);
 								$rootScope.progress.complete();
 							});
 				}
@@ -111,16 +115,39 @@ app.controller('myboardscontroller', [
 			            $scope.fileName = args.file.name;
 				        });
 				    });
+			$scope.$on("fileSelectedError", function (event, args) {
+			    $scope.$apply(function () {            
+			            $rootScope.showGlobalMsg("مرورگر internet explorer در نسخه های پایین تر از 10 از پیوست فایل پشتیبانی نمی کند. لطفا از مرورکر دیکری استفاده کنید.", 5);
+				        });
+				    });
+			
+			$scope.uploadStrogeMsgShow = function(){
+			    var show = false;
+			    if($rootScope.systemInfo !== undefined )
+			    {
+				var stroge = $rootScope.systemInfo.maxStroge - $rootScope.user.strogeUsage;
+				if(stroge !== 0)
+				{  
+				var B = stroge % (1024*1024);
+				stroge = stroge - B;
+				var MB = (stroge/1024)/1024;
+				var KB = (B - (B % 1024)) / 1024;
+				$scope.strogeSize = "حداکثر فضای آپلود شما: " + MB + "MB, " + KB +"KB";  
+				show = true;
+				}
+			    }
+			    return show;
+			}
 			
 			$scope.showNewPostPanel = function()
 			{
 			    $scope.myBoardsMainPanelShow = false;
 			    $scope.newPostPanelShow = true;
-			    document.getElementById("imageCheckDiv").style.display = 'inline-block';
-			    document.getElementById("fileCheckDiv").style.display = 'inline-block';
 			    document.getElementById("imageCheck").checked = false;
 			    document.getElementById("fileCheck").checked = false;
-			    document.getElementById("uploadInput").style.display = 'none';
+			    $scope.imageCheckShow = true;
+			    $scope.fileCheckShow = true;
+			    $scope.fileUploadShow = false;
 			    
 			}
 			
@@ -135,26 +162,22 @@ app.controller('myboardscontroller', [
 			
 			$scope.checked = function(checkId)
 			{
-			    var imageCheckDiv = document.getElementById("imageCheckDiv");
-			    var fileCheckDiv = document.getElementById("fileCheckDiv");
-			    var uploadInput = document.getElementById("uploadInput");
-			    uploadInput.style.display = 'none';
-			    imageCheckDiv.style.display = 'inline-block';
-			    fileCheckDiv.style.display = 'inline-block';
+			    $scope.file = {};
+			    $scope.imageCheckShow = true;
+			    $scope.fileCheckShow = true;
+			    $scope.fileUploadShow = false;
 			    if(checkId == "imageCheck" && document.getElementById("imageCheck").checked){
-				fileCheckDiv.style.display = 'none';
+				$scope.fileCheckShow = false;
 				$scope.uploadInputTitle = "انتخاب عکس";
-				uploadInput.style.display = 'block';
-				$scope.file = {};
+				$scope.fileUploadShow = true;
 				$scope.fileName = "هیچ عکسی انتخاب نشده است";
 				document.getElementById("uploadFile").setAttribute("accept","image/*");
 			    }
 			    else 
 				if(checkId == "fileCheck" && document.getElementById("fileCheck").checked){
-				imageCheckDiv.style.display = 'none';
+				$scope.imageCheckShow = false;
 				$scope.uploadInputTitle = "انتخاب فایل";
-				uploadInput.style.display = 'block';
-				$scope.file = {};
+				$scope.fileUploadShow = true;
 				$scope.fileName = "هیچ فایلی انتخاب نشده است";
 				document.getElementById("uploadFile").setAttribute("accept","");
 			    }
@@ -172,12 +195,6 @@ app.controller('myboardscontroller', [
 					isValid = false;
 					$scope.validationMessageHide[1] = false; 
 				}
-				
-				if($scope.file === {})
-				    $scope.sendFile = false;
-				else
-				    $scope.sendFile = true;
-				return isValid;
 			}
 			
 			$scope.newPostValidationAndSend = function(){
@@ -185,15 +202,16 @@ app.controller('myboardscontroller', [
 				$rootScope.progress.start();
 				$scope.newPost.boardId = $rootScope.user.myBoards[$scope.boardIndex].id;
 				var postData = { boardPost : $scope.newPost, file : $scope.file};
-				userService.sendPost(postData, $scope.newPost.boardId, $scope.sendFile).then(
+				userService.sendPost(postData, $scope.newPost.boardId).then(
 					function success(data){
 					    	$scope.selectedBoard.posts.push(data);
 						$rootScope.progress.complete();
 						$rootScope.globalMessage = "انجام شد.";
-						$scope.hideNewBoardPanel();
+						if($scope.file !== {}) $rootScope.user.strogeUsage;
+						$scope.hideNewPostPanel();
 					},
 					function fail(msg){
-						$rootScope.globalMessage = msg;
+					    	$rootScope.showGlobalMsg("نصب اطلاعیه جدید انجام نشد."+"\n"+msg, 5);
 						$rootScope.progress.complete();
 					});
 			    }

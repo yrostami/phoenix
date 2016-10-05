@@ -43,6 +43,9 @@ public class UserInfo {
 	@JsonIgnore
 	@Column(name="role")
 	private String role;
+	
+	@Column(name="stroge_usage")
+	private long strogeUsage;
 
 	public int getId() {
 		return id;
@@ -89,6 +92,14 @@ public class UserInfo {
 		this.role = role;
 	}
 
+	public long getStrogeUsage() {
+		return strogeUsage;
+	}
+
+	public void setStrogeUsage(long strogeUsage) {
+		this.strogeUsage = strogeUsage;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -97,6 +108,7 @@ public class UserInfo {
 		result = prime * result + id;
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		result = prime * result + (int) (strogeUsage ^ (strogeUsage >>> 32));
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
 	}
@@ -127,6 +139,8 @@ public class UserInfo {
 				return false;
 		} else if (!role.equals(other.role))
 			return false;
+		if (strogeUsage != other.strogeUsage)
+			return false;
 		if (username == null) {
 			if (other.username != null)
 				return false;
@@ -137,9 +151,10 @@ public class UserInfo {
 
 	@Override
 	public String toString() {
-		return "UserInfo [id=" + id + ", username=" + username + ", password=" + password + ", displayName="
-				+ displayName + ", role=" + role + "]";
+		return "UserInfo [id=" + id + ", username=" + username + ", displayName=" + displayName + ", role=" + role
+				+ ", strogeUsage=" + strogeUsage + "]";
 	}
+
 
 	
 }

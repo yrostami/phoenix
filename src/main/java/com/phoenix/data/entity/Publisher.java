@@ -55,6 +55,9 @@ public class Publisher
 	@Fetch(FetchMode.JOIN)
 	private List<BoardPost> newPosts;
 
+	@Column(name="stroge_usage")
+	private long strogeUsage;
+
 	public int getId() {
 		return id;
 	}
@@ -111,6 +114,14 @@ public class Publisher
 		this.newPosts = newPosts;
 	}
 
+	public long getStrogeUsage() {
+		return strogeUsage;
+	}
+
+	public void setStrogeUsage(long strogeUsage) {
+		this.strogeUsage = strogeUsage;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -120,6 +131,7 @@ public class Publisher
 		result = prime * result + ((myBoards == null) ? 0 : myBoards.hashCode());
 		result = prime * result + ((newPosts == null) ? 0 : newPosts.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		result = prime * result + (int) (strogeUsage ^ (strogeUsage >>> 32));
 		result = prime * result + ((subscribedBoards == null) ? 0 : subscribedBoards.hashCode());
 		result = prime * result + ((username == null) ? 0 : username.hashCode());
 		return result;
@@ -156,6 +168,8 @@ public class Publisher
 				return false;
 		} else if (!role.equals(other.role))
 			return false;
+		if (strogeUsage != other.strogeUsage)
+			return false;
 		if (subscribedBoards == null) {
 			if (other.subscribedBoards != null)
 				return false;
@@ -172,7 +186,8 @@ public class Publisher
 	@Override
 	public String toString() {
 		return "Publisher [id=" + id + ", username=" + username + ", displayName=" + displayName + ", role=" + role
-				+ ", myBoards=" + myBoards + ", subscribedBoards=" + subscribedBoards + "]";
+				+ ", myBoards=" + myBoards + ", subscribedBoards=" + subscribedBoards + ", newPosts=" + newPosts
+				+ ", strogeUsage=" + strogeUsage + "]";
 	}
 
 		

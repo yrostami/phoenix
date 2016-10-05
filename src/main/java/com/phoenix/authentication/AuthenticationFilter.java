@@ -70,7 +70,8 @@ public class AuthenticationFilter implements Filter {
 						+ " User.username = :xusername AND User.password = :xpassword");
 				query1.setParameter("xusername", username);
 				query1.setParameter("xpassword", password); 
-				List list1 = query1.getResultList();
+				@SuppressWarnings("rawtypes")
+				List list1 =query1.getResultList();
 				if (list1.size() > 0) {
 					//اگر جستجو دارای نتیجه باشد پس نام کاربری و رمزعبور معتبر است پس اطلاعات کاربر را در شی نشست قرار می دهیم
 					
@@ -79,25 +80,8 @@ public class AuthenticationFilter implements Filter {
 					httpSession.setAttribute("userId", user.getId());
 					httpSession.setAttribute("role", user.getRole());
 					
-					if( !(user.getRole().equals("Admin"))){
-						// قرار دادن لیست شناسه بردهای دنبال شده در شی نشست
-						Query query2 = session.createQuery("SELECT SB.boardId FROM SubscribedBoardInfo AS SB "
-								+ "WHERE SB.subscriberId = :xid");
-						query2.setParameter("xid", user.getId());
-						List<Integer> list2 = query2.getResultList();
-						httpSession.setAttribute("subscribedList",list2);
-						
-						// قرار دادن لیست بردهای کاربرمنتشر کننده در شی نشست
-						if(user.getRole().equals("Publisher")){
-							Query query3 = session.createQuery("SELECT B.id FROM BoardInfo AS B "
-									+ "WHERE B.publisherId = :xid");
-							query3.setParameter("xid", user.getId());
-							List<Integer> list3= query3.getResultList();
-							httpSession.setAttribute("boardsList", list3);
-						}
-						
 						// انجام عمل "مرا به یاد داشته باش" برای کاربری که این گزینه را انتخاب کرده باشد
-						if (rememberMe) {
+						if (rememberMe && !user.getRole().equals("Admin")) {
 							HttpServletResponse httpResponse = (HttpServletResponse) response;
 							RememberInfo rememberInfo = Remember(httpRequest, user);
 							session.save(rememberInfo);
@@ -106,7 +90,7 @@ public class AuthenticationFilter implements Filter {
 							rememberCookie.setPath("/");
 							httpResponse.addCookie(rememberCookie);
 						}
-					}
+					
 				}
 				tx.commit();
 			} catch (Exception ex) {
@@ -124,8 +108,7 @@ public class AuthenticationFilter implements Filter {
 			rememberData += request.getHeader("User-Agent");
 		SecureRandom random = new SecureRandom();
 		String cookieName = new String(random.nextInt() + "_RMT");
-		MD5Hash hash = new MD5Hash();
-		String rememberToken = hash.getHashFrom(rememberData);
+		String rememberToken = MD5Hash.getHashFrom(rememberData);
 		RememberInfo rememberInfo = new RememberInfo();
 		rememberInfo.setUserId(user.getId());
 		rememberInfo.setUserRole(user.getRole());

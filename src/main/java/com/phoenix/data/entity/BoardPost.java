@@ -1,16 +1,20 @@
 package com.phoenix.data.entity;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -34,7 +38,7 @@ public class BoardPost {
 	
 	@JsonIgnore
 	@Column(name="creation_date")
-	private Date CreationDate;
+	private Timestamp CreationDate;
 	
 	@NotBlank(message="عنوان اطلاعیه نباید خالی باشد.")
 	@Length(max=150,message="عنوان اطلاعیه باید حداکثر شامل 150 حرف باشد.")
@@ -47,15 +51,10 @@ public class BoardPost {
 	private String content;
 	
 	@JsonIgnore
-	@Column(name="file_path", length=150)
-	private String filePath;	
-	
-	
-//	@NotBlank(message="نوع سند پیوست نباید خالی باشد.")
-//	@Length(max=10,message="نوع سند پیوست باید حداکثر شامل 10 حرف باشد.")
-	@JsonIgnore
-	@Column(name="file_type", length=50)
-	private String fileType;
+	@OneToOne
+	@JoinColumn(name="file_id")
+	@Fetch(FetchMode.JOIN)
+	private FileInfo fileInfo;
 
 	public long getId() {
 		return id;
@@ -69,25 +68,26 @@ public class BoardPost {
 		return BoardId;
 	}
 
+	
 	public void setBoardId(int boardId) {
 		BoardId = boardId;
 	}
-	
+
 	@JsonProperty
-	public Date getCreationDate() {
+	public Timestamp getCreationDate() {
 		return CreationDate;
 	}
-	
+
 	@JsonIgnore
-	public void setCreationDate(Date creationDate) {
+	public void setCreationDate(Timestamp creationDate) {
 		CreationDate = creationDate;
 	}
 
-	public String getTilte() {
+	public String getTitle() {
 		return title;
 	}
 
-	public void setTilte(String title) {
+	public void setTitle(String title) {
 		this.title = title;
 	}
 
@@ -100,23 +100,13 @@ public class BoardPost {
 	}
 
 	@JsonProperty
-	public String getFilePath() {
-		return filePath;
+	public FileInfo getFileInfo() {
+		return fileInfo;
 	}
 	
 	@JsonIgnore
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
-
-	@JsonProperty
-	public String getFileType() {
-		return fileType;
-	}
-
-	@JsonIgnore
-	public void setFileType(String fileType) {
-		this.fileType = fileType;
+	public void setFileInfo(FileInfo fileInfo) {
+		this.fileInfo = fileInfo;
 	}
 
 	@Override
@@ -126,8 +116,7 @@ public class BoardPost {
 		result = prime * result + BoardId;
 		result = prime * result + ((CreationDate == null) ? 0 : CreationDate.hashCode());
 		result = prime * result + ((content == null) ? 0 : content.hashCode());
-		result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
-		result = prime * result + ((fileType == null) ? 0 : fileType.hashCode());
+		result = prime * result + ((fileInfo == null) ? 0 : fileInfo.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
@@ -154,15 +143,10 @@ public class BoardPost {
 				return false;
 		} else if (!content.equals(other.content))
 			return false;
-		if (filePath == null) {
-			if (other.filePath != null)
+		if (fileInfo == null) {
+			if (other.fileInfo != null)
 				return false;
-		} else if (!filePath.equals(other.filePath))
-			return false;
-		if (fileType == null) {
-			if (other.fileType != null)
-				return false;
-		} else if (!fileType.equals(other.fileType))
+		} else if (!fileInfo.equals(other.fileInfo))
 			return false;
 		if (id != other.id)
 			return false;
@@ -176,8 +160,9 @@ public class BoardPost {
 
 	@Override
 	public String toString() {
-		return "BoardPost [id=" + id + ", BoardId=" + BoardId + ", CreationDate=" + CreationDate + ", tilte=" + title
-				+ ", content=" + content + ", filePath=" + filePath + ", fileType=" + fileType + "]";
+		return "BoardPost [id=" + id + ", BoardId=" + BoardId + ", CreationDate=" + CreationDate + ", title=" + title
+				+ ", content=" + content + ", fileInfo=" + fileInfo + "]";
 	}
+	
 	
 }

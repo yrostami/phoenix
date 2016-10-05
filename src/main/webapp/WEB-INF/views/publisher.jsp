@@ -8,7 +8,7 @@
 <title>سامانه اطلاع رسانی ققنوس</title>
 
 <link href="<spring:url value="/resources/css/icon.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
-<link href="<spring:url value="/resources/css/iconAnimation.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
+<%-- <link href="<spring:url value="/resources/css/iconAnimation.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/> --%>
 <link href="<spring:url value="/resources/css/phoenix.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="<spring:url value="/resources/js/angular.min.js" htmlEscape="true"/>"></script>
 <script type="text/javascript" src="<spring:url value="/resources/js/ngprogress.min.js" htmlEscape="true"/>"></script>
@@ -19,6 +19,7 @@
 
 </head>
 <body ng-app="phoenix" ng-controller="publisher" ng-cloak>
+<div id="globalMsg">{{globalMsg}}</div>
 <div id="pageLoading" ng-show="showPageLoading">
 	<h3>
 		درحال بار گذاری ...
@@ -28,6 +29,9 @@
 </div>
 
 <div id="container" ng-show="showApp">
+
+
+
 	<div id="header">
 		<div class="icon-container popup-container" ng-click="popupUserMenu('user-menu');">
 			<i class="demo-icon icon-user-2"></i>
@@ -121,7 +125,12 @@
 			</div>	
 			</div>
 			
-			<div id="myBoradPostPane" class="list-item-content">
+			<div class="list-item-content">
+			<div class="loader big-loader" ng-show="loaderShow"></div>
+			<div class="board-content" ng-show="boardContentShow">
+				<div class="post-list">
+				<div class="post-container" ng-repeat="post in selectedBoard.posts"></div>
+				</div>
 				<div class="buttons-bar">
 				<div class="button" ng-click="showNewPostPanel()">
 					<div class="btn-icon">
@@ -131,6 +140,15 @@
 						نصب اطلاعیه جدید روی برد
 					</span>
 				</div>
+				<div class="button" ng-click=" ">
+					<div class="btn-icon">
+						<i class="demo-icon  icon-plus-1"></i>
+					</div>
+					<span>
+						دیدن اطلاعیه های قدیمی تر
+					</span>
+				</div>
+			</div>
 			</div>
 			</div>			
 			
@@ -172,16 +190,19 @@
 				<input ng-model="newPost.title" class="input" type="text" placeholder="عنوان اطلاعیه را اینجا وارد کنید">
 				<label class="vlidation-message" ng-hide="validationMessageHide[0]">&rsaquo; عنوان اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 150 حرف باشد.</label>
 				<label class="label">&rsaquo; متن اطلاعیه:</label>
-			<textarea ng-model="newPost.content" class="input texterea" rows="5" cols="40" maxlength="1500" placeholder="متن اطلاعیه را اینجا بنویسید ..." ></textarea>
-			<label class="vlidation-message" ng-hide="validationMessageHide[1]">&rsaquo; متن اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 1500 حرف باشد.</label>
- 				<div id="imageCheckDiv" class="checkbox"><input type="checkbox" id="imageCheck" ng-click="checked('imageCheck')">پیوست عکس</div>
- 				<div id="fileCheckDiv" class="checkbox"><input type="checkbox" id="fileCheck" ng-click="checked('fileCheck')">پیوست فایل</div>
-				<div id="uploadInput" class="file-upload-container">
+				<textarea ng-model="newPost.content" class="input texterea" rows="5" cols="40" maxlength="1500" placeholder="متن اطلاعیه را اینجا بنویسید ..." ></textarea>
+				<label class="vlidation-message" ng-hide="validationMessageHide[1]">&rsaquo; متن اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 1500 حرف باشد.</label>
+ 				<div>
+ 					<div ng-show="imageCheckShow" class="checkbox"><input type="checkbox" id="imageCheck" ng-click="checked('imageCheck')">پیوست عکس</div>
+ 					<div ng-show="fileCheckShow" class="checkbox"><input type="checkbox" id="fileCheck" ng-click="checked('fileCheck')">پیوست فایل</div>
+				</div>
+				<div ng-show="fileUploadShow" class="file-upload-container">
 					<div class="form-btn file-upload"> 
     					<span>{{uploadInputTitle}}</span>
     					<input id="uploadFile" type="file" class="upload" file-upload>
 					</div>
 					<label>{{fileName}}</label>
+					<span ng-show="uploadStrogeMsgShow()" class="stroge-msg">{{strogeSize}}</span>
 				</div>
 			</div>
 			<div class="buttons-bar">
@@ -192,7 +213,7 @@
 				</div>
 				<div class="form-btn" ng-click="newPostValidationAndSend()">
 					<span>
-						ایجاد کن
+						نصب کن
 					</span>
 				</div>
 			</div>
@@ -244,8 +265,7 @@
 					</div>
 					
 					<div id="flwbtnwt{{$index}}" class="follow-btn hidden">
-						<div class="btn-icon animate-spin">
-							<i class="demo-icon  icon-spin4"></i>
+						<div class="loader mini-loader">
 						</div>
 						<span>
 							صبر کنید
@@ -256,12 +276,14 @@
 				<div class="accordion-item-content" id="acrdn{{$index}}">
 				<p>صاحب برد: {{board.publisher.displayName}}</p>
 				<p>درباره این برد: </p>
-				<P>{{board.about}}</P>
+				<P ng-bind-html="getMultiline(board.about);" ></P>
 				</div>
 			</div>
 		</div>
 		</div>
 	</div>
+
+	
 
 </div>
 

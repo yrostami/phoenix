@@ -3,7 +3,7 @@ package com.phoenix.authentication;
 import java.security.MessageDigest;
 
 public class MD5Hash {
-	public String getHashFrom(String text) {
+	public static String getHashFrom(String text) {
 		String hash=null;
 		try {
 			MessageDigest md;
@@ -17,7 +17,7 @@ public class MD5Hash {
 		return hash;
 	}
 
-	public String convertToHex(byte[] data) {
+	public static String convertToHex(byte[] data) {
 		StringBuffer buf = new StringBuffer();
 		for (int i = 0; i < data.length; i++) {
 			int halfbyte = (data[i] >>> 4) & 0x0F;

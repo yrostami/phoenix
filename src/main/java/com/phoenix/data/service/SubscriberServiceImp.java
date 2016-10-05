@@ -1,5 +1,9 @@
 package com.phoenix.data.service;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -12,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.phoenix.data.entity.Board;
 import com.phoenix.data.entity.BoardCategory;
-import com.phoenix.data.entity.BoardPost;
 import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.Subscriber;
+import com.phoenix.data.entity.SystemInfo;
 
 @Service
 public class SubscriberServiceImp implements SubscriberService {
@@ -70,11 +74,47 @@ public class SubscriberServiceImp implements SubscriberService {
 
 	@Transactional
 	@Override
+	public boolean isSubscribed(int userId, int boardId) {
+		boolean subscribed = false;
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("FROM SubscribedBoardInfo AS SBI "
+				+ "WHERE SBI.subscriberId = :xuserId AND SBI.boardId = :xboardId");
+		query.setParameter("xuserId", userId);
+		query.setParameter("xboardId", boardId);
+		List list = query.getResultList();
+		if(list.size()>0)
+			subscribed = true;
+		
+		return subscribed;
+	}
+
+	@Transactional
+	@Override
 	public void saveSubscribedBoardInfo(SubscribedBoardInfo sbi) {
 		Session session = sessionFactory.getCurrentSession();
 		session.save(sbi);
 	}
 	
-	
+	@Override
+	@Transactional
+	public SystemInfo getSystemInfo() {
+		SystemInfo systemInfo = null;
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("FROM SystemInfo AS S WHERE S.id = :xid");
+		query.setParameter("xid", 100);
+		List list = query.getResultList();
+		if(list.size()>0)
+			systemInfo = (SystemInfo) list.get(0);
+		return systemInfo;
+	}
 
+	@Override
+	public File getFile(String parentDir, String fileName) {
+		Path filePath = Paths.get(System.getenv("PHOENIX_UPLOADED_FILES_LOCATION")+File.separator+parentDir+File.separator+fileName);
+		System.out.println(filePath.toString());
+		if(Files.exists(filePath))
+			return filePath.toFile();
+		return null;
+	}
+	
 }

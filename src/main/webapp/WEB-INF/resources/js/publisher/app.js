@@ -1,7 +1,35 @@
 var app = angular.module('phoenix', ['ngProgress']);
-app.controller('publisher', ['$rootScope', '$scope','userService', 'ngProgressFactory' ,
-                             function($rootScope, $scope, userService,ngProgressFactory)
+app.controller('publisher', ['$sce','$rootScope', '$scope','userService', 'ngProgressFactory' ,
+                             function($sce, $rootScope, $scope, userService,ngProgressFactory)
 {	
+    $rootScope.classEditor = {
+		add : function(element, newClass){
+		    if(element.className.lastIndexOf(" ") !== (element.className.length - 1))
+			element.className += " ";
+		    element.className += newClass;
+		} ,
+		remove : function(element, className){
+		    if(element.className.indexOf(" ") !== 0)
+		    	element.className = " " + element.className;
+		    if(element.className.lastIndexOf(" ") !== (element.className.length - 1))
+			element.className += " ";
+		    element.className = element.className.replace(" " + className + " "," ");
+		},
+		contain : function(element, className){
+		    if(element.className.indexOf(" ") !== 0)
+		    	element.className = " " + element.className;
+		    if(element.className.lastIndexOf(" ") !== (element.className.length - 1))
+			element.className += " ";
+		    return !(element.className.indexOf(" " + className + " ") == -1)
+		},
+		toggle : function(element, className){
+		    if(this.contain(element, className))
+			this.remove(element, className);
+		    else 
+			this.add(element, className);
+		} 
+	};
+    
 	$scope.showPageLoading = true;
 	$scope.showApp = false;
 	$scope.abtouched = false;
@@ -11,7 +39,7 @@ app.controller('publisher', ['$rootScope', '$scope','userService', 'ngProgressFa
 	$rootScope.progress.setColor('#ec3543');
 	$rootScope.progress.start();
 	$rootScope.notification = {message : "هیچ اعلانی وجود ندارد.", count : 0};
-	$rootScope.globalMessage = "";
+	$rootScope.globalMsg = "";
 	$rootScope.user = {};
 	$rootScope.allBoards = new Array();
 	$rootScope.allCategories = new Array();
@@ -19,19 +47,27 @@ app.controller('publisher', ['$rootScope', '$scope','userService', 'ngProgressFa
 	$scope.tabsElement = [document.getElementById('news'),
 	                   document.getElementById('myBoards'),
 	                   document.getElementById('allBoards')];
-	$scope.tabsElement[0].classList.add('selected');
+	$rootScope.classEditor.add($scope.tabsElement[0],'selected');
 	
-	userService.getUser().then(function(user)
-			{
-		$rootScope.user = user;
-		$rootScope.progress.complete();
-		$scope.showPageLoading = false;
-		$scope.showApp = true;
-		$rootScope.progress.setParent(document.getElementById('progressBar'));
-		});
+	userService.getUser().then(
+		function success(user)
+		{
+		    $rootScope.user = user;
+		    userService.getSystemInfo().then(function(data){$rootScope.systemInfo=data;});
+		    $rootScope.progress.complete();
+		    $scope.showPageLoading = false;
+		    $scope.showApp = true;
+		    $rootScope.progress.setParent(document.getElementById('progressBar'));
+		},
+		function fail(msg)
+		{
+		    $rootScope.showGlobalMsg("بار گذاری اظلاعات کاربری انجام نشد." + "\n" + msg, 5);
+		}
+	);
 
 	$scope.popupUserMenu = function(popupId){
-		document.getElementById(popupId).classList.toggle("popup-content-show");
+		var popup = document.getElementById(popupId);
+		$rootScope.classEditor.toggle(popup,"popup-content-show")
 	};
 	
 	function filterAllBoards(list,list2){
@@ -44,7 +80,7 @@ app.controller('publisher', ['$rootScope', '$scope','userService', 'ngProgressFa
 			if(flag)
 				newList.push(list[i]);}
 		return newList;
-	}
+	};
 	
 	$rootScope.initAllBoards = function(){
 		$rootScope.progress.start()
@@ -55,28 +91,50 @@ app.controller('publisher', ['$rootScope', '$scope','userService', 'ngProgressFa
 				$scope.abtouched = true;
 				initTab(2);
 				$rootScope.progress.complete();
-			});
-		});
+			},
+			function fail(msg)
+			{
+			    $rootScope.showGlobalMsg("بار گذاری اظلاعات دسته بندی بردها انجام نشد." + "\n" + msg, 5);
+			    $rootScope.progress.complete();
+			}
+			);
+		},
+		function fail(msg)
+		{
+		    $rootScope.showGlobalMsg("بار گذاری اظلاعات بردها انجام نشد." + "\n" + msg, 5);
+		    $rootScope.progress.complete();
+		}
+		);
 	};
 	
 	var initTab = function(index){
 		$scope.tabsHide = [true, true, true];
 		for (var i = $scope.tabsElement.length - 1; i >= 0; i--)
-			$scope.tabsElement[i].classList.remove('selected');
-		$scope.tabsElement[index].classList.add('selected');
+			$rootScope.classEditor.remove($scope.tabsElement[i], 'selected');
+		$rootScope.classEditor.add($scope.tabsElement[index], 'selected');
 		$scope.tabsHide[index] = false;
 	};
 	
 	$scope.openTab = function(index){
-		
 		if(index == 2 && !$scope.abtouched)
 			$rootScope.initAllBoards();		
 		else
 			initTab(index);
 	};
 	
-	var showGlobalMessage = function(){
-		alert($scope.globalMessage);
+	$rootScope.showGlobalMsg = function(msg, seconds)
+	{
+	    var x = document.getElementById("globalMsg");
+	    $rootScope.globalMsg = msg;
+	    x.className = "show";
+	    var right = ((window.innerWidth - x.offsetWidth) - 20) / 2;
+	    x.style.right =  right + "px";
+	    setTimeout(function(){x.className = x.className.replace("show", "");}, seconds * 1000);
+	};
+	
+	$rootScope.getMultiline = function(text)
+	{
+	    return $sce.trustAsHtml(text.replace(/\n/g , " <br /> "));
 	};
 	
 }]);
@@ -87,8 +145,11 @@ app.directive('fileUpload', function () {
         link: function (scope, el, attrs) {
             el.bind('change', function (event) {
                 var files = event.target.files;
-                console.log("file.name");
-                scope.$emit("fileSelected", { file: files[0] });                      
+                try{
+                scope.$emit("fileSelected", { file: files[0] });
+                }catch(e){
+                    scope.$emit("fileSelectedError", e.message);
+                }
             });
         }
     };

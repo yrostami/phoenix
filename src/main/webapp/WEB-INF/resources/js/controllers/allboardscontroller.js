@@ -5,16 +5,17 @@ app.controller('allboardscontroller', ['$rootScope', '$scope','userService',
 	$scope.listIndex = -1;
 	
 	$scope.openOrCloseAccordion = function(index){
-		document.getElementById('acrdn'+index).classList.toggle('accordion-item-show');
-		document.getElementById('acrdninfo'+index).classList.toggle('accorrdion-open');
+	    $rootScope.classEditor.toggle(document.getElementById('acrdn'+index), 'accordion-item-show');
+	    $rootScope.classEditor.toggle(document.getElementById('acrdninfo'+index), 'accorrdion-open');
 		var acrdnicn = document.getElementById('acrdnicn'+index);
-		acrdnicn.classList.toggle("icon-down-open");
-		acrdnicn.classList.toggle("icon-up-open");
+		$rootScope.classEditor.toggle(acrdnicn,"icon-down-open");
+		$rootScope.classEditor.toggle(acrdnicn,"icon-up-open")
 	};
 	
 	$scope.subscribe = function(index){
-		document.getElementById('flwbtn'+index).classList.toggle('hidden');
-		document.getElementById('flwbtnwt'+index).classList.toggle('hidden');
+	    $rootScope.classEditor.toggle(document.getElementById('flwbtn'+index), 'hidden');
+	    $rootScope.classEditor.toggle(document.getElementById('flwbtnwt'+index), 'hidden');
+	    
 		var subscribedInfo = {
 				subscriberId : $rootScope.user.id ,
 				boardId : $rootScope.allBoards[index].id
@@ -26,22 +27,23 @@ app.controller('allboardscontroller', ['$rootScope', '$scope','userService',
 				},
 				function fail(message){
 					$rootScope.globalMessage = message;
-					document.getElementById('flwbtn'+index).classList.toggle('hidden');
-					document.getElementById('flwbtnwt'+index).classList.toggle('hidden');
+					$rootScope.classEditor.toggle(document.getElementById('flwbtn'+index), 'hidden');
+					$rootScope.classEditor.toggle(document.getElementById('flwbtnwt'+index), 'hidden');
 				}
 		);
 	};
 	
 $scope.filterByCat = function(index){
-		
+	if(index !== $scope.listIndex){
 		$scope.searchBoardName = "";
 		if(index == -1)
 			$scope.filterByCatObj = {};
 		else
 			$scope.filterByCatObj = {category: {id: $scope.allCategories[index].id}};
-		document.getElementById('catItem' + $scope.listIndex).classList.remove('selected');
-		document.getElementById('catItem'+index).classList.add('selected');
+		$rootScope.classEditor.remove(document.getElementById('catItem' + $scope.listIndex), 'selected');
+		$rootScope.classEditor.add(document.getElementById('catItem'+index),'selected');
 		$scope.listIndex = index;
+		}
 	};
 
 	$scope.reload = function(){

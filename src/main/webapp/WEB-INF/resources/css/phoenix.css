@@ -486,8 +486,8 @@ body
 }
 
 .label{
-	display: inline-block;
-	margin-top: 10px;
+	display: block;
+	margin-top: 5px;
 	font-size: 18px;
 	color: #008291;
 	font-weight: 500;
@@ -557,8 +557,8 @@ body
 
 .file-upload-container{
 	height: 35px;
-	margin-top: 10px;
-	margin-bottom: 10px;
+	display: table;
+	margin-top: 5px;
 	-webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
 } 
@@ -578,10 +578,9 @@ body
 }
 
 .file-upload {
-    position: relative;
     overflow: hidden;
     width: 100px;
-    float: right;
+    position: relative;
 }
 .file-upload input.upload {
     position: absolute;
@@ -597,3 +596,86 @@ body
     float: right;
 }
 
+.file-upload-container .stroge-msg{
+	display: block;
+}
+
+#globalMsg{
+	visibility: hidden;
+    min-width: 250px; 
+    background-color: white; 
+    color: #008291; 
+    text-align: center; 
+    padding: 5px; 
+    position: fixed; 
+    z-index: 1;
+    top: 70px;
+    font-size: 18px;
+    font-weight: 500;
+    border: 1px solid #008291;
+}
+
+#globalMsg.show{
+    visibility: visible;
+    -webkit-animation: global-msg-fadein 0.6s;
+    animation: global-msg-fadein 0.6s;
+}
+
+@-webkit-keyframes global-msg-fadein {
+    from {top: 0; opacity: 0;}
+    to {top: 70px; opacity: 1;}
+}
+
+@keyframes global-msg-fadein {
+    from {top: 0; opacity: 0;}
+    to {top: 70px; opacity: 1;}
+}
+
+/* @-webkit-keyframes global-msg-fadeout {
+    from {top: 70px; opacity: 1;}
+    to {top: 0; opacity: 0;}
+}
+
+@keyframes global-msg-fadeout {
+    from {top: 70px; opacity: 1;}
+    to {top: 0; opacity: 0;}
+} */
+
+.loader{
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+
+.mini-loader{
+	float: right;
+	margin-top: 5px;
+	margin-right: 5px;
+	width: 20px;
+    height: 20px;
+    border: 2px solid #ec3543;
+    border-top: 2px solid white;
+}
+
+.follow-btn:hover .mini-loader{
+	border-color: #f2828a;
+	border-top-color: white;
+}
+
+.big-loader{
+	width: 80px;
+    height:80px;
+    border: 10px solid #FBD6D9;
+    border-top: 10px solid #EC3543;
+    margin-top: auto 0px;
+    display: block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@-webkit-keyframes spin{
+	0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

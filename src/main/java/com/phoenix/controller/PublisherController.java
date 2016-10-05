@@ -1,8 +1,7 @@
 package com.phoenix.controller;
 
-import java.io.File;
-import java.security.SecureRandom;
-import java.util.List;
+import java.io.IOException;
+import java.sql.Timestamp;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -20,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.phoenix.authentication.MD5Hash;
 import com.phoenix.data.entity.BoardInfo;
 import com.phoenix.data.entity.BoardPost;
+import com.phoenix.data.entity.FileInfo;
 import com.phoenix.data.entity.Publisher;
 import com.phoenix.data.service.PublisherService;
 
@@ -42,62 +41,56 @@ public class PublisherController {
 		if (publisher != null)
 			return new ResponseEntity<Publisher>(publisher, responseHeader, HttpStatus.OK);
 
-		return new ResponseEntity<Publisher>(publisher, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 	}
 
 	@RequestMapping(value = "/board", method = RequestMethod.POST)
 	public ResponseEntity<BoardInfo> createboard(@Valid @RequestBody BoardInfo newBoard, Errors error,
-			HttpSession session) {
+			HttpSession session) throws ValidationException 
+	{
 		System.out.print(!error.hasErrors()+"\n");
 		if (!error.hasErrors()) {
 			int userId = (int) session.getAttribute("userId");
 			if (newBoard.getPublisherId() == userId && publisherService.isValid(newBoard.getCategory())) {
 				publisherService.saveBoard(newBoard);
-				List<Integer> boardsList = (List<Integer>) session.getAttribute("boardsList");
-				boardsList.add(newBoard.getId());
-				session.setAttribute("boardsList", boardsList);
 				return new ResponseEntity<BoardInfo>(newBoard, HttpStatus.CREATED);
 			}
 		}
-		BoardInfo nullBoard = null;
-		return new ResponseEntity<BoardInfo>(nullBoard, HttpStatus.BAD_REQUEST);
+		throw new ValidationException(error);
 	}
 
 
 	@RequestMapping(value = "/{boardId}/post", method = RequestMethod.POST)
 	public ResponseEntity<BoardPost> addPost(HttpSession session, @PathVariable int boardId,
-			@RequestPart("file") MultipartFile file ,
-			@RequestPart("boardPost") BoardPost newPost, Errors error) throws ValidationException 
+			@RequestPart(name="file", required=false) MultipartFile file ,
+			@Valid @RequestPart(name="boardPost") BoardPost newPost, Errors error) throws ValidationException, IllegalStateException, IOException 
 	{
 		if (!error.hasErrors())
 		{
-			@SuppressWarnings("unchecked")
-			List<Integer> boardsList = (List<Integer>) session.getAttribute("boardsList");
-			if (boardsList.contains(boardId) && newPost.getBoardId() == boardId) 
+			int userId = (int) session.getAttribute("userId");
+			if (publisherService.isValidOwnership(userId, boardId) && newPost.getBoardId() == boardId) 
 			{
-				boolean fileSaved = true;
-				if( !file.isEmpty())
+				FileInfo fileInfo = null;
+				if(file != null && !file.isEmpty())
 				{	
-					MD5Hash hash= new MD5Hash();
-					SecureRandom srand = new SecureRandom();
-					String fileName = hash.getHashFrom(Integer.toString(srand.nextInt()) 
-							+ file.getOriginalFilename());
-					String path = File.separator + Integer.toString(boardId) + File.separator + fileName;
-					fileSaved = publisherService.saveFile(file, path);
-					newPost.setFilePath(path);
-					newPost.setFileType(file.getContentType());
+					String path = publisherService.saveFile(file, Integer.toString(boardId), file.getOriginalFilename());
+					fileInfo = new FileInfo();
+					fileInfo.setFilePath(path);
+					fileInfo.setFileType(file.getContentType());
+					fileInfo.setFileSize(file.getSize());
 				}
-				if(fileSaved)
+				if(fileInfo != null)
 				{
-					publisherService.savePost(newPost);
-					return new ResponseEntity<BoardPost>(newPost, HttpStatus.CREATED);
+					publisherService.saveFileInfo(fileInfo);
+					newPost.setFileInfo(fileInfo);
+					publisherService.increaseStrogeUsage(userId, file.getSize());
 				}
+				newPost.setCreationDate(new Timestamp(System.currentTimeMillis()));
+				publisherService.savePost(newPost);
+				return new ResponseEntity<BoardPost>(newPost, HttpStatus.CREATED);
 			}
 		}
-		System.out.println(newPost);
 		throw new ValidationException(error);
-//		BoardPost nullPost = null;
-//		return new ResponseEntity<BoardPost> (nullPost, HttpStatus.BAD_REQUEST);
 	}
 
 }

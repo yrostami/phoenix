@@ -72,26 +72,12 @@ public class RememberMeFilter implements Filter {
 				.createQuery("FROM RememberInfo AS R WHERE" + " R.cookieName = :xcookieName AND R.token = :xtoken");
 		query.setParameter("xcookieName", cookie.getName());
 		query.setParameter("xtoken", cookie.getValue());
+		@SuppressWarnings("rawtypes")
 		List list = query.getResultList();
 		
 		// اگر جستجو دارای نتیجه باشد پس کوکی معتبر است باید اطلاعات مربوط به کاربر در شی نشست قرار داده شود.
 		if (list.size() > 0) {
 			RememberInfo remember = (RememberInfo) list.get(0);
-			//قرار دادن لیست شناسه برد های دنبال شده کاربر در شی نشست
-			Query query2 = session
-					.createQuery("SELECT SB.boardId FROM SubscribedBoardInfo AS SB " + "WHERE SB.subscriberId = :xid");
-			query2.setParameter("xid", remember.getUserId());
-			List<Integer> list2 = query2.getResultList();
-			httpSession.setAttribute("subscribedList", list2);
-
-			// قرار دادن لیست بردهای کاربرمنتشر کننده در شی نشست
-			if (remember.getUserRole().equals("Publisher")) {
-				Query query3 = session.createQuery("SELECT B.id FROM BoardInfo AS B " + "WHERE B.publisherId = :xid");
-				query3.setParameter("xid", remember.getUserId());
-				List<Integer> list3 = query3.getResultList();
-				httpSession.setAttribute("boardsList", list3);
-			}
-
 			// قرار دادن اطلاعات کاربر در شی نشست
 			httpSession.setAttribute("Authenticated", true);
 			httpSession.setAttribute("userId", remember.getUserId());

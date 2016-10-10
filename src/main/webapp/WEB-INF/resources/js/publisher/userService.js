@@ -2,19 +2,19 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 	
 	var getErrorMessage = function(response){
 		if(response.status == 400) 
-			return " انجام نشد. خطا: درخواست اشتباه است." + response.data.errorMessage + response.data.errors;
+			return "خطا: درخواست اشتباه است." + response.data.errorMessage + response.data.errors.join("<br />");
 		if(response.status == 404) 
-			return " انجام نشد. خطا: منبع درخواست شده وجود ندارد.";
+			return "خطا: منبع درخواست شده وجود ندارد.";
 		if(response.status == 403) 
-			return " انجام نشد. خطا: اجازه دسترسی برای شما وجود ندارد.";
+			return "خطا: اجازه دسترسی برای شما وجود ندارد.";
 		if(response.status == 408) 
-			return " انجام نشد. خطا: انتظار سرور برای درخواست به پایان رسیده است.";
+			return "خطا: انتظار سرور برای درخواست به پایان رسیده است.";
 		if(response.status == 500) 
-			return " انجام نشد. خطا: سرور دچار خطای داخلی شده است.";
+			return " خطا: سرور دچار خطای داخلی شده است.";
 		if(response.status == 406) 
-			return " انجام نشد. خطا: اطلاعات فرستاده شده قابل قبول نیست.";
+			return " خطا: اطلاعات فرستاده شده قابل قبول نیست.";
 		else
-			return " انجام نشد. خطا: انجام نشد." + "\nstatus : " + response.status;
+			return "  خطا: انجام نشد." + "\nstatus : " + response.status;
 	};
 	
 	var services = {
@@ -88,7 +88,7 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 		},
 		sendPost : function(postData, boardId){
 		    var deferred = $q.defer();
-		    var URL = '/phoenix/publisher/' + boardId + '/post';
+		    var URL = '/phoenix/publisher/board/' + boardId + '/post';
 		    var formData = new FormData();
 		    var newPostBlob = new Blob([angular.toJson(postData.boardPost)],
 			    {type: 'application/json'});
@@ -121,7 +121,21 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 			deferred.reject(getErrorMessage(response));
 		    	return deferred.promise;
 		    });
-		    return $http();
+		},
+		
+		getMyBoardPosts : function(boardId, start)
+		{
+		    var deferred = $q.defer();
+		    return $http({method:'GET', url:'/phoenix/publisher/board/'
+			+ boardId +'/'+ start})
+		    .then(function success(response){
+			deferred.resolve(response.data);
+			return deferred.promise;
+		    },
+		    function fail(response){
+			deferred.reject(getErrorMessage(response));
+		    	return deferred.promise;
+		    });
 		}
 	};
 	 return services;

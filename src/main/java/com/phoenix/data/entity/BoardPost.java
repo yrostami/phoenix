@@ -34,11 +34,11 @@ public class BoardPost {
 	
 	@NotNull(message="شناسه کانال مورد نظر نباید خالی باشد.")
 	@Column(name="board_id")
-	private int BoardId;
+	private int boardId;
 	
 	@JsonIgnore
 	@Column(name="creation_date")
-	private Timestamp CreationDate;
+	private Timestamp creationDate;
 	
 	@NotBlank(message="عنوان اطلاعیه نباید خالی باشد.")
 	@Length(max=150,message="عنوان اطلاعیه باید حداکثر شامل 150 حرف باشد.")
@@ -65,22 +65,22 @@ public class BoardPost {
 	}
 
 	public int getBoardId() {
-		return BoardId;
+		return this.boardId;
 	}
 
 	
 	public void setBoardId(int boardId) {
-		BoardId = boardId;
+		this.boardId = boardId;
 	}
 
 	@JsonProperty
 	public Timestamp getCreationDate() {
-		return CreationDate;
+		return this.creationDate;
 	}
 
 	@JsonIgnore
 	public void setCreationDate(Timestamp creationDate) {
-		CreationDate = creationDate;
+		this.creationDate = creationDate;
 	}
 
 	public String getTitle() {
@@ -113,8 +113,8 @@ public class BoardPost {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + BoardId;
-		result = prime * result + ((CreationDate == null) ? 0 : CreationDate.hashCode());
+		result = prime * result + boardId;
+		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
 		result = prime * result + ((content == null) ? 0 : content.hashCode());
 		result = prime * result + ((fileInfo == null) ? 0 : fileInfo.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
@@ -131,12 +131,12 @@ public class BoardPost {
 		if (getClass() != obj.getClass())
 			return false;
 		BoardPost other = (BoardPost) obj;
-		if (BoardId != other.BoardId)
+		if (boardId != other.boardId)
 			return false;
-		if (CreationDate == null) {
-			if (other.CreationDate != null)
+		if (creationDate == null) {
+			if (other.creationDate != null)
 				return false;
-		} else if (!CreationDate.equals(other.CreationDate))
+		} else if (!creationDate.equals(other.creationDate))
 			return false;
 		if (content == null) {
 			if (other.content != null)
@@ -160,7 +160,7 @@ public class BoardPost {
 
 	@Override
 	public String toString() {
-		return "BoardPost [id=" + id + ", BoardId=" + BoardId + ", CreationDate=" + CreationDate + ", title=" + title
+		return "BoardPost [id=" + id + ", BoardId=" + boardId + ", CreationDate=" + creationDate + ", title=" + title
 				+ ", content=" + content + ", fileInfo=" + fileInfo + "]";
 	}
 	

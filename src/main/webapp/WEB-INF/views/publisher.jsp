@@ -19,6 +19,7 @@
 
 </head>
 <body ng-app="phoenix" ng-controller="publisher" ng-cloak>
+
 <div id="globalMsg">{{globalMsg}}</div>
 <div id="pageLoading" ng-show="showPageLoading">
 	<h3>
@@ -29,8 +30,6 @@
 </div>
 
 <div id="container" ng-show="showApp">
-
-
 
 	<div id="header">
 		<div class="icon-container popup-container" ng-click="popupUserMenu('user-menu');">
@@ -60,7 +59,7 @@
 		</div>
 	</div>
 
-		<div id="progressBar"></div>
+	<div id="progressBar"></div>
 
 	<div id="content">
 		<div id="tabs">
@@ -113,6 +112,15 @@
 			</span>
 			</div>
 			
+			<div class="button" ng-click="showNewPostPanel()" ng-show="boardContentShow">
+					<div class="btn-icon">
+						<i class="demo-icon  icon-plus-1"></i>
+					</div>
+					<span>
+						نصب اطلاعیه جدید روی برد
+					</span>
+				</div>
+			
 		</div>
 			<div class="list">
 			<div class="list-item" ng-repeat="board in user.myBoards">
@@ -126,30 +134,40 @@
 			</div>
 			
 			<div class="list-item-content">
-			<div class="loader big-loader" ng-show="loaderShow"></div>
+
 			<div class="board-content" ng-show="boardContentShow">
-				<div class="post-list">
-				<div class="post-container" ng-repeat="post in selectedBoard.posts"></div>
-				</div>
-				<div class="buttons-bar">
-				<div class="button" ng-click="showNewPostPanel()">
-					<div class="btn-icon">
-						<i class="demo-icon  icon-plus-1"></i>
+				<div class="post-container" ng-repeat="post in selectedBoard.posts | orderBy : '-creationDate'">
+				<div class="post-title"><span>{{post.title}}</span></div>
+				<div class="image-div" id="imageDiv{{$index}}"></div>
+				<div id="postContent{{$index}}" class="post-content">
+					<p ng-bind-html="getMultiline(post.content)"></p>
+					<div class="post-file" ng-show="post.fileInfo !== null">
+						<span ng-if="post.fileInfo.fileType.indexOf('image') !== -1">این اطلاعیه دارای عکس می باشد:</span> 
+						<span ng-if="post.fileInfo.fileType.indexOf('image') === -1">این اطلاعیه دارای فایل می باشد:</span>
+						<div class="download-file">
+							<span ng-if="post.fileInfo.fileType.indexOf('image') !== -1" 
+								ng-click="getImage($index, post.fileInfo.filePath)">نمایش داده شود</span>
+    						<a ng-if="post.fileInfo.fileType.indexOf('image') === -1" target="_blank" 
+								ng-href="/phoenix/subscriber/getfile{{post.fileInfo.filePath}}">دانلود شود</a>
+						</div>
 					</div>
-					<span>
-						نصب اطلاعیه جدید روی برد
-					</span>
 				</div>
-				<div class="button" ng-click=" ">
-					<div class="btn-icon">
-						<i class="demo-icon  icon-plus-1"></i>
+				</div>
+				
+				<div class="more-post" ng-click="loadMorePost()">
+					<div ng-show="!morePostLoad">
+						<span ng-show="!$scope.selectedBoard.loadFail">دیدن اطلاعیه های بیشتر</span>
+						<span ng-show="$scope.selectedBoard.loadFail">تلاش دوباره</span>
 					</div>
-					<span>
-						دیدن اطلاعیه های قدیمی تر
-					</span>
+					<div ng-show="morePostLoad">
+						<div class="loader mini-loader"></div>
+						<span>
+							صبر کنید
+						</span>
+					</div>
 				</div>
-			</div>
-			</div>
+				
+				</div>
 			</div>			
 			
 		</div>
@@ -265,8 +283,7 @@
 					</div>
 					
 					<div id="flwbtnwt{{$index}}" class="follow-btn hidden">
-						<div class="loader mini-loader">
-						</div>
+						<div class="loader mini-loader"></div>
 						<span>
 							صبر کنید
 						</span>

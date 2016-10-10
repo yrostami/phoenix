@@ -40,7 +40,7 @@ public class SubscriberController {
 	SubscriberService subscriberService;
 	
 	@RequestMapping(value="/user")
-	public ResponseEntity<Subscriber> getPublisher(HttpSession session)
+	public ResponseEntity<Subscriber> getSubscriber(HttpSession session)
 	{
 		Subscriber subscriber = subscriberService
 				.getUser((int)session.getAttribute("userId"));
@@ -98,6 +98,7 @@ public class SubscriberController {
 		File file = subscriberService.getFile(boardId, fileName+"."+ext);
 		if(file != null){
 			HttpHeaders header = new HttpHeaders();
+			header.add(HttpHeaders.CONTENT_TYPE, Files.probeContentType(file.toPath()));
 			header.add("Content-Type", Files.probeContentType(file.toPath()));
 			FileInputStream fis = new FileInputStream(file);
 			return new ResponseEntity<InputStreamResource> (new InputStreamResource(fis),header, HttpStatus.OK);

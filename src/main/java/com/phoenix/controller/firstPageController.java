@@ -13,7 +13,7 @@ public class firstPageController {
 	public String getFirstPage(HttpSession session)
 	{
 		if((boolean)session.getAttribute("Authenticated") == true)
-			return "redirect:/login/webLogin";
+			return "redirect:/login/page";
 		return "loginForm";
 	}
 }

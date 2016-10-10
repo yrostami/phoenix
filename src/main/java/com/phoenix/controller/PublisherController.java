@@ -2,6 +2,7 @@ package com.phoenix.controller;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -60,7 +61,7 @@ public class PublisherController {
 	}
 
 
-	@RequestMapping(value = "/{boardId}/post", method = RequestMethod.POST)
+	@RequestMapping(value = "board/{boardId}/post", method = RequestMethod.POST)
 	public ResponseEntity<BoardPost> addPost(HttpSession session, @PathVariable int boardId,
 			@RequestPart(name="file", required=false) MultipartFile file ,
 			@Valid @RequestPart(name="boardPost") BoardPost newPost, Errors error) throws ValidationException, IllegalStateException, IOException 
@@ -91,6 +92,18 @@ public class PublisherController {
 			}
 		}
 		throw new ValidationException(error);
+	}
+	
+	@RequestMapping(value="/board/{boardId}/{start}", method=RequestMethod.GET)
+	public ResponseEntity<List<BoardPost>> getMyBoardsPosts(@PathVariable int boardId, 
+			@PathVariable int start, HttpSession session)
+	{
+		int userId = (int) session.getAttribute("userId");
+		if (publisherService.isValidOwnership(userId, boardId)){
+			List<BoardPost> list = publisherService.getMyBoardsPosts(boardId, start);
+			return new ResponseEntity<List<BoardPost>>(list,responseHeader,HttpStatus.OK);
+		}
+		return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);	
 	}
 
 }

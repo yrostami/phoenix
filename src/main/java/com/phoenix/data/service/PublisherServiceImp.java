@@ -156,6 +156,21 @@ public class PublisherServiceImp implements PublisherService {
 	}
 
 	@Override
+	@Transactional
+	public List<BoardPost> getMyBoardsPosts(int boardId, int startResult) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("FROM BoardPost AS BP "
+				+ "WHERE BP.boardId = :xboardId "
+				+ "ORDER BY BP.creationDate DESC");
+		query.setParameter("xboardId", boardId);
+		query.setFirstResult(startResult);
+		query.setMaxResults(10);
+		@SuppressWarnings("unchecked")
+		List<BoardPost> list = (List<BoardPost>) query.getResultList();
+		return list;
+	}
+
+	@Override
 	public List<UserInfo> getChannelSubscribers() {
 		// TODO Auto-generated method stub
 		return null;

@@ -1,5 +1,5 @@
 app.controller('myboardscontroller', 
-	['$scope','$rootScope','userService', function($scope, $rootScope, userService)
+	['$compile', '$sce', '$scope','$rootScope','userService', function($compile, $sce, $scope, $rootScope, userService)
 		{
 			$scope.newBoardPanelShow = false;
 			$scope.newPostPanelShow = false;
@@ -8,18 +8,56 @@ app.controller('myboardscontroller',
 			$scope.newBoard = {};
 			$scope.newPost = {};
 			$scope.selectedItemValue= "-1"; // new board select
-							// element item index
 			$scope.validationMessageHide= [true,true,true];
 			$scope.selectFirstOptionShow = true;
 			$scope.file = {};
 			$scope.fileName = "هیچ فایلی انتخاب نشده است";
 			$scope.boardIndex = -1;
-			$scope.loaderShow = true;
 			$scope.boardContentShow = false;
+			$scope.morePostLoad = false;
+			var httpBusy = false;
+			
+			var getPosts = function(board)
+			{   
+			    httpBusy = true;
+			    userService.getMyBoardPosts(board.id, board.posts.length).then(
+				    function success(data)
+				    {
+					$rootScope.progress.complete();
+					if(data.length > 0){
+					board.posts = board.posts.concat(data);
+					$scope.boardContentShow = true;
+					}else if(board.firstLoad || board.posts.length == 0)
+						$rootScope.showGlobalMsg("هیچ اطلاعیه ای روی این برد وجود ندارد.", 3);
+					else $rootScope.showGlobalMsg("اطلاعیه دیگری روی این برد وجود ندارد.", 3);
+					httpBusy = false;
+					$scope.boardContentShow = true;
+					$scope.morePostLoad = false;
+					board.firstLoad = false;
+				    },
+			    	    function fail(msg)
+			    	    {
+					board.loadFail = true;
+					$scope.boardContentShow = true;
+					$rootScope.progress.complete();
+					httpBusy = false;
+					$scope.morePostLoad = false;
+					$rootScope.showGlobalMsg("بار گذاری اطلاهیه ها انجام نشد." + msg, 4);
+					
+			    	    }	
+			    );
+			};
+			
+			$scope.getImage = function(index, path)
+			{
+			    var imageDiv = document.getElementById("imageDiv" + index);
+			    imageDiv.innerHTML = '<img class="post-img" src="/phoenix/subscriber/getfile/'+path+'">';
+			};
 		
-			$scope.selectBoard = function(index){
-//			    if(index !== $scope.boardIndex)
-//			    {
+			$scope.selectBoard = function(index)
+			{
+			    if(!httpBusy)
+			    {
 				if($scope.boardIndex == -1)
 				    $rootScope.classEditor.add(document.getElementById("myBoard"+index), 'selected');
 				else{
@@ -29,16 +67,27 @@ app.controller('myboardscontroller',
 				$scope.boardIndex = index;
 				$scope.selectedBoard = $rootScope.user.myBoards[index];
 			    
-				if($scope.selectedBoard.posts == undefined || $scope.selectedBoard.posts == null)
+				if($scope.selectedBoard.posts == undefined || $scope.selectedBoard.loadFail)
 				{
-				    $scope.selectedBoard.posts = [];
-					// load board posts ...
-				    
+				    $rootScope.progress.start();
+				    $scope.boardContentShow = false;
+				    $scope.selectedBoard.posts = new Array();
+				    $scope.selectedBoard.loadFail = false;
+				    $scope.loaderShow = true;
+				    $scope.selectedBoard.firstLoad = true;
+				    getPosts($scope.selectedBoard);
 			    	}
-				$scope.loaderShow = !$scope.loaderShow;
-//			    }
-			}
-
+			    }
+			};
+			
+			$scope.loadMorePost = function()
+			{
+			    if(!httpBusy){
+			    $scope.morePostLoad = true;
+			    getPosts($scope.selectedBoard);
+			    }
+			};
+			
 			// توابع مربوط به ایجاد برد جدید
 			$scope.showNewBoardPanel = function() {
 				if (firstNewBoardCreate) {
@@ -59,7 +108,7 @@ app.controller('myboardscontroller',
 					$scope.newBoardPanelShow = true;
 					}
 			};
-
+			
 			$scope.hideNewBoardPanel = function() {
 				$scope.myBoardsMainPanelShow = true;
 				$scope.newBoardPanelShow = false;
@@ -195,6 +244,7 @@ app.controller('myboardscontroller',
 					isValid = false;
 					$scope.validationMessageHide[1] = false; 
 				}
+				return isValid;
 			}
 			
 			$scope.newPostValidationAndSend = function(){
@@ -207,7 +257,7 @@ app.controller('myboardscontroller',
 					    	$scope.selectedBoard.posts.push(data);
 						$rootScope.progress.complete();
 						$rootScope.globalMessage = "انجام شد.";
-						if($scope.file !== {}) $rootScope.user.strogeUsage;
+						if(data.file !== null) $rootScope.user.strogeUsage += data.file.fileSize;
 						$scope.hideNewPostPanel();
 					},
 					function fail(msg){
@@ -216,5 +266,4 @@ app.controller('myboardscontroller',
 					});
 			    }
 			}
-			
 		}]);

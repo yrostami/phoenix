@@ -13,7 +13,7 @@
         <script type="text/javascript" src="<spring:url value="/resources/js/login.js" htmlEscape="true"/>"></script>
     </head>
     <body>
-            
+            <div id="browserMsg"></div>
         <div id="main">
         <div id="header">
         <div class="icon-container">
@@ -36,8 +36,9 @@
         			session.removeAttribute("login");
         		}
         	%>
+        	<%--method="post" action="<spring:url value="/login/webLogin" htmlEscape="true"/>" --%>
         	</label>
-            <form method="post" action="<spring:url value="/login/webLogin" htmlEscape="true"/>" onsubmit="return validation();" target="_self" novalidate>
+            <div>
                 <label id="usernamelbl">
                 &rsaquo; نام کاربری:
                 </label>
@@ -58,12 +59,14 @@
             </div>
             <br/>
             <div id="buttonContainer">
-                <button type="submit" id="button">ورود</button>
+                <button id="button" onclick="submit();" >ورود</button>
             </div>
-            </form>
-
+            <label class="errorMessage" id="failMsg">
+                </label>
+            </div>
+            
             <p id="forget"><a href="">
-رمز عبور را فراموش کرده ام.!
+				رمز عبور را فراموش کرده ام.!
             </a></p>
 
             <div id="footer">

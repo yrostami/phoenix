@@ -19,9 +19,13 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phoenix.data.entity.RememberInfo;
 import com.phoenix.data.entity.UserInfo;
 
@@ -47,17 +51,32 @@ public class AuthenticationFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpSession httpSession = httpRequest.getSession();
+		AuthenticationInfo authInfo = null;
+		if ((boolean) httpSession.getAttribute("Authenticated") == false){
+		ObjectMapper mapper = new ObjectMapper();
+		try{
+		authInfo = mapper.readValue(httpRequest.getInputStream(), AuthenticationInfo.class);
+		}catch (JsonMappingException e) {
+			HttpServletResponse httpResponse = (HttpServletResponse) response;
+			httpResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+			return;
+		}catch (JsonParseException e) {
+			HttpServletResponse httpResponse = (HttpServletResponse) response;
+			httpResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+			return;
+		}
+		}
 		
 		if ((boolean) httpSession.getAttribute("Authenticated") == false 
-				&& httpRequest.getParameter("password") != null 
-				&& httpRequest.getParameter("username") != null)
+				&& authInfo != null)
+//				&& httpRequest.getParameter("username") != null)
 		{
-			String username = httpRequest.getParameter("username");
-			String password = httpRequest.getParameter("password");
-			boolean rememberMe = false;
-
-			if (httpRequest.getParameter("rememberMe") != null)
-				rememberMe = httpRequest.getParameter("rememberMe").equals("on");
+//			String username = httpRequest.getParameter("username");
+//			String password = httpRequest.getParameter("password");
+//			boolean rememberMe = false;
+//
+//			if (httpRequest.getParameter("rememberMe") != null)
+//				rememberMe = httpRequest.getParameter("rememberMe").equals("on");
 			
 			// اتصال به پایگاه داده برای بررسی نام کاربری و رمز عبور
 			
@@ -68,8 +87,8 @@ public class AuthenticationFilter implements Filter {
 				tx = session.beginTransaction();
 				Query query1 = session.createQuery("FROM UserInfo AS User WHERE"
 						+ " User.username = :xusername AND User.password = :xpassword");
-				query1.setParameter("xusername", username);
-				query1.setParameter("xpassword", password); 
+				query1.setParameter("xusername", authInfo.getUsername());
+				query1.setParameter("xpassword", authInfo.getPassword()); 
 				@SuppressWarnings("rawtypes")
 				List list1 =query1.getResultList();
 				if (list1.size() > 0) {
@@ -81,7 +100,7 @@ public class AuthenticationFilter implements Filter {
 					httpSession.setAttribute("role", user.getRole());
 					
 						// انجام عمل "مرا به یاد داشته باش" برای کاربری که این گزینه را انتخاب کرده باشد
-						if (rememberMe && !user.getRole().equals("Admin")) {
+						if (authInfo.getRememberMe() && !user.getRole().equals("Admin")) {
 							HttpServletResponse httpResponse = (HttpServletResponse) response;
 							RememberInfo rememberInfo = Remember(httpRequest, user);
 							session.save(rememberInfo);
@@ -98,6 +117,8 @@ public class AuthenticationFilter implements Filter {
 			}
 			session.close();
 		} 
+		boolean auth = (boolean) httpSession.getAttribute("Authenticated");
+		System.out.println(httpSession.getId()+httpSession.getAttributeNames().nextElement()+Boolean.toString(auth));
 
 		chain.doFilter(request, response);
 	}

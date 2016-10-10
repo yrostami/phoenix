@@ -44,6 +44,12 @@ body
 	margin:0px;	
 	padding: 0px;
 }
+/* 
+#head{
+	width: 100%;
+	position: fixed;
+	top: 0px;
+} */
 
 #header
 {
@@ -222,7 +228,7 @@ body
 #content{
 	width: 900px;
 	margin: 0px auto;
-	margin-top: 50px;
+	margin-top: 10px;
 }
 
 #tabs{
@@ -262,27 +268,22 @@ body
 	background-color: white;
 	-webkit-animation: fadeIn 0.6s;
     animation: fadeIn 0.6s;
-   	height: 550px;
+   	height: 600px;
 }
 
 .list{
 	width: 240px;
-	height: 500px;
+	height: 550px;
 	float: right;
 	margin: 25px;
 	margin-left: 0px;
 	margin-top: 0px;
 	max-width: 240px;
-	max-height: 500px;
+	max-height: 550px;
 	overflow-y: auto;
 	overflow-x: hidden;
 	border-top: 2px solid #ec3543;  	
 	border-bottom: 2px solid #ec3543;
-}
-
-
-.Narrow-list{
-	width: 210px;
 }
 
 .list-item{
@@ -337,8 +338,8 @@ body
 .list-item-content{
 	float: right;
 	width: 585px;
-	height: 500px;
-	max-height: 500px;
+	height: 550px;
+	max-height: 550px;
 	overflow-y: auto;
 	overflow-x: hidden;
 	border-top: 2px solid #ec3543;
@@ -365,7 +366,7 @@ body
 .accordion-item-info{
 	width: 80%;
 	height:35px;
-	background-color: #bce8ed;
+	background-color: #98dde4;
 	float: right;
 }
 
@@ -386,6 +387,7 @@ body
 	float: right;
 	padding-right:10px;
 	overflow-x: hidden;
+	color: black;
 }
 
 .follow-btn{
@@ -416,8 +418,8 @@ body
 	padding: 0px;
 	color: black;
 	font-size: 18px;
-	border-top: 1px solid rgb(0,171,189);
-	border-bottom: 1px solid rgb(0,171,189);
+/* 	border-top: 1px solid rgb(0,171,189);
+	border-bottom: 1px solid rgb(0,171,189); */
 	max-height: 0;
     overflow: hidden;
     transition: 0.6s ease-in-out;
@@ -425,8 +427,8 @@ body
 	}
 
 .accordion-item-show{
-	background-color: #e1f4f7;
-	margin-top: 5px; 
+	background-color: #d2eff2;
+	/* margin-top: 5px; */ 
 	padding-top: 15px;
 	padding-bottom: 15px;
 	max-height: 300px;
@@ -508,7 +510,7 @@ body
 
 .form-container{
 	width: 600px;
-	height: 500px;
+	height: 550px;
 	margin: auto;
 	border-top: 2px solid #ec3543;
 	border-bottom: 2px solid #ec3543;
@@ -609,7 +611,7 @@ body
     padding: 5px; 
     position: fixed; 
     z-index: 1;
-    top: 70px;
+    top: 35px;
     font-size: 18px;
     font-weight: 500;
     border: 1px solid #008291;
@@ -623,23 +625,13 @@ body
 
 @-webkit-keyframes global-msg-fadein {
     from {top: 0; opacity: 0;}
-    to {top: 70px; opacity: 1;}
+    to {top: 35px; opacity: 1;}
 }
 
 @keyframes global-msg-fadein {
     from {top: 0; opacity: 0;}
-    to {top: 70px; opacity: 1;}
+    to {top: 35px; opacity: 1;}
 }
-
-/* @-webkit-keyframes global-msg-fadeout {
-    from {top: 70px; opacity: 1;}
-    to {top: 0; opacity: 0;}
-}
-
-@keyframes global-msg-fadeout {
-    from {top: 70px; opacity: 1;}
-    to {top: 0; opacity: 0;}
-} */
 
 .loader{
     border-radius: 50%;
@@ -662,11 +654,12 @@ body
 }
 
 .big-loader{
-	width: 80px;
-    height:80px;
+	width: 70px;
+    height:70px;
     border: 10px solid #FBD6D9;
     border-top: 10px solid #EC3543;
-    margin-top: auto 0px;
+    margin: 0px auto;
+    margin-top: 205px;
     display: block;
 }
 
@@ -678,4 +671,100 @@ body
 @-webkit-keyframes spin{
 	0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.post-list{
+	width: 100%;
+	height: 500px;
+	overflow-y: auto; 
+}
+
+.post-container{
+	width: 100%;
+	background-color: #d2eff2;
+	font-size: 16px;
+	margin-top: 10px;
+	display: table;
+}
+
+.post-container p{
+	padding: 0px;
+	margin: 0px;
+	margin-right: 10px;
+}
+
+.post-title{
+	width: 100%;
+	font-size: 20px;
+	background-color: #98dde4;
+	overflow-x: hidden;
+	float: right;
+}
+
+.post-title span{
+	padding-right: 5px;
+}
+
+.board-button{
+	clear: right;
+	margin: 0px auto;
+}
+
+.more-post{
+	width: 150px;
+	height: 35px;
+	margin: 0px auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	font-size: 18px;
+	text-align: center;
+	background-color: #FBD6D9;
+	cursor: pointer;
+	color: #EC3543;
+}
+
+.post-file{
+background-color: #FBD6D9;
+margin-top: 5px;
+}
+
+.post-file-title{
+	margin-right: 5px;
+	float:right;
+	width: 100%;	
+}
+
+.post-content{
+	width: 100%;
+	float: right;
+}
+
+.download-file{
+	color: white;
+	background-color: #EC3543;
+	cursor: pointer;
+	display: inline-block;
+}
+
+.download-file a{
+	text-decoration: none;
+	color: white;
+	padding-right: 3px;
+	padding-left: 3px;
+}
+
+.download-file span{
+	padding-right: 3px;
+	padding-left: 3px;
+}
+
+.image-div{
+	float: right;
+	width: 50%;
+	max-height: 300px;
+}
+
+.post-img{
+	width: 100%;
+	max-height: 300px;
 }

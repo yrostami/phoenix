@@ -24,4 +24,5 @@ public interface PublisherService {
 	public void saveFileInfo(FileInfo fileInfo);
 	public boolean isValidOwnership(int userId, int boardId);
 	public void increaseStrogeUsage(int userId, long increaseValue);
+	public List<BoardPost> getMyBoardsPosts(int boardId, int startResult);
 }

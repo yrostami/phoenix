@@ -169,6 +169,25 @@ public class PublisherServiceImp implements PublisherService {
 		List<BoardPost> list = (List<BoardPost>) query.getResultList();
 		return list;
 	}
+	
+	@Transactional
+	@Override
+	public boolean deletePost(long postId, int boardId) {
+		Session session = sessionFactory.getCurrentSession();
+		//حذف اعلان های پست
+		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN "
+				+ "WHERE PN.postId = :xpostId");
+		notificationDeleteQuery.setParameter("xpostId", postId);
+		notificationDeleteQuery.executeUpdate();
+		//حذف پست
+		Query postDeleteQuery = session.createQuery("DELETE FROM BoardPost AS BP WHERE "
+				+ "BP.id = :xid AND BP.boardId = :xboardId");
+		postDeleteQuery.setParameter("xid", postId);
+		postDeleteQuery.setParameter("xboardId", boardId);
+		int n= postDeleteQuery.executeUpdate();
+		if(n>0) return true;
+		return false;
+	}
 
 	@Override
 	public List<UserInfo> getChannelSubscribers() {

@@ -44,6 +44,7 @@ public class UserInfo {
 	@Column(name="role")
 	private String role;
 	
+	@JsonIgnore
 	@Column(name="stroge_usage")
 	private long strogeUsage;
 
@@ -92,10 +93,12 @@ public class UserInfo {
 		this.role = role;
 	}
 
+	@JsonProperty
 	public long getStrogeUsage() {
 		return strogeUsage;
 	}
 
+	@JsonIgnore
 	public void setStrogeUsage(long strogeUsage) {
 		this.strogeUsage = strogeUsage;
 	}

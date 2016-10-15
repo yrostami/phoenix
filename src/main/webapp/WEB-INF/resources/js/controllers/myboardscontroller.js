@@ -52,6 +52,11 @@ app.controller('myboardscontroller',
 			{
 			    var imageDiv = document.getElementById("imageDiv" + index);
 			    imageDiv.innerHTML = '<img class="post-img" src="/phoenix/subscriber/getfile/'+path+'">';
+			    imageDiv.onclick = function()
+			    {
+				document.getElementById('imgModal').style.display='block';
+				document.getElementById('modalImg').src = '/phoenix/subscriber/getfile/'+path;
+			    }
 			};
 		
 			$scope.selectBoard = function(index)
@@ -78,6 +83,33 @@ app.controller('myboardscontroller',
 				    getPosts($scope.selectedBoard);
 			    	}
 			    }
+			};
+			
+			$scope.showNoSelectedMsg = function(){
+			    if($rootScope.user.subscribedBoards.length !== 0 && $scope.boardIndex == -1)
+				return true;
+			    return false;
+			};
+			
+			$scope.deletePostDialogShow = function(index)
+			{
+			    document.getElementById('dialogModal').style.display = "block";
+			    $scope.deletePostIndex = index;
+			}
+			
+			$scope.deletePost = function()
+			{
+			    $rootScope.progress.start();
+			    document.getElementById('dialogModal').style.display='none';
+			    userService.deletePost($scope.selectedBoard.posts[$scope.deletePostIndex]).then(
+				    function success(){
+					$scope.selectedBoard.posts.splice($scope.deletePostIndex, 1);
+					$rootScope.progress.complete();
+				    },
+				    function(msg){
+					$rootScope.showGlobalMsg("حذف اطلاعیه انجام نشد." + msg, 4);
+					$rootScope.progress.complete();
+				    });
 			};
 			
 			$scope.loadMorePost = function()
@@ -137,7 +169,7 @@ app.controller('myboardscontroller',
 					$scope.validationMessageHide[2] = false; 
 				}
 				return isValid;
-			} 
+			};
 			
 			$scope.newBoardValidationAndSend = function(){	
 				if(doNewBoardValidatin()){

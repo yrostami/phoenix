@@ -6,7 +6,9 @@ if (typeof XMLHttpRequest === "undefined") {
     catch (e) {}
     try { return new ActiveXObject("Microsoft.XMLHTTP"); }
     catch (e) {    
-	document.getElementById("browserMsg").innerHTML="مرورگر شما از AJAX پشتیبانی نمیکند.";}
+	 var msgContainer = document.getElementById("browserMsg");
+	 msgContainer.className = "browser-msg";
+	 msgContainer.innerHTML="مرورگر شما از AJAX پشتیبانی نمیکند.";}
   };
 }
 

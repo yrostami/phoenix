@@ -26,8 +26,8 @@ public class SubscriberServiceImp implements SubscriberService {
 	@Autowired
 	SessionFactory sessionFactory;
 	
-	@Override
 	@Transactional
+	@Override
 	public Subscriber getUser(int userId) {
 		Subscriber subscriber= null;
 		Session session = sessionFactory.getCurrentSession();

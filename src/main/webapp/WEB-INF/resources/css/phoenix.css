@@ -329,6 +329,11 @@ body
 	color:#ec3543;
 }
 
+.no-item{
+	color:#ec3543;
+	text-align: center;
+}
+
 .list-item .selected{
 	color:#ec3543;
 	background-color: rgba(236,53,67,0.2);
@@ -759,12 +764,109 @@ margin-top: 5px;
 }
 
 .image-div{
-	float: right;
 	width: 50%;
 	max-height: 300px;
+	margin:0px auto;
+	margin-top: 10px;
 }
 
 .post-img{
 	width: 100%;
 	max-height: 300px;
+	margin:0px auto;
 }
+
+.post-img:hover {opacity: 0.7;}
+
+.no-selected-msg{
+	width: 70%;
+	font-size: 20px;
+	background-color: #d2eff2;
+	color: #ec3543;
+	margin: 0px auto;
+	margin-top: 10px;
+	text-align: center;
+	padding: 10px;
+}
+
+.modal{
+	display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+}
+
+.modalClose{
+	position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.modalClose:hover,.modalClose:focus{
+	 color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content {
+    margin:0 auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    -webkit-animation-name: zoom;
+    -webkit-animation-duration: 0.6s;
+    animation-name: zoom;
+    animation-duration: 0.6s;
+    margin-bottom: 50px;
+    font-size: 20px;
+}
+
+.dialog-content{
+	padding: 15px;
+	width: 40%;
+	color: #008291;
+    background-color: white;
+    border-top: 2px solid #00ABBD;
+    border-bottom: 2px solid #00ABBD;
+}
+
+.dialog-content span{
+	display: table;
+	margin:0px auto;
+}
+
+@-webkit-keyframes zoom {
+    from {-webkit-transform:scale(0)}
+    to {-webkit-transform:scale(1)}
+}
+
+@keyframes zoom {
+    from {transform:scale(0)}
+    to {transform:scale(1)}
+}
+
+.delete-btn{
+	width: 25px;
+	float: left;
+	background-color: #00abbd;
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	font-size: 20px;
+}
+
+.delete-btn:hover{
+	background-color: #ec3543;
+}
+

@@ -24,6 +24,7 @@ import com.phoenix.data.entity.BoardInfo;
 import com.phoenix.data.entity.BoardPost;
 import com.phoenix.data.entity.FileInfo;
 import com.phoenix.data.entity.Publisher;
+import com.phoenix.data.service.OperationStatus;
 import com.phoenix.data.service.PublisherService;
 
 @RestController
@@ -49,7 +50,6 @@ public class PublisherController {
 	public ResponseEntity<BoardInfo> createboard(@Valid @RequestBody BoardInfo newBoard, Errors error,
 			HttpSession session) throws ValidationException 
 	{
-		System.out.print(!error.hasErrors()+"\n");
 		if (!error.hasErrors()) {
 			int userId = (int) session.getAttribute("userId");
 			if (newBoard.getPublisherId() == userId && publisherService.isValid(newBoard.getCategory())) {
@@ -92,6 +92,21 @@ public class PublisherController {
 			}
 		}
 		throw new ValidationException(error);
+	}
+	
+	@RequestMapping(value = "board/{boardId}/{postId}", method = RequestMethod.DELETE)
+	public ResponseEntity<OperationStatus> deletePost(@PathVariable int boardId, @PathVariable long postId, HttpSession session) 
+			throws ValidationException
+	{
+		int userId = (int) session.getAttribute("userId");
+		if(publisherService.isValidOwnership(userId, boardId))
+		{
+			boolean result = publisherService.deletePost(postId, boardId);
+			if(result)
+				return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,responseHeader,HttpStatus.OK);
+			return new ResponseEntity<OperationStatus>(OperationStatus.FAIL,responseHeader,HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<OperationStatus>(OperationStatus.PERMISSIONFAIL,responseHeader,HttpStatus.NOT_ACCEPTABLE);
 	}
 	
 	@RequestMapping(value="/board/{boardId}/{start}", method=RequestMethod.GET)

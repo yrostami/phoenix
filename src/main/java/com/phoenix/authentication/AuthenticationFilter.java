@@ -65,19 +65,10 @@ public class AuthenticationFilter implements Filter {
 			httpResponse.setStatus(HttpStatus.BAD_REQUEST.value());
 			return;
 		}
-		}
 		
-		if ((boolean) httpSession.getAttribute("Authenticated") == false 
-				&& authInfo != null)
-//				&& httpRequest.getParameter("username") != null)
-		{
-//			String username = httpRequest.getParameter("username");
-//			String password = httpRequest.getParameter("password");
-//			boolean rememberMe = false;
-//
-//			if (httpRequest.getParameter("rememberMe") != null)
-//				rememberMe = httpRequest.getParameter("rememberMe").equals("on");
-			
+		
+		if (authInfo != null)
+		{	
 			// اتصال به پایگاه داده برای بررسی نام کاربری و رمز عبور
 			
 			Transaction tx = null;
@@ -117,8 +108,7 @@ public class AuthenticationFilter implements Filter {
 			}
 			session.close();
 		} 
-		boolean auth = (boolean) httpSession.getAttribute("Authenticated");
-		System.out.println(httpSession.getId()+httpSession.getAttributeNames().nextElement()+Boolean.toString(auth));
+		}
 
 		chain.doFilter(request, response);
 	}

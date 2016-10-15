@@ -15,8 +15,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 
-//@WebFilter("/test/testfilter")
-@Controller
 public class AuthorizationFilter implements Filter {
 
 	public AuthorizationFilter() {
@@ -47,7 +45,7 @@ public class AuthorizationFilter implements Filter {
 				||path.startsWith("/login/"))
 			chain.doFilter(request, response);
 
-		// احراز هویت با استفاده از نشست برقرار شده
+		// کنترل دسترسی با استفاده از اطلاعات ذخیره شده در نشست
 		else {
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			HttpSession session = httpRequest.getSession();

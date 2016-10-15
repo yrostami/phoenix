@@ -136,6 +136,21 @@ app.factory('userService', ['$http', '$q', function($http,$q){
 			deferred.reject(getErrorMessage(response));
 		    	return deferred.promise;
 		    });
+		},
+		
+		deletePost : function(post)
+		{
+		    var deferred = $q.defer();
+		    return $http({method:'DELETE', url:'/phoenix/publisher/board/'
+			+ post.boardId +'/'+ post.id})
+		    .then(function success(response){
+			deferred.resolve(response);
+			return deferred.promise;
+		    },
+		    function fail(response){
+			deferred.reject(getErrorMessage(response));
+		    	return deferred.promise;
+		    });
 		}
 	};
 	 return services;

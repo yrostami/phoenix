@@ -25,4 +25,5 @@ public interface PublisherService {
 	public boolean isValidOwnership(int userId, int boardId);
 	public void increaseStrogeUsage(int userId, long increaseValue);
 	public List<BoardPost> getMyBoardsPosts(int boardId, int startResult);
+	public boolean deletePost(long postId, int boardId);
 }

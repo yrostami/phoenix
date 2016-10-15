@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>سامانه اطلاع رسانی ققنوس</title>
+<title>سامانه بردهای اطلاع رسانی ققنوس</title>
 
 <link href="<spring:url value="/resources/css/icon.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
 <%-- <link href="<spring:url value="/resources/css/iconAnimation.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/> --%>
@@ -81,7 +81,14 @@
 			<div class="tools"></div>
 		</div>
 			<div class="list">
-			<div class="list-item" ng-click="showPosts(-1)">
+			
+			<div class="list-item" ng-show="user.subscribedBoards.length == 0">
+				<span class="item-name wide-item no-item">
+					هیچ بردی وجود ندارد.
+				</span>
+			</div>
+			
+			<div class="list-item" ng-show="user.subscribedBoards.length !== 0" ng-click="showPosts(-1)">
 				<span class="item-name wide-item selected">
 					همه اطلاعیه های جدید
 				</span>
@@ -95,7 +102,14 @@
 			</div>
 			</div>
 			
-			<div id="subscribedBoradPostPane" class="list-item-content"></div>
+			<div class="list-item-content">
+			
+			<div class="no-selected-msg" ng-show="user.subscribedBoards.length == 0">
+				شما هیچ بردی را دنبال نمی کنید.<br />
+				برای دنبال کردن بردها به قسمت "همه ی بردها" بروید. 
+			</div>
+			
+			</div>
 			
 		</div>
 		
@@ -123,6 +137,13 @@
 			
 		</div>
 			<div class="list">
+			
+			<div class="list-item" ng-show="user.myBoards.length == 0">
+				<span class="item-name wide-item no-item">
+					هیچ بردی وجود ندارد.
+				</span>
+			</div>
+			
 			<div class="list-item" ng-repeat="board in user.myBoards">
 				<div class="item-modal-btn" ng-click="showMyBoardInfo($index)">
 					<i class="demo-icon icon-ellipsis-vert"></i>
@@ -134,10 +155,22 @@
 			</div>
 			
 			<div class="list-item-content">
+			
+			<div class="no-selected-msg" ng-show="user.myBoards.length == 0">
+				شما هیچ بردی ندارید.<br />
+				برای ایجاد برد جدید روی گزینه "برد اطلاع رسانی جدید" کلیک کنید. 
+			</div>
+			
+			<div class="no-selected-msg" ng-show="user.myBoards.length !== 0 && boardIndex == -1">
+				برای دیدن اطلاعیه ها روی برد مورد نظر کلیک کنید.
+			</div>
 
 			<div class="board-content" ng-show="boardContentShow">
 				<div class="post-container" ng-repeat="post in selectedBoard.posts | orderBy : '-creationDate'">
-				<div class="post-title"><span>{{post.title}}</span></div>
+				<div class="post-title"><span>{{post.title}}</span>
+				<div class="delete-btn" ng-click="deletePostDialogShow($index)">
+							&times;
+						</div></div>
 				<div class="image-div" id="imageDiv{{$index}}"></div>
 				<div id="postContent{{$index}}" class="post-content">
 					<p ng-bind-html="getMultiline(post.content)"></p>
@@ -237,6 +270,23 @@
 			</div>
 		</div>
 		
+		<div class="modal" id="dialogModal">
+		<div class="modal-content dialog-content"><span>آیا برای حذف مطمئن هستید؟</span>
+		<div class="buttons-bar">
+				<div class="form-btn" onclick="document.getElementById('dialogModal').style.display='none';">
+					<span>
+						خیر
+					</span>
+				</div>
+				<div class="form-btn" ng-click="deletePost()">
+					<span>
+						بله
+					</span>
+				</div>
+			</div>
+		</div>
+		</div>
+		
 		</div>
 
 		<!-- all boards panel -->
@@ -263,6 +313,9 @@
 			</div>
 			
 		<div class="list-item-content" >
+		<div class="no-selected-msg" ng-show="allBoards.length == 0">
+				هیچ بردی وجود ندارد.
+			</div>
 			<div class="accordion-item" ng-repeat="board in allBoards | filter: filterByCatObj | filter: {name:searchBoardName}">
 				<div class="accordion-item-header">
 					<div class="accordion-item-info" id="acrdninfo{{$index}}" ng-click="openOrCloseAccordion($index)">
@@ -298,11 +351,16 @@
 			</div>
 		</div>
 		</div>
-	</div>
-
-	
+	</div>	
 
 </div>
+
+<div class="modal" id="imgModal">
+<span class="modalClose" onclick="document.getElementById('imgModal').style.display='none';">&times;</span>
+<img class="modal-content" id="modalImg">
+</div>
+
+
 
 </body>
 </html>

@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>سامانه بردهای اطلاع رسانی ققنوس</title>
 
-<link href="<spring:url value="/resources/css/icon.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
+<link href="<spring:url value="/resources/css/phoenix-icons.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
 <%-- <link href="<spring:url value="/resources/css/iconAnimation.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/> --%>
 <link href="<spring:url value="/resources/css/phoenix.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="<spring:url value="/resources/js/angular.min.js" htmlEscape="true"/>"></script>
@@ -33,7 +33,7 @@
 
 	<div id="header">
 		<div class="icon-container popup-container" ng-click="popupUserMenu('user-menu');">
-			<i class="demo-icon icon-user-2"></i>
+			<i class="demo-icon icon-user"></i>
 			<div id="user-menu" class="popup-content" >
 				<div class="popup-item">
 					<div class="mini-icon-container"><div><i class="demo-icon icon-info"></i></div></div>
@@ -119,7 +119,7 @@
 		<div class="toolsbar">
 			<div class="button" ng-click="showNewBoardPanel()">
 			<div class="btn-icon">
-			<i class="demo-icon  icon-plus-1"></i>
+			<i class="demo-icon  icon-plus"></i>
 			</div>
 			<span>
 			برد اطلاع رسانی جدید 
@@ -128,7 +128,7 @@
 			
 			<div class="button" ng-click="showNewPostPanel()" ng-show="boardContentShow">
 					<div class="btn-icon">
-						<i class="demo-icon  icon-plus-1"></i>
+						<i class="demo-icon  icon-pin"></i>
 					</div>
 					<span>
 						نصب اطلاعیه جدید روی برد
@@ -169,8 +169,10 @@
 				<div class="post-container" ng-repeat="post in selectedBoard.posts | orderBy : '-creationDate'">
 				<div class="post-title"><span>{{post.title}}</span>
 				<div class="delete-btn" ng-click="deletePostDialogShow($index)">
-							&times;
-						</div></div>
+					<div class="btn-icon">
+						<i class="demo-icon  icon-trash"></i>
+					</div>
+				</div></div>
 				<div class="image-div" id="imageDiv{{$index}}"></div>
 				<div id="postContent{{$index}}" class="post-content">
 					<p ng-bind-html="getMultiline(post.content)"></p>
@@ -293,6 +295,9 @@
 		<div class="tabContent" ng-controller="allboardscontroller" ng-hide="tabsHide[2]">
 		<div class="toolsbar">
 			<div class="button" ng-click="reload()">
+			<div class="btn-icon">
+				<i class="demo-icon  icon-arrows-cw"></i>
+			</div>
 			<span>
 			بار گذاری مجدد
 			</span>
@@ -328,7 +333,7 @@
 					</div>
 					<div id="flwbtn{{$index}}" class="follow-btn" ng-click="subscribe($index)">
 						<div class="btn-icon">
-							<i class="demo-icon  icon-plus-1"></i>
+							<i class="demo-icon  icon-plus"></i>
 						</div>
 						<span>
 							دنبال کن

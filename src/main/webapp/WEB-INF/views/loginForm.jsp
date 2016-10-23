@@ -8,7 +8,7 @@
         <title>ورود به سامانه</title>
 
         <link href="<spring:url value="/resources/css/loginPage.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"></link>
-        <link href="<spring:url value="/resources/css/icon.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
+        <link href="<spring:url value="/resources/css/phoenix-icons.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
 
         <script type="text/javascript" src="<spring:url value="/resources/js/login.js" htmlEscape="true"/>"></script>
     </head>

@@ -289,7 +289,7 @@ app.controller('myboardscontroller',
 					    	$scope.selectedBoard.posts.push(data);
 						$rootScope.progress.complete();
 						$rootScope.globalMessage = "انجام شد.";
-						if(data.file !== null) $rootScope.user.strogeUsage += data.file.fileSize;
+						if(data.file !== null) $rootScope.user.strogeUsage += data.fileInfo.fileSize;
 						$scope.hideNewPostPanel();
 					},
 					function fail(msg){

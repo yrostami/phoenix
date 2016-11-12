@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.phoenix.data.entity.Board;
 import com.phoenix.data.entity.BoardCategory;
 import com.phoenix.data.entity.BoardPost;
+import com.phoenix.data.entity.BoardStatistics;
 import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.Subscriber;
 import com.phoenix.data.entity.SystemInfo;
@@ -163,5 +164,14 @@ public class SubscriberController {
 				HttpStatus.OK);
 		
 		return new ResponseEntity<List<BoardPost>>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
+	}
+	
+	@RequestMapping(value="/board/{boardId}/statistics", method=RequestMethod.GET)
+	public ResponseEntity<BoardStatistics> getBoardStatistics(@PathVariable int boardId, HttpSession session)
+	{
+		if(subscriberService.isValidBoard(boardId))
+			return new ResponseEntity<BoardStatistics>(subscriberService.getBoardStatistics(boardId)
+					, responseHeader, HttpStatus.OK);
+		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
 	}
 }

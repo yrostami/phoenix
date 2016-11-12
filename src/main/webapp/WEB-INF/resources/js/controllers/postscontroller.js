@@ -170,5 +170,24 @@ function postscontroller($rootScope, $scope, userService) {
 	{
 		$scope.showBoard = $rootScope.user.subscribedBoards[index];
 		document.getElementById('boardInfoModal').style.display='block';
+		
+		if($scope.showBoard.postCount == undefined 
+			    || $scope.showBoard.subscriberCount == undefined
+			    || $scope.showBoard.postCount == null
+			    || $scope.showBoard.subscriberCount == null){
+			
+		    	userService.getBoardStatistics($scope.showBoard.id).then(
+		    		function success(data)
+		    		{
+		    		    $scope.showBoard.postCount = data.postCount;
+		    		    $scope.showBoard.subscriberCount = data.subscriberCount;
+		    		},
+		    		function fail()
+		    		{
+		    		    $scope.showBoard.postCount == null;
+		    		    $scope.showBoard.subscriberCount == null;
+		    		}
+		    	);
+		    }
 	}
 }

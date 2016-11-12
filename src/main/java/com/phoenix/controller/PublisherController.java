@@ -161,16 +161,5 @@ public class PublisherController {
 		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);	
 	}
 	
-	@RequestMapping(value="/board/{boardId}/statistics", method=RequestMethod.GET)
-	public ResponseEntity<BoardStatistics> getBoardStatistics(@PathVariable int boardId, HttpSession session)
-	{
-		int userId = (int) session.getAttribute("userId");
-		if (publisherService.isValidOwnership(userId, boardId))
-		{
-			return new ResponseEntity<BoardStatistics>(subscriberService.getBoardStatistics(boardId)
-					, responseHeader, HttpStatus.OK);
-		}
-		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
-	}
 
 }

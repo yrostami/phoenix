@@ -45,6 +45,8 @@ body
 	margin:0px;	
 	padding: 0px;
 	float: right;
+	-webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
 }
 
 #header
@@ -222,6 +224,7 @@ body
 #progressBar{
 	clear: both;
 	background-color: #00ABBD;
+	margin-bottom: 2px;
 }
 
 #content{
@@ -697,6 +700,8 @@ body
 	font-size: 16px;
 	margin-top: 10px;
 	display: table;
+	-webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
 }
 
 .post-title{
@@ -865,9 +870,12 @@ background-color: #98dde4;
 
 .board-info
 {
-	background: white;
+	background-color: #D2EFF2;
+	padding-bottom: 10px;
+	display: table;
+	width: 585px;
 	margin: 0px auto;
-	margin-top: 100px;
+	margin-top: 30px;
 }
 
 .dialog span{
@@ -905,4 +913,33 @@ background-color: #98dde4;
 	font-size: 22px;
 	color: #008291;
 	text-align: center;
+}
+
+.board-info-header{
+	width: 100%;
+	height: 40px;
+	font-size: 20px;
+	background-color: #98DDE4;
+}
+
+.board-info-header span{
+	padding-right: 10px;
+}
+
+.board-info-content{
+	width: 100%;
+	color: black;
+	font-size: 16px;
+	max-height: 600px;
+	overflow: auto;
+}
+
+.board-info-container{
+	background-color: #D2EFF2;
+	width: 700px;
+	max-height: 650px;
+}
+
+.board-info-container p , label{
+	padding-right: 5px; 
 }

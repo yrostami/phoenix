@@ -27,4 +27,5 @@ public interface SubscriberService {
 	public List<BoardPost> getBoardPosts(int boardId, int maxResult);
 	public List<BoardPost> getPostsBefore(int userId, Timestamp timestamp, int maxResult);
 	public List<BoardPost> getBoardPostsBefore(int boardId, Timestamp timestampp, int maxResult);
+	public boolean isValidBoard(int BoardId);
 }

@@ -205,4 +205,16 @@ public class SubscriberServiceImp implements SubscriberService {
 		return list;
 	}
 	
+	@Transactional
+	@Override
+	public boolean isValidBoard(int boardId) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("FROM Board AS B WHERE B.id = :xid");
+		query.setParameter("xid", boardId);
+		List<Board> list = query.getResultList();
+		if(list.size()>0)
+			return true;
+		return false;
+	}
+	
 }

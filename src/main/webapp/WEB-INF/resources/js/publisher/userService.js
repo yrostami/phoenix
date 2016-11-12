@@ -199,7 +199,7 @@ function userService($http, $q) {
 		var deferred = $q.defer();
 		return $http({
 			method : 'GET',
-			url : '/phoenix/publisher/board/' + boardId + "/statistics"
+			url : '/phoenix/subscriber/board/' + boardId + "/statistics"
 		}).then(function success(response) {
 			deferred.resolve(response.data);
 			return deferred.promise;

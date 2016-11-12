@@ -117,7 +117,7 @@
 				<div class="image-div" id="postImageDiv{{$index}}"></div>
 				<div id="postContent{{$index}}" class="post-content">
 					<p class="post-text" ng-bind-html="getMultiline(post.content)"></p>
-					<p class="post-board-name" ng-if="boardIndex == -1">برد اطلاع رسانی {{getBoardName(post.boardId)}}</p>
+					<p class="post-board-name" ng-if="selectedBoardIndex == -1">برد اطلاع رسانی {{getBoardName(post.boardId)}}</p>
 					<div class="post-footer">
 						<span ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1">
 						این اطلاعیه دارای عکس می باشد:</span> 
@@ -155,22 +155,30 @@
 			<div class="modal" id="boardInfoModal">
 				<div class="modal-content board-info">
 				
-				<div class="accordion-item">
-				<div class="accordion-item-header" >
-					<div class="accordion-item-info">
-						<span class="accordion-item-name">
-							{{showBoard.name}}
-						</span>
-					</div>
-					
+				<div class="board-info-container">
+				<div class="board-info-header" >
+					<span>
+						{{showBoard.name}}
+					</span>
 				</div>
-				<div class="accordion-item-content .accordion-item-show">
+				<div class="board-info-content">
 				<p>صاحب برد : {{showBoard.publisher.displayName}}</p>
 				<p>دسته بندی : {{showBoard.category.name}}</p>
 				<p>درباره این برد : </p>
 				<P ng-bind-html="getMultiline(showBoard.about);" ></P>
+				
+				<label class="label">
+			<span>تعداد دنبال کننده ها: </span>
+			<span ng-if="showBoard.subscriberCount !== undefined">{{showBoard.subscriberCount}}</span>
+			<div class="loader micro-loader" ng-if="showBoard.subscriberCount == undefined"></div>
+			</label>
+			
+			<label class="label">
+			<span>تعداد پست ها: </span>
+			<span ng-if="showBoard.postCount !== undefined">{{showBoard.postCount}}</span>
+			<div class="loader micro-loader" ng-if="showBoard.postCount == undefined"></div>
+			</label>
 				</div>
-			</div>
 				
 				<div class="buttons-bar">
 					<div class="form-btn" onclick="document.getElementById('boardInfoModal').style.display='none';">
@@ -184,6 +192,10 @@
 					</span>
 				</div>
 			</div>
+				
+			</div>
+				
+				
 		</div>
 		</div>
 			

@@ -26,15 +26,15 @@ public class PhoenixControllerAdvice  {
 	private static final Logger logger=LoggerFactory.getLogger(PhoenixControllerAdvice.class);
 
 	@ExceptionHandler(ValidationException.class)
-	public ResponseEntity<ValidationError> validationExceptionHandler(ValidationException e)
+	public ResponseEntity<Error> validationExceptionHandler(ValidationException e)
 	{
-		return new ResponseEntity<ValidationError>(e.getValidationError(),
+		return new ResponseEntity<Error>(e.getValidationError(),
 				responseHeader,
 				HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<String> genericExceptionHandler(Exception exception, 
+	public ResponseEntity<Error> genericExceptionHandler(Exception exception, 
 			HttpServletRequest request,HttpSession session)
 	{
 		// بدست آوردن اطلاعات مربوط به نشست
@@ -86,7 +86,7 @@ public class PhoenixControllerAdvice  {
 		
 		// گزارش کردن خطا و اطلاعات نشست و درخواستی که موجب خطا شده است
 		logger.error(requestLog + sessionLog,exception);
-		return new ResponseEntity<String> ("خطای داخلی سرور",
+		return new ResponseEntity<Error> (new Error(" خطا: سرور دچار خطای داخلی شده است."),
 				responseHeader,
 				HttpStatus.INTERNAL_SERVER_ERROR);
 	}

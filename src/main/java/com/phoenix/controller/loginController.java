@@ -10,8 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.phoenix.data.entity.AuthenticationResponse;
-import com.phoenix.data.service.UserService;
+import com.phoenix.controller.AuthenticationResponse;
+import com.phoenix.service.UserService;
 
 @Controller
 @RequestMapping("/login")
@@ -35,7 +35,7 @@ public class loginController {
 			else if(role.equals("Admin")) return "admin";
 			return "redirect:/";
 		}
-		session.setAttribute("login", false);
+//		session.setAttribute("login", false);
 		return "redirect:/";
 	}
 	

@@ -6,19 +6,28 @@ import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
+import com.phoenix.realtimeNotify.NotifyTask;
+
 @Configuration
+//@EnableAsync
 @EnableTransactionManagement
 @ComponentScan({ "com.phoenix" })
 @PropertySource(value = { "classpath:hibernate.properties" })
@@ -74,5 +83,34 @@ public class ApplicationConfig {
 	    resolver.setDefaultEncoding("utf-8");
 	    return resolver;
 	}
+	
+	@Bean
+	public TaskExecutor TaskExecutor()
+	{
+		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+		taskExecutor.setCorePoolSize(2);
+		taskExecutor.setMaxPoolSize(10);
+		taskExecutor.setQueueCapacity(100);
+		return taskExecutor;
+	}
+	
+	@Bean
+    public JavaMailSender getMailSender(){
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        //Using gmail
+        mailSender.setHost("smtp.gmail.com");
+        mailSender.setPort(587);
+        mailSender.setUsername("u3f.rst@gmail.com");
+        mailSender.setPassword("");
+         
+        Properties javaMailProperties = new Properties();
+        javaMailProperties.put("mail.smtp.starttls.enable", "true");
+        javaMailProperties.put("mail.smtp.auth", "true");
+        javaMailProperties.put("mail.transport.protocol", "smtp");
+        javaMailProperties.put("mail.debug", "true");//Prints out everything on screen
+         
+        mailSender.setJavaMailProperties(javaMailProperties);
+        return mailSender;
+    }
 	
 }

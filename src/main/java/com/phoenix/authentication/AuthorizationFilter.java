@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.stereotype.Controller;
-
 public class AuthorizationFilter implements Filter {
 
 	public AuthorizationFilter() {
@@ -39,10 +37,11 @@ public class AuthorizationFilter implements Filter {
 		}
 
 		// عدم کنترل درخواست برای صفحه ورود و منابع ایستا
-		if (path.equals("/") || path.equals("") 
+		if (path.equals("/") || path.equals("")
+				|| path.startsWith("/registration")
 				|| path.startsWith("/resources/") 
 				|| path.startsWith("/test")
-				||path.startsWith("/login/"))
+				||path.startsWith("/login"))
 			chain.doFilter(request, response);
 
 		// کنترل دسترسی با استفاده از اطلاعات ذخیره شده در نشست

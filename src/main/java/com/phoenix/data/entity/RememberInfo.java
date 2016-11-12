@@ -1,5 +1,7 @@
 package com.phoenix.data.entity;
 
+import java.sql.Timestamp;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -29,6 +31,12 @@ public class RememberInfo {
 	
 	@Column(name="user_role")
 	private String userRole;
+	
+	@Column(name="last_login")
+	private Timestamp lastLogin;
+	
+	@Column(name="agent")
+	private String agent;
 
 	public int getId() {
 		return id;
@@ -70,14 +78,32 @@ public class RememberInfo {
 		this.userRole = userRole;
 	}
 
+	public Timestamp getLastLogin() {
+		return lastLogin;
+	}
+
+	public void setLastLogin(Timestamp lastLogin) {
+		this.lastLogin = lastLogin;
+	}
+
+	public String getAgent() {
+		return agent;
+	}
+
+	public void setAgent(String agent) {
+		this.agent = agent;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((agent == null) ? 0 : agent.hashCode());
 		result = prime * result + ((cookieName == null) ? 0 : cookieName.hashCode());
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + id;
+		result = prime * result + ((lastLogin == null) ? 0 : lastLogin.hashCode());
 		result = prime * result + ((token == null) ? 0 : token.hashCode());
-		result = prime * result + (int) (userId ^ (userId >>> 32));
+		result = prime * result + userId;
 		result = prime * result + ((userRole == null) ? 0 : userRole.hashCode());
 		return result;
 	}
@@ -91,12 +117,22 @@ public class RememberInfo {
 		if (getClass() != obj.getClass())
 			return false;
 		RememberInfo other = (RememberInfo) obj;
+		if (agent == null) {
+			if (other.agent != null)
+				return false;
+		} else if (!agent.equals(other.agent))
+			return false;
 		if (cookieName == null) {
 			if (other.cookieName != null)
 				return false;
 		} else if (!cookieName.equals(other.cookieName))
 			return false;
 		if (id != other.id)
+			return false;
+		if (lastLogin == null) {
+			if (other.lastLogin != null)
+				return false;
+		} else if (!lastLogin.equals(other.lastLogin))
 			return false;
 		if (token == null) {
 			if (other.token != null)
@@ -116,8 +152,7 @@ public class RememberInfo {
 	@Override
 	public String toString() {
 		return "RememberInfo [id=" + id + ", userId=" + userId + ", cookieName=" + cookieName + ", token=" + token
-				+ ", userRole=" + userRole + "]";
+				+ ", userRole=" + userRole + ", lastLogin=" + lastLogin + ", agent=" + agent + "]";
 	}
-
 	
 }

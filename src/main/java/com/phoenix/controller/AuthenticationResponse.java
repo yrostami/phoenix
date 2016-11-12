@@ -1,4 +1,4 @@
-package com.phoenix.data.entity;
+package com.phoenix.controller;
 
 public class AuthenticationResponse {
 	

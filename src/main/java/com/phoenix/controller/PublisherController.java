@@ -8,6 +8,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.Operation;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.phoenix.data.entity.BoardInfo;
 import com.phoenix.data.entity.BoardPost;
+import com.phoenix.data.entity.BoardStatistics;
 import com.phoenix.data.entity.FileInfo;
 import com.phoenix.data.entity.Publisher;
-import com.phoenix.data.service.OperationStatus;
-import com.phoenix.data.service.PublisherService;
+import com.phoenix.service.OperationStatus;
+import com.phoenix.service.PublisherService;
+import com.phoenix.service.SubscriberService;
+import com.sun.mail.iap.Response;
 
 @RestController
 @RequestMapping(value = "/publisher")
@@ -33,6 +37,9 @@ public class PublisherController {
 
 	@Autowired
 	PublisherService publisherService;
+	
+	@Autowired
+	SubscriberService subscriberService;
 
 	@Autowired
 	HttpHeaders responseHeader;
@@ -47,20 +54,52 @@ public class PublisherController {
 	}
 
 	@RequestMapping(value = "/board", method = RequestMethod.POST)
-	public ResponseEntity<BoardInfo> createboard(@Valid @RequestBody BoardInfo newBoard, Errors error,
+	public ResponseEntity<BoardInfo> createBoard(@Valid @RequestBody BoardInfo newBoard, Errors error,
 			HttpSession session) throws ValidationException 
 	{
 		if (!error.hasErrors()) {
 			int userId = (int) session.getAttribute("userId");
-			if (newBoard.getPublisherId() == userId && publisherService.isValid(newBoard.getCategory())) {
-				publisherService.saveBoard(newBoard);
+			if (newBoard.getPublisherId() == userId && publisherService.isValid(newBoard.getCategory())) 
+			{
+				int boardId = publisherService.saveBoard(newBoard);
+				newBoard.setId(boardId);
 				return new ResponseEntity<BoardInfo>(newBoard, HttpStatus.CREATED);
 			}
+			return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
 		}
 		throw new ValidationException(error);
 	}
 
-
+	@RequestMapping(value = "/board", method = RequestMethod.PUT)
+	public ResponseEntity<BoardInfo> updateBoard(@Valid @RequestBody BoardInfo board, Errors error,
+			HttpSession session) throws ValidationException 
+	{
+		if (!error.hasErrors()) {
+			int userId = (int) session.getAttribute("userId");
+			if (board.getPublisherId() == userId 
+					&& publisherService.isValid(board.getCategory())
+					&& publisherService.isValidOwnership(userId, board.getId())) 
+			{
+				publisherService.updateBoard(board);
+				return new ResponseEntity<BoardInfo>(board, responseHeader, HttpStatus.CREATED);
+			}
+			return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+		}
+		throw new ValidationException(error);
+	}
+	
+	@RequestMapping(value="/board/{boardId}", method=RequestMethod.DELETE)
+	public ResponseEntity<OperationStatus> deleteBoard(@PathVariable int boardId, HttpSession session)
+	{
+		int userId = (int) session.getAttribute("userId");
+		if(publisherService.isValidOwnership(userId, boardId))
+		{
+			publisherService.deleteBoard(boardId, userId);
+			return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,responseHeader, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
+	}
+	
 	@RequestMapping(value = "board/{boardId}/post", method = RequestMethod.POST)
 	public ResponseEntity<BoardPost> addPost(HttpSession session, @PathVariable int boardId,
 			@RequestPart(name="file", required=false) MultipartFile file ,
@@ -74,6 +113,8 @@ public class PublisherController {
 				FileInfo fileInfo = null;
 				if(file != null && !file.isEmpty())
 				{	
+					if( !publisherService.savePermission(userId, file.getSize()))
+						throw new ValidationException(new Error("حافظه تخصیص یافته به شما برای آپلود کافی نمی باشد."));
 					String path = publisherService.saveFile(file, Integer.toString(boardId), file.getOriginalFilename());
 					fileInfo = new FileInfo();
 					fileInfo.setFilePath(path);
@@ -84,29 +125,28 @@ public class PublisherController {
 				{
 					publisherService.saveFileInfo(fileInfo);
 					newPost.setFileInfo(fileInfo);
-					publisherService.increaseStrogeUsage(userId, file.getSize());
+					publisherService.updateStrogeUsage(userId, file.getSize(),Operation.ADD);
 				}
 				newPost.setCreationDate(new Timestamp(System.currentTimeMillis()));
-				publisherService.savePost(newPost);
-				return new ResponseEntity<BoardPost>(newPost, HttpStatus.CREATED);
+				long postId = (long)publisherService.savePost(newPost);
+				newPost.setId(postId);
+				return new ResponseEntity<BoardPost>(newPost, responseHeader, HttpStatus.CREATED);
 			}
 		}
 		throw new ValidationException(error);
 	}
 	
-	@RequestMapping(value = "board/{boardId}/{postId}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "board/{boardId}/post/{postId}", method = RequestMethod.DELETE)
 	public ResponseEntity<OperationStatus> deletePost(@PathVariable int boardId, @PathVariable long postId, HttpSession session) 
-			throws ValidationException
+			throws ValidationException, IOException
 	{
 		int userId = (int) session.getAttribute("userId");
 		if(publisherService.isValidOwnership(userId, boardId))
 		{
-			boolean result = publisherService.deletePost(postId, boardId);
-			if(result)
-				return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,responseHeader,HttpStatus.OK);
-			return new ResponseEntity<OperationStatus>(OperationStatus.FAIL,responseHeader,HttpStatus.BAD_REQUEST);
+			publisherService.deletePost(postId, boardId, userId);
+			return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,responseHeader,HttpStatus.OK);
 		}
-		return new ResponseEntity<OperationStatus>(OperationStatus.PERMISSIONFAIL,responseHeader,HttpStatus.NOT_ACCEPTABLE);
+		return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
 	}
 	
 	@RequestMapping(value="/board/{boardId}/{start}", method=RequestMethod.GET)
@@ -115,10 +155,22 @@ public class PublisherController {
 	{
 		int userId = (int) session.getAttribute("userId");
 		if (publisherService.isValidOwnership(userId, boardId)){
-			List<BoardPost> list = publisherService.getMyBoardsPosts(boardId, start);
+			List<BoardPost> list = publisherService.getMyBoardPosts(boardId, start);
 			return new ResponseEntity<List<BoardPost>>(list,responseHeader,HttpStatus.OK);
 		}
-		return new ResponseEntity<>(null,HttpStatus.BAD_REQUEST);	
+		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);	
+	}
+	
+	@RequestMapping(value="/board/{boardId}/statistics", method=RequestMethod.GET)
+	public ResponseEntity<BoardStatistics> getBoardStatistics(@PathVariable int boardId, HttpSession session)
+	{
+		int userId = (int) session.getAttribute("userId");
+		if (publisherService.isValidOwnership(userId, boardId))
+		{
+			return new ResponseEntity<BoardStatistics>(subscriberService.getBoardStatistics(boardId)
+					, responseHeader, HttpStatus.OK);
+		}
+		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
 	}
 
 }

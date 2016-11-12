@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name="user_info")
 public class UserInfo {
 
+	@JsonIgnore
 	@Id
 	@Column(name="id")
 	@SequenceGenerator(name="userSeq", sequenceName="user_squence", allocationSize=1)
@@ -25,10 +27,11 @@ public class UserInfo {
 	private int id;
 	
 	@JsonIgnore
-	@NotBlank(message="نام کاربری نباید خالی باشد.")
-	@Length(min=8, max=50, message="نام کاربری باید دارای حداقل هشت و حداکثر پنجاه حرف باشد.")
-	@Column(name="username", length=50)
-	private String username;
+	@NotBlank(message="ایمیل نباید خالی باشد.")
+	@Length(max=320, message="ایمیل باید دارای حداکثر 320 حرف باشد.")
+	@Email
+	@Column(name="email", length=320)
+	private String email;
 	
 	@JsonIgnore
 	@NotBlank(message="رمز عبور نباید خالی باشد.")
@@ -47,23 +50,29 @@ public class UserInfo {
 	@JsonIgnore
 	@Column(name="stroge_usage")
 	private long strogeUsage;
+	
+	@JsonIgnore
+	@Column(name="active")
+	private boolean active;
 
+	@JsonProperty
 	public int getId() {
 		return id;
 	}
 
+	@JsonIgnore
 	public void setId(int id) {
 		this.id = id;
 	}
 
 	@JsonIgnore
-	public String getUsername() {
-		return username;
+	public String getEmail() {
+		return email;
 	}
 
 	@JsonProperty
-	public void setUsername(String username) {
-		this.username = username;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	@JsonIgnore
@@ -103,16 +112,25 @@ public class UserInfo {
 		this.strogeUsage = strogeUsage;
 	}
 
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((displayName == null) ? 0 : displayName.hashCode());
 		result = prime * result + id;
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		result = prime * result + (int) (strogeUsage ^ (strogeUsage >>> 32));
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		return result;
 	}
 
@@ -125,6 +143,8 @@ public class UserInfo {
 		if (getClass() != obj.getClass())
 			return false;
 		UserInfo other = (UserInfo) obj;
+		if (active != other.active)
+			return false;
 		if (displayName == null) {
 			if (other.displayName != null)
 				return false;
@@ -144,20 +164,17 @@ public class UserInfo {
 			return false;
 		if (strogeUsage != other.strogeUsage)
 			return false;
-		if (username == null) {
-			if (other.username != null)
+		if (email == null) {
+			if (other.email != null)
 				return false;
-		} else if (!username.equals(other.username))
+		} else if (!email.equals(other.email))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "UserInfo [id=" + id + ", username=" + username + ", displayName=" + displayName + ", role=" + role
-				+ ", strogeUsage=" + strogeUsage + "]";
-	}
-
-
-	
+		return "UserInfo [id=" + id + ", email=" + email + ", displayName=" + displayName + ", role=" + role
+				+ ", strogeUsage=" + strogeUsage + ", active=" + active + "]";
+	}	
 }

@@ -1,35 +1,36 @@
 var app = angular.module('phoenix', ['ngProgress']);
-app.controller('publisher', ['$sce','$rootScope', '$scope','userService', 'ngProgressFactory' ,
-                             function($sce, $rootScope, $scope, userService,ngProgressFactory)
-{	
-    $rootScope.classEditor = {
-		add : function(element, newClass){
-		    if(element.className.lastIndexOf(" ") !== (element.className.length - 1))
-			element.className += " ";
-		    element.className += newClass;
-		} ,
-		remove : function(element, className){
-		    if(element.className.indexOf(" ") !== 0)
-		    	element.className = " " + element.className;
-		    if(element.className.lastIndexOf(" ") !== (element.className.length - 1))
-			element.className += " ";
-		    element.className = element.className.replace(" " + className + " "," ");
+app.controller('publisher', ['$sce', '$rootScope', '$scope', 'userService',
+		'ngProgressFactory', publisher]);
+function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
+	$rootScope.classEditor = {
+		add : function(element, newClass) {
+			if (element.className.lastIndexOf(" ") !== (element.className.length - 1))
+				element.className += " ";
+			element.className += newClass;
 		},
-		contain : function(element, className){
-		    if(element.className.indexOf(" ") !== 0)
-		    	element.className = " " + element.className;
-		    if(element.className.lastIndexOf(" ") !== (element.className.length - 1))
-			element.className += " ";
-		    return !(element.className.indexOf(" " + className + " ") == -1)
+		remove : function(element, className) {
+			if (element.className.indexOf(" ") !== 0)
+				element.className = " " + element.className;
+			if (element.className.lastIndexOf(" ") !== (element.className.length - 1))
+				element.className += " ";
+			element.className = element.className.replace(
+					" " + className + " ", " ");
 		},
-		toggle : function(element, className){
-		    if(this.contain(element, className))
-			this.remove(element, className);
-		    else 
-			this.add(element, className);
-		} 
+		contain : function(element, className) {
+			if (element.className.indexOf(" ") !== 0)
+				element.className = " " + element.className;
+			if (element.className.lastIndexOf(" ") !== (element.className.length - 1))
+				element.className += " ";
+			return !(element.className.indexOf(" " + className + " ") == -1)
+		},
+		toggle : function(element, className) {
+			if (this.contain(element, className))
+				this.remove(element, className);
+			else
+				this.add(element, className);
+		}
 	};
-    
+
 	$scope.showPageLoading = true;
 	$scope.showApp = false;
 	$scope.abtouched = false;
@@ -38,119 +39,222 @@ app.controller('publisher', ['$sce','$rootScope', '$scope','userService', 'ngPro
 	$rootScope.progress.setHeight('6px');
 	$rootScope.progress.setColor('#ec3543');
 	$rootScope.progress.start();
-	$rootScope.notification = {message : "هیچ اعلانی وجود ندارد.", count : 0};
-	$rootScope.globalMsg = "";
+	$rootScope.notification = {
+		message : "هیچ اعلانی وجود ندارد.",
+		count : 0
+	};
 	$rootScope.user = {};
+	$rootScope.posts = new Array();
+	$rootScope.targetPosts = new Array();
 	$rootScope.allBoards = new Array();
 	$rootScope.allCategories = new Array();
 	$scope.tabsHide = [false, true, true];
 	$scope.tabsElement = [document.getElementById('news'),
-	                   document.getElementById('myBoards'),
-	                   document.getElementById('allBoards')];
-	$rootScope.classEditor.add($scope.tabsElement[0],'selected');
-	
-	userService.getUser().then(
-		function success(user)
-		{
-		    $rootScope.user = user;
-		    userService.getSystemInfo().then(function(data){$rootScope.systemInfo=data;});
-		    $rootScope.progress.complete();
-		    $scope.showPageLoading = false;
-		    $scope.showApp = true;
-		    $rootScope.progress.setParent(document.getElementById('progressBar'));
-		},
-		function fail(msg)
-		{
-		    $rootScope.showGlobalMsg("بار گذاری اظلاعات کاربری انجام نشد." + "\n" + msg, 5);
-		}
-	);
+			document.getElementById('myBoards'),
+			document.getElementById('allBoards')];
+	$rootScope.classEditor.add($scope.tabsElement[0], 'selected');
 
-	$scope.popupUserMenu = function(popupId){
-		var popup = document.getElementById(popupId);
-		$rootScope.classEditor.toggle(popup,"popup-content-show")
-	};
-	
-	function filterAllBoards(list,list2){
-		var newList = new Array();
-		for (var i = list.length - 1; i >= 0; i--){
-			var flag = true;
-			for (var j = $rootScope.user.subscribedBoards.length - 1; j >= 0; j--){
-				if(list2[j].id == list[i].id)
-					flag = false;}
-			if(flag)
-				newList.push(list[i]);}
-		return newList;
-	};
-	
-	$rootScope.initAllBoards = function(){
-		$rootScope.progress.start()
-		userService.getAllCategories().then(function(data){
-			$rootScope.allCategories = data;
-			userService.getAllBoards().then(function(data){
-				$rootScope.allBoards = filterAllBoards(data,$rootScope.user.subscribedBoards);
-				$scope.abtouched = true;
-				initTab(2);
-				$rootScope.progress.complete();
+	userService.getUser().then(
+			function success(user) {
+				$rootScope.user = user;
+				if(user.subscribedBoards.length == 0){
+					$rootScope.progress.complete();
+					$rootScope.progress.setHeight('5px');
+					$rootScope.progress.setParent(document.getElementById('progressBar'));
+					$scope.showPageLoading = false;
+					$scope.showApp = true;
+					return;
+				}
+				userService.getPosts().then(
+						function success(data)
+						{
+							if(data.length == 0)
+								$rootScope.showGlobalMsg("هیچ اطلاعیه ای وجود ندارد." + msg, 4);
+							$rootScope.posts = data;
+							$rootScope.targetPosts = $rootScope.posts;
+							$rootScope.progress.complete();
+							$rootScope.progress.setHeight('5px');
+							$rootScope.progress.setParent(document.getElementById('progressBar'));
+							$scope.showPageLoading = false;
+							$scope.showApp = true;
+						},
+						function fail(msg)
+						{
+							$rootScope.progress.complete();
+							$rootScope.progress.setHeight('5px');
+							$rootScope.progress.setParent(document.getElementById('progressBar'));
+							$scope.showPageLoading = false;
+							$scope.showApp = true;
+							$rootScope.showGlobalMsg("بار گذاری اطلاهیه ها انجام نشد." + msg, 4);
+						});
 			},
-			function fail(msg)
-			{
-			    $rootScope.showGlobalMsg("بار گذاری اظلاعات دسته بندی بردها انجام نشد." + "\n" + msg, 5);
-			    $rootScope.progress.complete();
-			}
-			);
-		},
-		function fail(msg)
-		{
-		    $rootScope.showGlobalMsg("بار گذاری اظلاعات بردها انجام نشد." + "\n" + msg, 5);
-		    $rootScope.progress.complete();
-		}
-		);
+			function fail(msg) {
+				$rootScope.showGlobalMsg("بار گذاری اظلاعات کاربری انجام نشد."+ "\n" + msg, 5);
+			});
+	userService.getSystemInfo().then(function(data) {
+		$rootScope.systemInfo = data;
+	});
+	
+	$scope.popupUserMenu = function(popupId) {
+		var popup = document.getElementById(popupId);
+		$rootScope.classEditor.toggle(popup, "popup-content-show")
+	};
+
+	$rootScope.initAllBoards = function() {
+		$rootScope.progress.start()
+		userService.getAllCategories().then(
+				function(data) {
+					$rootScope.allCategories = data;
+					userService.getAllBoards().then(
+							function(data) {
+								$rootScope.allBoards = data;
+								checkAllBoardsSubscribing();
+								$scope.abtouched = true;
+								initTab(2);
+								$rootScope.progress.complete();
+							},
+							function fail(msg) {
+								$rootScope.showGlobalMsg(
+										"بار گذاری اظلاعات دسته بندی بردها انجام نشد."
+												+ "\n" + msg, 5);
+								$rootScope.progress.complete();
+							});
+				},
+				function fail(msg) {
+					$rootScope.showGlobalMsg(
+							"بار گذاری اظلاعات بردها انجام نشد." + "\n" + msg, 5);
+					$rootScope.progress.complete();
+				});
 	};
 	
-	var initTab = function(index){
+	function checkAllBoardsSubscribing()
+	{
+		for(var i=$rootScope.allBoards.length - 1; i>=0; i--)
+		{
+			$rootScope.allBoards[i].isSubscribed = false;
+			for(var j=$rootScope.user.subscribedBoards.length -1; j>=0; j--)
+			{
+				if($rootScope.allBoards[i].id == $rootScope.user.subscribedBoards[j].id)
+				{
+					$rootScope.allBoards[i].isSubscribed = true;
+					break;
+				}
+			}
+		}
+	}
+
+	var initTab = function(index) {
 		$scope.tabsHide = [true, true, true];
 		for (var i = $scope.tabsElement.length - 1; i >= 0; i--)
 			$rootScope.classEditor.remove($scope.tabsElement[i], 'selected');
 		$rootScope.classEditor.add($scope.tabsElement[index], 'selected');
 		$scope.tabsHide[index] = false;
 	};
-	
-	$scope.openTab = function(index){
-		if(index == 2 && !$scope.abtouched)
-			$rootScope.initAllBoards();		
+
+	$scope.openTab = function(index) {
+		if (index == 2 && !$scope.abtouched)
+			$rootScope.initAllBoards();
 		else
 			initTab(index);
 	};
-	
-	$rootScope.showGlobalMsg = function(msg, seconds)
-	{
-	    var x = document.getElementById("globalMsg");
-	    $rootScope.globalMsg = msg;
-	    x.className = "show";
-	    var right = ((window.innerWidth - x.offsetWidth) - 20) / 2;
-	    x.style.right =  right + "px";
-	    setTimeout(function(){x.className = x.className.replace("show", "");}, seconds * 1000);
-	};
-	
-	$rootScope.getMultiline = function(text)
-	{
-	    return $sce.trustAsHtml(text.replace(/\n/g , " <br /> "));
-	};
-	
-}]);
 
-app.directive('fileUpload', function () {
-    return {
-        scope: true,
-        link: function (scope, el, attrs) {
-            el.bind('change', function (event) {
-                var files = event.target.files;
-                try{
-                scope.$emit("fileSelected", { file: files[0] });
-                }catch(e){
-                    scope.$emit("fileSelectedError", e.message);
-                }
-            });
-        }
-    };
+	$rootScope.showGlobalMsg = function(msg, seconds) {
+		var x = document.getElementById("globalMsg");
+		x.innerText = msg;
+		$rootScope.globalMsg = msg;
+		x.className = "show";
+		var right = ((window.innerWidth - x.offsetWidth) - 20) / 2;
+		x.style.right = right + "px";
+		setTimeout(function() {
+			x.className = x.className.replace("show", "");
+		}, seconds * 1000);
+	};
+
+	$rootScope.getMultiline = function(text) {
+		return $sce.trustAsHtml(text.replace(/\n/g, " <br /> "));
+	};
+	
+	$rootScope.getDate = function(miliseconds)
+	{
+		week= new Array("يكشنبه","دوشنبه","سه شنبه","چهارشنبه","پنج شنبه","جمعه","شنبه")
+		months = new Array("فروردين","ارديبهشت","خرداد","تير","مرداد","شهريور","مهر","آبان","آذر","دي","بهمن","اسفند");
+		a = new Date(miliseconds);
+		d= a.getDay();
+		day= a.getDate();
+		month = a.getMonth()+1;
+		year= a.getYear();
+		year = (year == 0)?2016:year;
+		(year<1000)? (year += 1900):true;
+		year -= ( (month < 3) || ((month == 3) && (day < 21)) )? 622:621;
+		switch (month) {
+		case 1: (day<21)? (month=10, day+=10):(month=11, day-=20); break;
+		case 2: (day<20)? (month=11, day+=11):(month=12, day-=19); break;
+		case 3: (day<21)? (month=12, day+=9):(month=1, day-=20); break;
+		case 4: (day<21)? (month=1, day+=11):(month=2, day-=20); break;
+		case 5:
+		case 6: (day<22)? (month-=3, day+=10):(month-=2, day-=21); break;
+		case 7:
+		case 8:
+		case 9: (day<23)? (month-=3, day+=9):(month-=2, day-=22); break;
+		case 10:(day<23)? (month=7, day+=8):(month=8, day-=22); break;
+		case 11:
+		case 12:(day<22)? (month-=3, day+=9):(month-=2, day-=21); break;
+		default: break;
+		}
+		
+		var min = (a.getMinutes()>9)? a.getMinutes():'0'+ a.getMinutes();
+		var hour = (a.getHours()>9)? a.getHours() : '0'+ a.getHours(); 
+		return week[d]+' '+day+' '+months[month-1]+' '+ year+' , '+ hour + ':' + min;
+	};
+
+};
+
+app.directive('fileUpload', function() {
+	return {
+		scope : true,
+		link : function(scope, el, attrs) {
+			el.bind('change', function(event) {
+				var files = event.target.files;
+				try {
+					scope.$emit("fileSelected", {
+						file : files[0]
+					});
+				} catch (e) {
+					scope.$emit("fileSelectedError", e.message);
+				}
+			});
+		}
+	};
 });
+
+app.filter('unique', function() {
+	   // we will return a function which will take in a collection
+	   // and a keyname
+	   return function(collection, keyname) {
+	      // we define our output and keys array;
+	      var output = [], 
+	          keys = [];
+
+	      // we utilize angular's foreach function
+	      // this takes in our original collection and an iterator function
+	      angular.forEach(collection, function(item) {
+	          // we check to see whether our object exists
+	          var key = item[keyname];
+	          // if it's not already part of our keys array
+	          var keyIndex;
+	          for( keyIndex = keys.length - 1; keyIndex>=0; keyIndex--)
+	        	  if(keys[keyIndex] == key)
+	        		  break;
+	          
+	          if(keys.indexOf(key) === -1) {
+	              // add it to our keys array
+	              keys.push(key); 
+	              // push this item to our final output array
+	              output.push(item);
+	          }
+	      });
+	      // return our array which should be devoid of
+	      // any duplicates
+	      return output;
+	   };
+	});

@@ -4,14 +4,19 @@ import org.springframework.validation.Errors;
 
 public class ValidationException extends Exception {
 
-	private ValidationError validationError;
+	private Error validationError;
 
 	public ValidationException(Errors errors)
 	{
-		validationError = ValidationError.createFromBindingErrors(errors);
+		validationError = Error.createFromBindingErrors(errors);
+	}
+	
+	public ValidationException(Error ve)
+	{
+		validationError = ve;
 	}
 
-	public ValidationError getValidationError() {
+	public Error getValidationError() {
 		return validationError;
 	}
 	

@@ -13,12 +13,20 @@ body
     font-family: bmitra;
 }
 
-#main{
+.main{
 padding: 0px;
 width: 330px;
-margin:  auto;
-margin-top: 150px;
 background-color: white;
+margin: 0px auto;
+}
+
+.login-form{
+	margin-top: 100px;
+}
+
+.registration-form
+{
+    margin-top: 40px;
 }
 
 #header
@@ -46,6 +54,7 @@ background-color: white;
 	color: #ec3543;
 	text-align: center;
 	font-size: 30px;
+	cursor: default;
 }
 
 .icon-container div{
@@ -54,12 +63,20 @@ background-color: white;
 
 #header-title
 {
+	cursor: default;
 	float: right;
 	margin-right: 10px;
 	margin-top: 7px;
 	text-align: center;
     font-size: 22px;
     font-weight: bold;
+}
+
+.xyz{
+	display: block;
+	text-align: center;
+	padding-right: 5px;
+	margin: 0px auto;
 }
 
 #content
@@ -107,15 +124,19 @@ label
   border-color:red;
 }
 
-#buttonContainer
+.buttonContainer
 {
-width: 40%;
+width: 50%;
 margin: 0px auto;
 padding: 0px;
 margin-bottom:20px; 
 }
 
-#button
+.mini{
+	width: 20%;
+}
+
+.button
 {
     width: 100%;
     color: white;
@@ -128,13 +149,17 @@ margin-bottom:20px;
     border: none;
 }
 
-#button:hover
+.button span{
+	font-size: 15px;
+}
+
+.button:hover
 {
     background-color: #ec3543;
     color: white;
 }
 
-#forget, #forget a
+.link, .link a
 {
     width: 100%;
     text-align: center;
@@ -142,7 +167,7 @@ margin-bottom:20px;
     color: rgb(0,171,189);
 }
 
-#forget a:hover
+.link a:hover
 {
     color: white;
     background-color:#ec3543;
@@ -150,12 +175,14 @@ margin-bottom:20px;
 
 #footer
 {
+	width: 100%;
     background-color: rgb(0,171,189);
     text-align: center;
     height: 30px;
     color: white;
     text-decoration: none;
     margin-bottom: 0px;
+    cursor: default;
 }
 
 .checked{
@@ -169,4 +196,46 @@ margin-bottom:20px;
 	font-size: 18px;
 	text-align: center;
 	color:white;
+}
+
+.loader{
+    border-radius: 50%;
+    -ms-animation: spin 0.9s linear infinite;
+    animation: spin 0.9s linear infinite;
+}
+
+.mini-loader{
+	float: right;
+	margin-top: 5px;
+	margin-right: 5px;
+	width: 20px;
+    height: 20px;
+    border: 2px solid #f27781;
+    border-top: 2px solid white;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@-webkit-keyframes spin{
+	0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.result-msg-container{
+	width: 45%;
+	padding: 15px;
+	display: none;
+	margin: 0px auto;
+	margin-top: 15%;
+	font-size: 20px;
+	background-color: white;
+	border-top: 2px solid rgb(0,171,189);
+	border-bottom: 2px solid rgb(0,171,189);  
+}
+
+.result-msg-container div{
+	margin-bottom: 15px;
 }

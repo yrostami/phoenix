@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.phoenix.data.entity.UserInfo;
-import com.phoenix.data.service.SubscriberService;
+import com.phoenix.service.SubscriberService;
 
 
 

@@ -13,6 +13,8 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Servlet implementation class ExceptionHandler
  */
@@ -88,7 +90,8 @@ public class PhoenixExceptionHandler extends HttpServlet {
 		mylogger.error(requestLog + sessionLog,ex);
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		response.setContentType("text/html; charset=utf-8");
-		response.getWriter().println("خطای داخلی سرور");
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.writeValue(response.getWriter(), new Error(" خطا: سرور دچار خطای داخلی شده است."));
 	}
 
 	/**

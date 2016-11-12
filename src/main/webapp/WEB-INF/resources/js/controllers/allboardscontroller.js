@@ -1,10 +1,12 @@
-app.controller('allboardscontroller', ['$rootScope', '$scope','userService',
-                                       function($rootScope, $scope, userService)
+app.controller('allboardscontroller', ['$rootScope', '$scope','userService', allboardscontroller]);
+function allboardscontroller($rootScope, $scope, userService)
 {
 	$scope.filterByCatObj={};
 	$scope.listIndex = -1;
 	
-	$scope.openOrCloseAccordion = function(index){
+	$scope.openOrCloseAccordion = function(index, condition){
+		if(!condition)
+			return;
 	    $rootScope.classEditor.toggle(document.getElementById('acrdn'+index), 'accordion-item-show');
 	    $rootScope.classEditor.toggle(document.getElementById('acrdninfo'+index), 'accorrdion-open');
 		var acrdnicn = document.getElementById('acrdnicn'+index);
@@ -12,18 +14,25 @@ app.controller('allboardscontroller', ['$rootScope', '$scope','userService',
 		$rootScope.classEditor.toggle(acrdnicn,"icon-up-open")
 	};
 	
-	$scope.subscribe = function(index){
+	$scope.subscribe = function(index,id){
 	    $rootScope.classEditor.toggle(document.getElementById('flwbtn'+index), 'hidden');
 	    $rootScope.classEditor.toggle(document.getElementById('flwbtnwt'+index), 'hidden');
 	    
 		var subscribedInfo = {
 				subscriberId : $rootScope.user.id ,
-				boardId : $rootScope.allBoards[index].id
+				boardId : id
 		};
 		userService.subscribe(subscribedInfo).then(
 				function success(data){
-					$rootScope.user.subscribedBoards.push($rootScope.allBoards[index]);
-					$rootScope.allBoards.splice(index, 1);
+				    var boardIndex = -1; 
+				    for(i = $rootScope.allBoards.length - 1; i>=0 ; i--){
+					if($rootScope.allBoards[i].id == id){
+					    boardIndex = i;
+					}
+				    }
+				    $rootScope.allBoards[boardIndex].isSubscribed = true;
+				    $rootScope.user.subscribedBoards.push($rootScope.allBoards[boardIndex]);
+				    
 				},
 				function fail(message){
 					$rootScope.globalMessage = message;
@@ -34,7 +43,6 @@ app.controller('allboardscontroller', ['$rootScope', '$scope','userService',
 	};
 	
 $scope.filterByCat = function(index){
-	if(index !== $scope.listIndex){
 		$scope.searchBoardName = "";
 		if(index == -1)
 			$scope.filterByCatObj = {};
@@ -43,11 +51,19 @@ $scope.filterByCat = function(index){
 		$rootScope.classEditor.remove(document.getElementById('catItem' + $scope.listIndex), 'selected');
 		$rootScope.classEditor.add(document.getElementById('catItem'+index),'selected');
 		$scope.listIndex = index;
-		}
 	};
 
 	$scope.reload = function(){
 		$rootScope.initAllBoards();
 		$scope.filterByCat(-1);
 	};
-}])
+	
+	$scope.isSubscribed = function(boardId)
+	{
+		for(var i=$rootScope.user.subscribedBoards.length - 1; i>=0 ; i--)
+			if($rootScope.user.subscribedBoards[i].id == boardId)
+				return true;
+		
+		return false;
+	}
+}

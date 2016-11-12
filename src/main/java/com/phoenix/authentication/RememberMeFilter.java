@@ -1,6 +1,7 @@
 package com.phoenix.authentication;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -18,6 +19,8 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -26,6 +29,8 @@ import com.phoenix.data.entity.RememberInfo;
 public class RememberMeFilter implements Filter {
 
 	SessionFactory sessionFactory;
+	
+	private static final Logger logger = LoggerFactory.getLogger(RememberMeFilter.class);
 
 	public RememberMeFilter() {
 	}
@@ -47,13 +52,10 @@ public class RememberMeFilter implements Filter {
 						break;
 				if (i < cookies.length) {
 					HttpServletResponse httpResponse = (HttpServletResponse) response;
-					if (!(rememberByCookie(cookies[i], httpResponse, httpSession)))
-
+					if (!(rememberByCookie(cookies[i], httpResponse, httpRequest, httpSession)))
 						httpSession.setAttribute("Authenticated", false);
-
 				} else
 					httpSession.setAttribute("Authenticated", false);
-
 			} else
 				httpSession.setAttribute("Authenticated", false);
 		}
@@ -61,6 +63,7 @@ public class RememberMeFilter implements Filter {
 	}
 
 	private boolean rememberByCookie(Cookie cookie, HttpServletResponse response,
+			HttpServletRequest request,
 			HttpSession httpSession) {
 		boolean result = false;
 		Session session = null;
@@ -86,12 +89,16 @@ public class RememberMeFilter implements Filter {
 			cookie.setMaxAge(30 * 24 * 60 * 60);
 			cookie.setPath("/");
 			response.addCookie(cookie);
-
+			
+			remember.setAgent(request.getHeader("User-Agent"));
+			remember.setLastLogin(new Timestamp(System.currentTimeMillis()));
+			session.update(remember);
+			
 			result = true;
-
 		}
 		tx.commit();
 		 } catch (Exception ex) {
+			 logger.error("RememberMeFilter\n",ex);
 		 }
 		session.close();
 		return result;

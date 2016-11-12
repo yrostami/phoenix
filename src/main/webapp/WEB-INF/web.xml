@@ -35,6 +35,7 @@
       <param-value>com.phoenix.config.MvcConfig</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
+    <async-supported>true</async-supported>
   </servlet>
   
   <servlet-mapping>
@@ -47,6 +48,7 @@
   	<filter-class>
   	com.phoenix.authentication.RememberMeFilter
   	</filter-class>
+  	<async-supported>true</async-supported>
   </filter>
   
   <filter>
@@ -61,11 +63,14 @@
     <filter-class>
   	com.phoenix.authentication.AuthorizationFilter
   	</filter-class>
+  	<async-supported>true</async-supported>
   </filter>
   
   <filter-mapping>
   	<filter-name>rememberMeFilter</filter-name>
   	<url-pattern>/*</url-pattern>
+  	<dispatcher>REQUEST</dispatcher>
+  	<dispatcher>ASYNC</dispatcher>
   </filter-mapping>
   
   <filter-mapping>
@@ -76,6 +81,8 @@
   <filter-mapping>
     <filter-name>authorizationFilter</filter-name>
     <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>ASYNC</dispatcher>
   </filter-mapping>
   
   <error-page>

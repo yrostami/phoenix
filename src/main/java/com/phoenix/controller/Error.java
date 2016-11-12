@@ -8,18 +8,18 @@ import org.springframework.validation.ObjectError;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-public class ValidationError {
+public class Error {
 
-	private final String errorMessage;
+	private final String message;
 	
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> errors = new ArrayList<String>();
 
-    public ValidationError(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public Error(String errorMessage) {
+        this.message = errorMessage;
     }
 
-    public void addValidationError(String error) {
+    public void addError(String error) {
         errors.add(error);
     }
 
@@ -27,15 +27,15 @@ public class ValidationError {
         return errors;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getMessage() {
+        return message;
     }	
     
 
-    public static ValidationError createFromBindingErrors(Errors errors) {
-        ValidationError validationError = new ValidationError(errors.getErrorCount() + " خطای اعتبار سنجی :");
+    public static Error createFromBindingErrors(Errors errors) {
+        Error validationError = new Error(errors.getErrorCount() + " خطای اعتبار سنجی :");
         for (ObjectError objectError : errors.getAllErrors()) {
-        	validationError.addValidationError(objectError.getDefaultMessage());
+        	validationError.addError(objectError.getDefaultMessage());
         }
         return validationError;
     }

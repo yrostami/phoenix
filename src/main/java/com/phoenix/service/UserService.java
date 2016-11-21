@@ -10,4 +10,6 @@ public interface UserService {
 	public boolean isValidEmail(String email);
 	public boolean emailDuplication(String email);
 	public int saveUserInfo(UserInfo userInfo);
+	public UserInfo updateDisplayName(int id, String password, String displayName);
+	public int updatePassword(int id, String currentPassword, String newPassword);
 }

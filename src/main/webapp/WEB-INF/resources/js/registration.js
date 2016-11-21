@@ -181,4 +181,4 @@ function postRegisterInfo(email, password, displayName) {
 function goToLoginPage()
 {
     window.location.href = 'http://localhost:8080/phoenix/';
-}
+};

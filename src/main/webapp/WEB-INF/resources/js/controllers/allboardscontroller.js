@@ -18,11 +18,7 @@ function allboardscontroller($rootScope, $scope, userService)
 	    $rootScope.classEditor.toggle(document.getElementById('flwbtn'+index), 'hidden');
 	    $rootScope.classEditor.toggle(document.getElementById('flwbtnwt'+index), 'hidden');
 	    
-		var subscribedInfo = {
-				subscriberId : $rootScope.user.id ,
-				boardId : id
-		};
-		userService.subscribe(subscribedInfo).then(
+		userService.subscribe(id).then(
 				function success(data){
 				    var boardIndex = -1; 
 				    for(i = $rootScope.allBoards.length - 1; i>=0 ; i--){

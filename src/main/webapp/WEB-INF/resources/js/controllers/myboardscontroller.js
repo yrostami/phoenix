@@ -53,12 +53,33 @@ function myboardscontroller ($compile, $sce, $scope, $rootScope, userService)
 			
 			$scope.getImage = function(index, path)
 			{
-			    var imageDiv = document.getElementById("imageDiv" + index);
-			    imageDiv.innerHTML = '<img class="post-img" src="/phoenix/subscriber/getfile/'+path+'">';
+			    var imageDiv = document.getElementById('myPostImageDiv' + index);
+			    var postImageViewTitle = document.getElementById('myPostImageViewTitle'+index);
+			    var postImageTitle = document.getElementById('myPostImageTitle'+index)
+			    var postImageLoader = document.getElementById('myPostImageLoader'+index);
+			    postImageViewTitle.style.display = 'none';
+			    postImageLoader.style.display = 'inline-block';
+			    var img = new Image();
+			    img.className = 'post-img';
+			    img.onload = function()
+			    {
+			    	postImageLoader.style.display = 'none';
+			    	postImageTitle.style.display = 'none';
+			    	imageDiv.appendChild(this);
+			    };
+			    
+			    img.onerror = function()
+			    {
+			    	postImageLoader.style.display = 'none';
+			    	postImageViewTitle.style.display = 'inline-block';
+			    };
+			    
+			    img.src = '/phoenix/subscriber/getfile/'+path;
+			    
 			    imageDiv.onclick = function()
 			    {
-				document.getElementById('imgModal').style.display='block';
-				document.getElementById('modalImg').src = '/phoenix/subscriber/getfile/'+path;
+			    	document.getElementById('imgModal').style.display='block';
+			    	document.getElementById('modalImg').src = '/phoenix/subscriber/getfile/'+path;
 			    }
 			};
 		

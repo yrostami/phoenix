@@ -216,5 +216,17 @@ public class SubscriberServiceImp implements SubscriberService {
 			return true;
 		return false;
 	}
+
+	@Transactional
+	@Override
+	public int deleteSubscribedBoardInfo(int userId, int boardId) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("DELETE FROM SubscribedBoardInfo AS SB "
+				+ "WHERE SB.subscriberId = :xuserId AND SB.boardId = :xboardId");
+		query.setParameter("xuserId", userId);
+		query.setParameter("xboardId", boardId);
+		int rows = query.executeUpdate();
+		return rows;
+	}
 	
 }

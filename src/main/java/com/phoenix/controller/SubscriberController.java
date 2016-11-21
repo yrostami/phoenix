@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -31,7 +30,10 @@ import com.phoenix.data.entity.BoardStatistics;
 import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.Subscriber;
 import com.phoenix.data.entity.SystemInfo;
+import com.phoenix.data.entity.UserInfo;
+import com.phoenix.service.OperationStatus;
 import com.phoenix.service.SubscriberService;
+import com.phoenix.service.UserService;
 
 @RestController
 @RequestMapping(value="/subscriber")
@@ -42,6 +44,9 @@ public class SubscriberController {
 	
 	@Autowired
 	SubscriberService subscriberService;
+	
+	@Autowired
+	UserService userService;
 	
 	@RequestMapping(value="/user")
 	public ResponseEntity<Subscriber> getSubscriber(HttpSession session)
@@ -68,20 +73,20 @@ public class SubscriberController {
 		return new ResponseEntity<List<BoardCategory>> (list,responseHeader,HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/subscribe", method=RequestMethod.POST)
-	public ResponseEntity<SubscribedBoardInfo> subscribe(@Valid @RequestBody SubscribedBoardInfo sbi,
-			Errors errors, HttpSession session) throws ValidationException
+	@RequestMapping(value="/board/{boardId}/subscribe", method=RequestMethod.GET)
+	public ResponseEntity<SubscribedBoardInfo> subscribe(@PathVariable int boardId,HttpSession session) throws ValidationException
 	{
-		if(!errors.hasErrors()){
+		if(subscriberService.isValidBoard(boardId)){
 			int userId = (int)session.getAttribute("userId");
-			if(userId == sbi.getSubscriberId() && !subscriberService.isSubscribed(userId , sbi.getBoardId())){
+			if(!subscriberService.isSubscribed(userId ,boardId)){
+				SubscribedBoardInfo sbi = new SubscribedBoardInfo();
+				sbi.setBoardId(boardId);
+				sbi.setSubscriberId(userId);
 			subscriberService.saveSubscribedBoardInfo(sbi);
 			return new ResponseEntity<SubscribedBoardInfo>(sbi, responseHeader, HttpStatus.OK);	
 			}
-			SubscribedBoardInfo sbiNull = null;	
-			return new ResponseEntity<SubscribedBoardInfo>(sbiNull,HttpStatus.NOT_ACCEPTABLE);	
 		}
-		throw new ValidationException(errors);	
+		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
 	}
 	
 	@RequestMapping(value="/systeminfo", method=RequestMethod.GET)
@@ -173,5 +178,47 @@ public class SubscriberController {
 			return new ResponseEntity<BoardStatistics>(subscriberService.getBoardStatistics(boardId)
 					, responseHeader, HttpStatus.OK);
 		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
+	}
+	
+	@RequestMapping(value="/board/{boardId}/unsubscribe", method=RequestMethod.GET)
+	public ResponseEntity<OperationStatus> unsubscribe(HttpSession session, @PathVariable int boardId)
+	{
+		int userId = (int) session.getAttribute("userId");
+		if(subscriberService.deleteSubscribedBoardInfo(userId, boardId) > 0)
+			return new ResponseEntity<OperationStatus> (OperationStatus.SUCCESSFUL,
+					responseHeader, HttpStatus.OK);
+		return new ResponseEntity<OperationStatus> (OperationStatus.FAIL,
+				responseHeader, HttpStatus.NOT_FOUND);
+	}
+	
+	@RequestMapping(value="/user/updatename", method=RequestMethod.POST)
+	public ResponseEntity<UserInfo> updateDisplayName(@Valid @RequestBody DisplayNameUpdate nameUpdate,
+			Errors error, HttpSession session) throws ValidationException
+	{
+		if(!error.hasErrors())
+		{
+			int userId = (int) session.getAttribute("userId");
+			UserInfo userInfo = userService.updateDisplayName(userId,
+					nameUpdate.getPassword(), nameUpdate.getDisplayName());
+			return new ResponseEntity<UserInfo> (userInfo,responseHeader,HttpStatus.OK);
+		}
+		throw new ValidationException(error);
+	}
+	
+	@RequestMapping(value="/user/updatepassword", method=RequestMethod.POST)
+	public ResponseEntity<OperationStatus> updatePassword(@Valid @RequestBody PasswordUpdate passUpdate,
+			Errors error, HttpSession session) throws ValidationException
+	{
+		if(!error.hasErrors())
+		{
+			int userId = (int) session.getAttribute("userId");
+			int rows = userService.updatePassword(userId, passUpdate.getCurrentPassword(), passUpdate.getNewPassword());
+			if(rows>0)
+			return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,responseHeader,
+					HttpStatus.OK);
+			return new ResponseEntity<OperationStatus>(OperationStatus.FAIL,responseHeader,
+					HttpStatus.NOT_ACCEPTABLE);
+		}
+		throw new ValidationException(error);
 	}
 }

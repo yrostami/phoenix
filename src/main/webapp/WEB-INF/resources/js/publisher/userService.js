@@ -66,12 +66,11 @@ function userService($http, $q) {
 		});
 	};
 
-	function subscribe(postData) {
+	function subscribe(boardId) {
 		var deferred = $q.defer();
 		return $http({
-			method : 'POST',
-			data : postData,
-			url : '/phoenix/subscriber/subscribe'
+			method : 'GET',
+			url : '/phoenix/subscriber/board/'+boardId+'/subscribe'
 		}).then(function success(response) {
 			deferred.resolve(response.data);
 			return deferred.promise;
@@ -267,6 +266,53 @@ function userService($http, $q) {
 		});
 	}
 	
+	function unsubscribe(boardId)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'GET',
+			url : '/phoenix/subscriber/board/'+boardId+'/unsubscribe'
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
+	function updatePassword(updateData)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'POST',
+			data : updateData,
+			url : '/phoenix/subscriber/user/updatepassword'
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
+	function updateDisplayName(updateData)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'POST',
+			data : updateData,
+			url : '/phoenix/subscriber/user/updatename'
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
 	var services = {
 		getUser : getUser,
 		getAllCategories : getAllCategories,
@@ -283,7 +329,10 @@ function userService($http, $q) {
 		getPosts : getPosts,
 		getBoardsPosts : getBoardsPosts,
 		getPostsBefore : getPostsBefore,
-		getBoardPostsBefore : getBoardPostsBefore
+		getBoardPostsBefore : getBoardPostsBefore,
+		unsubscribe : unsubscribe,
+		updateDisplayName : updateDisplayName,
+		updatePassword : updatePassword
 	};
 	
 	return services;

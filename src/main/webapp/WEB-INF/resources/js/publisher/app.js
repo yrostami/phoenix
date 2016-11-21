@@ -33,6 +33,8 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 
 	$scope.showPageLoading = true;
 	$scope.showApp = false;
+	$scope.mainContentShow = true;
+	$scope.userInfoPanelShow = false;
 	$scope.abtouched = false;
 	$rootScope.progress = ngProgressFactory.createInstance();
 	$rootScope.progress.setParent(document.getElementById('pageLoadingBar'));
@@ -48,6 +50,7 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 	$rootScope.targetPosts = new Array();
 	$rootScope.allBoards = new Array();
 	$rootScope.allCategories = new Array();
+	$scope.editDisplayName = "";
 	$scope.tabsHide = [false, true, true];
 	$scope.tabsElement = [document.getElementById('news'),
 			document.getElementById('myBoards'),
@@ -59,7 +62,7 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 				$rootScope.user = user;
 				if(user.subscribedBoards.length == 0){
 					$rootScope.progress.complete();
-					$rootScope.progress.setHeight('5px');
+					$rootScope.progress.setHeight('3px');
 					$rootScope.progress.setParent(document.getElementById('progressBar'));
 					$scope.showPageLoading = false;
 					$scope.showApp = true;
@@ -157,7 +160,26 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 		else
 			initTab(index);
 	};
+	
+	$scope.showUserInfoPanel = function()
+	{
+		$scope.mainContentShow = false;
+		$scope.userInfoPanelShow = true;
+	};
 
+	$scope.hideUserInfoPanel = function()
+	{
+		$scope.mainContentShow = true;
+		$scope.userInfoPanelShow = false;
+	};
+	
+	$scope.openOrCloseFieldset = function(id)
+	{
+		$rootScope.classEditor.toggle(document.getElementById('userInfoFieldset'+id),'open-fieldset');
+		$rootScope.classEditor.toggle(document.getElementById('fieldset-icon'+id),'icon-down-open');
+		$rootScope.classEditor.toggle(document.getElementById('fieldset-icon'+id),'icon-up-open');
+	}
+	
 	$rootScope.showGlobalMsg = function(msg, seconds) {
 		var x = document.getElementById("globalMsg");
 		x.innerText = msg;
@@ -169,14 +191,116 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 			x.className = x.className.replace("show", "");
 		}, seconds * 1000);
 	};
-
+	
 	$rootScope.getMultiline = function(text) {
 		return $sce.trustAsHtml(text.replace(/\n/g, " <br /> "));
 	};
 	
+	$scope.updateDisplayName = function()
+	{
+		var flag = true;
+		
+		var passValidationMsg = document.getElementById('PassFNUValidationMsg');
+		var newNameValidationMsg = document.getElementById('newNameValidationMsg');
+		
+		passValidationMsg.innerText = "";
+		newNameValidationMsg.innerText = "";
+		
+		var pass = document.getElementById('passwordForNameUpdate').value;
+		if(pass.length < 8)
+		{
+			passValidationMsg.innerText = "گذرواژه باید شامل حداقل 8 حرف باشد.";
+			flag = false;
+		}
+		if(!isValidDisplayName($scope.editDisplayName))
+		{
+			newNameValidationMsg.innerText = "نام نباید خالی باشد.";
+			flag = false;
+		}
+		if(flag)
+		{
+			var data = 
+			{
+				password: pass,
+				displayName: $scope.editDisplayName
+			};
+			
+			$rootScope.progress.start();
+			userService.updateDisplayName(data).then(
+				function success(data)
+				{
+					$rootScope.user.displayName = data.displayName;
+					$rootScope.progress.complete();
+				},
+				function fail(msg)
+				{
+					$rootScope.progress.complete();
+					$rootScope.showGlobalMsg("انجام نشد." + "\n" + msg, 4);
+				});
+		}
+	};
+	
+	function isValidDisplayName(displayName) {
+	    if (displayName.length == 0 || displayName == null)
+		return false;
+	    var valid = false;
+	    for (var i = 0; i < displayName.length; i--) {
+		if (displayName.charAt(i) !== ' ') {
+		    valid = true;
+		    break;
+		}
+	    }
+	    return valid;
+	}
+	
+	$scope.updatePassword = function()
+	{
+		var flag = true;
+		
+		var currentPass = document.getElementById('passwordForUpdate').value;
+		var newPass = document.getElementById('newPassword').value;
+		
+		var passValidationMsg = document.getElementById('passForUpdateValidationMsg');
+		var newPassValidationMsg = document.getElementById('newPassValidationMsg');
+		
+		passValidationMsg.innerText = "";
+		newPassValidationMsg.innerText = "";
+		
+		if(currentPass.length < 8)
+		{
+			passValidationMsg.innerText = "گذرواژه باید شامل حداقل 8 حرف باشد.";
+			flag = false;
+		}
+		
+		if(newPass.length < 8)
+		{
+			newPassValidationMsg.innerText = "گذرواژه باید شامل حداقل 8 حرف باشد.";
+			flag = false;
+		}
+		if(flag)
+		{
+			var data=
+			{
+				currentpassword: currentPass,
+				newPassword: newPass
+			};
+			$rootScope.progress.start();
+			userService.updatePassword(data).then(
+					function success(data)
+					{
+						$rootScope.progress.complete();
+					},
+					function fail()
+					{
+						$rootScope.progress.complete();
+						$rootScope.showGlobalMsg("انجام نشد." + "\n" + msg, 4);
+					});
+		}
+	}
+	
 	$rootScope.getDate = function(miliseconds)
 	{
-		week= new Array("يكشنبه","دوشنبه","سه شنبه","چهارشنبه","پنج شنبه","جمعه","شنبه")
+		week= new Array("يكشنبه","دوشنبه","سه شنبه","چهارشنبه","پنج شنبه","جمعه","شنبه");
 		months = new Array("فروردين","ارديبهشت","خرداد","تير","مرداد","شهريور","مهر","آبان","آذر","دي","بهمن","اسفند");
 		a = new Date(miliseconds);
 		d= a.getDay();
@@ -228,33 +352,21 @@ app.directive('fileUpload', function() {
 });
 
 app.filter('unique', function() {
-	   // we will return a function which will take in a collection
-	   // and a keyname
 	   return function(collection, keyname) {
-	      // we define our output and keys array;
 	      var output = [], 
 	          keys = [];
-
-	      // we utilize angular's foreach function
-	      // this takes in our original collection and an iterator function
 	      angular.forEach(collection, function(item) {
-	          // we check to see whether our object exists
 	          var key = item[keyname];
-	          // if it's not already part of our keys array
 	          var keyIndex;
 	          for( keyIndex = keys.length - 1; keyIndex>=0; keyIndex--)
 	        	  if(keys[keyIndex] == key)
 	        		  break;
 	          
 	          if(keys.indexOf(key) === -1) {
-	              // add it to our keys array
 	              keys.push(key); 
-	              // push this item to our final output array
 	              output.push(item);
 	          }
 	      });
-	      // return our array which should be devoid of
-	      // any duplicates
 	      return output;
 	   };
 	});

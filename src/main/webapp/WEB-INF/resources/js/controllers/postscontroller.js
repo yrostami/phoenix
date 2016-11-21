@@ -36,6 +36,7 @@ function postscontroller($rootScope, $scope, userService) {
 			}
 			else
 				$rootScope.targetPosts = $rootScope.posts;
+			
 			$scope.selectedBoardIndex = index;
 			$scope.selectedBoardId = boardId;
 			$scope.loadFail = false;
@@ -141,23 +142,45 @@ function postscontroller($rootScope, $scope, userService) {
 				}
 				$rootScope.progress.complete();
 				httpBusy = false;
+				$scope.morePostLoad = false;
 			},
 			function fail(msg) {
 				$rootScope.progress.complete();
 				httpBusy = false;
 				$rootScope.showGlobalMsg("بار گذاری اطلاهیه ها انجام نشد." + msg, 4);
+				$scope.morePostLoad = false;
 			});
 	}
 
 	$scope.getImage = function(index, path) {
-		var imageDiv = document.getElementById("postImageDiv" + index);
-		imageDiv.innerHTML = '<img class="post-img" src="/phoenix/subscriber/getfile/'
-				+ path + '">';
-		imageDiv.onclick = function() {
-			document.getElementById('imgModal').style.display = 'block';
-			document.getElementById('modalImg').src = '/phoenix/subscriber/getfile/'
-					+ path;
-		}
+		var imageDiv = document.getElementById('postImageDiv' + index);
+	    var postImageViewTitle = document.getElementById('postImageViewTitle'+index);
+	    var postImageTitle = document.getElementById('postImageTitle'+index);
+	    var postImageLoader = document.getElementById('postImageLoader'+index);
+	    postImageViewTitle.style.display = 'none';
+	    postImageLoader.style.display = 'inline-block';
+	    var img = new Image();
+	    img.className = 'post-img';
+	    img.onload = function()
+	    {
+	    	postImageLoader.style.display = 'none';
+	    	postImageTitle.style.display = 'none';
+	    	imageDiv.appendChild(this);
+	    };
+	    
+	    img.onerror = function()
+	    {
+	    	postImageLoader.style.display = 'none';
+	    	postImageViewTitle.style.display = 'inline-block';
+	    };
+	    
+	    img.src = '/phoenix/subscriber/getfile/'+path;
+	    
+	    imageDiv.onclick = function()
+	    {
+	    	document.getElementById('imgModal').style.display='block';
+	    	document.getElementById('modalImg').src = '/phoenix/subscriber/getfile/'+path;
+	    }
 	};
 
 	$scope.getBoardName = function(id) {
@@ -170,24 +193,56 @@ function postscontroller($rootScope, $scope, userService) {
 	{
 		$scope.showBoard = $rootScope.user.subscribedBoards[index];
 		document.getElementById('boardInfoModal').style.display='block';
-		
 		if($scope.showBoard.postCount == undefined 
 			    || $scope.showBoard.subscriberCount == undefined
 			    || $scope.showBoard.postCount == null
 			    || $scope.showBoard.subscriberCount == null){
 			
+				httpBusy = true;
 		    	userService.getBoardStatistics($scope.showBoard.id).then(
 		    		function success(data)
 		    		{
+		    			httpBusy = false;
 		    		    $scope.showBoard.postCount = data.postCount;
 		    		    $scope.showBoard.subscriberCount = data.subscriberCount;
 		    		},
 		    		function fail()
 		    		{
+		    			httpBusy = false;
 		    		    $scope.showBoard.postCount == null;
 		    		    $scope.showBoard.subscriberCount == null;
 		    		}
 		    	);
 		    }
+	}
+	
+	$scope.unsubscribe = function()
+	{
+		document.getElementById('boardInfoModal').style.display='none';
+		httpBusy = true
+		$rootScope.progress.start();
+		userService.unsubscribe($scope.showBoard.id)
+		.then(function success(data)
+		{
+			if($scope.showBoard.id == $scope.selectedBoardId)
+				$scope.showPosts(-1, -1);
+			
+			for(var i= $rootScope.user.subscribedBoards.length - 1 ; i>=0 ; i--)
+				if($rootScope.user.subscribedBoards[i].id == $scope.showBoard.id)
+				{
+					$rootScope.user.subscribedBoards.splice(i,1);
+					break;
+				}
+			$rootScope.progress.complete();
+			httpBusy = false;
+			
+		},
+		function fail(msg)
+		{
+			$rootScope.progress.complete();
+			httpBusy = false;
+			$rootScope.showGlobalMsg("لغو دنبال کردن انجام نشد." + msg, 4);
+		}
+		);
 	}
 }

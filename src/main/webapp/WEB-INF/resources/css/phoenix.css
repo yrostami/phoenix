@@ -251,6 +251,7 @@ body
 	cursor: pointer;
 	border-bottom: 1px solid #00ABBD;
 	border-top: 1px solid #BCE8ED;
+	transition: 0.4s ease-in-out;
 }
 
 .tab:hover{
@@ -318,6 +319,7 @@ body
 	padding-right: 5px;
 	background-color: #bce8ed;
 	overflow: hidden;
+	transition: 0.4s ease-in-out;
 }
 
 .wide-item{
@@ -711,6 +713,7 @@ body
 	background-color: #98dde4;
 	overflow: hidden;
 	float: right;
+	border-bottom: 1px solid #00ABBD;
 }
 
 .post-title span{
@@ -789,21 +792,28 @@ background-color: #98dde4;
 }
 
 .image-div{
-	display: inline;
+	display: table;
 	max-width: 50%;
 	max-height: 300px;
 	margin:0px auto;
 }
 
 .post-img{
-	max-width: 280px;
+ 	max-width: 280px;
 	max-height: 300px;
 	display: block;
 	margin:0px auto;
 	margin-top: 10px;
+	-webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
 }
 
 .post-img:hover {opacity: 0.7;}
+
+.post-image-loader{
+	margin-top: 5px;
+	display: none;
+}
 
 .no-selected-msg{
 	width: 70%;
@@ -942,4 +952,47 @@ background-color: #98dde4;
 
 .board-info-container p , label{
 	padding-right: 5px; 
+}
+
+.userInfo-container{
+	width: 900px;
+	min-height: 570px;
+	background-color: white;
+	margin: 0px auto;
+	margin-top: 65px;
+	padding-top: 30px;
+	padding-bottom: 10px;
+	-webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
+
+.userInfo-fieldset{
+	width: 80%;
+	max-height: 0px;
+	padding: 0px;
+	margin: 0px auto;
+	margin-bottom: 10x;
+	border: none;
+	border-bottom: 2px solid #00ABBD;
+	overflow: hidden;
+	transition: 0.6s ease-in-out;
+}
+
+.open-fieldset{
+	max-height: 300px;
+	padding-bottom: 20px;
+}
+
+.open-fieldset legend{
+	color: #ec3543;
+} 
+
+legend{
+	font-size: 20px;
+	color: #008291;
+	cursor: pointer;
+}
+
+legend:hover{
+	color: #ec3543;
 }

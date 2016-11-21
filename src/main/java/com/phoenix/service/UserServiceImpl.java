@@ -84,7 +84,38 @@ public class UserServiceImpl implements UserService {
 			return true;
 		return false;
 	}
-	
-	
 
+	@Transactional
+	@Override
+	public UserInfo updateDisplayName(int id, String password, String displayName) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("UPDATE UserInfo AS U SET U.displayName = :xdisplayName"
+				+ " WHERE U.id = :xid AND U.password = :xpassword");
+		query.setParameter("xdisplayName", displayName);
+		query.setParameter("xid", id);
+		query.setParameter("xpassword", password);
+		
+		Query userInfoQuery = session.createQuery("FROM UserInfo AS U WHERE U.id = :xid");
+		userInfoQuery.setParameter("xid", id);
+		List<UserInfo> list = userInfoQuery.getResultList();
+		UserInfo userInfo = null;
+		if(list.size()>0)
+			userInfo = list.get(0);
+		return userInfo;
+	}
+
+	@Transactional
+	@Override
+	public int updatePassword(int id, String currentPassword, String newPassword) 
+	{
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("UPDATE UserInfo AS U SET U.password = :xnewPassword"
+				+ " WHERE U.id = :xid AND U.password = :xpassword");
+		query.setParameter("xnewPassword", newPassword);
+		query.setParameter("xid", id);
+		query.setParameter("xpassword", currentPassword);
+		
+		return query.executeUpdate();
+	}
+	
 }

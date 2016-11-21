@@ -36,9 +36,9 @@
 		<div class="icon-container popup-container" ng-click="popupUserMenu('user-menu');">
 			<i class="demo-icon icon-user"></i>
 			<div id="user-menu" class="popup-content" >
-				<div class="popup-item">
+				<div class="popup-item" ng-click="showUserInfoPanel()">
 					<div class="mini-icon-container"><div><i class="demo-icon icon-info"></i></div></div>
-					<span>
+					<span >
 						اطلاعات کاربری من
 					</span>
 				</div>
@@ -59,7 +59,7 @@
 		</div>
 	</div>
 
-	<div id="content">
+	<div id="content" ng-show="mainContentShow">
 		<div id="tabs">
 			<div class="tab" id="news" ng-click="openTab(0);">
 				اطلاعیه های جدید
@@ -119,16 +119,19 @@
 					<p class="post-text" ng-bind-html="getMultiline(post.content)"></p>
 					<p class="post-board-name" ng-if="selectedBoardIndex == -1">برد اطلاع رسانی {{getBoardName(post.boardId)}}</p>
 					<div class="post-footer">
-						<span ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1">
+						<span id="postImageTitle{{$index}}" ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1">
 						این اطلاعیه دارای عکس می باشد:</span> 
 						<span ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') == -1">
 						این اطلاعیه دارای فایل می باشد:</span>
 						<div class="download-file">
 							<span ng-if=" post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1" 
-								ng-click="getImage($index, post.fileInfo.filePath)">نمایش داده شود</span>
+								id="postImageViewTitle{{$index}}" ng-click="getImage($index, post.fileInfo.filePath)">نمایش داده شود</span>
+								
     						<a ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') == -1"
     						 target="_blank" ng-href="/phoenix/subscriber/getfile{{post.fileInfo.filePath}}">دانلود شود</a>
 						</div>
+						<div id="postImageLoader{{$index}}" class="loader micro-loader post-image-loader" 
+								ng-if=" post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1"></div>
 						<span class="post-date-container">{{getDate(post.creationDate)}}</span>
 					</div>
 				</div>
@@ -261,20 +264,23 @@
 						<i class="demo-icon  icon-trash"></i>
 					</div>
 				</div></div>
-				<div class="image-div" id="imageDiv{{$index}}"></div>
+				<div class="image-div" id="myPostImageDiv{{$index}}"></div>
 				<div id="postContent{{$index}}" class="post-content">
 					<p class="post-text" ng-bind-html="getMultiline(post.content)"></p>
 					<div class="post-footer">
-						<span ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1">
+						<span id="myPostImageTitle{{$index}}" ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1">
 						این اطلاعیه دارای عکس می باشد:</span> 
 						<span ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') == -1">
 						این اطلاعیه دارای فایل می باشد:</span>
 						<div class="download-file">
 							<span ng-if=" post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1" 
-								ng-click="getImage($index, post.fileInfo.filePath)">نمایش داده شود</span>
+								id="myPostImageViewTitle{{$index}}" ng-click="getImage($index, post.fileInfo.filePath)">نمایش داده شود</span>
+								
     						<a ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') == -1"
     						 target="_blank" ng-href="/phoenix/subscriber/getfile{{post.fileInfo.filePath}}">دانلود شود</a>
 						</div>
+						<div id="myPostImageLoader{{$index}}" class="loader micro-loader post-image-loader" 
+								ng-if=" post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1"></div>
 						<span class="post-date-container">{{getDate(post.creationDate)}}</span>
 					</div>
 				</div>
@@ -499,5 +505,90 @@
 <span class="modalClose" onclick="document.getElementById('imgModal').style.display='none';">&times;</span>
 <img class="modal-content" id="modalImg">
 </div>
+
+<div class="userInfo-container" ng-show="userInfoPanelShow">
+<div class="panel-title" >اطلاعات کاربری من</div>
+<fieldset id="userInfoFieldset1" class="userInfo-fieldset">
+	<legend ng-click="openOrCloseFieldset('1')">
+		<div class="btn-icon">
+			<i id="fieldset-icon1" class="demo-icon  icon-down-open" ></i>
+		</div>
+		<span>اطلاعات من</span>
+	</legend>
+	
+	<label class="label">ایمیل : {{user.email}}</label>
+	<label class="label">نام : {{user.displayName}}</label>
+	<label class="label" ng-if="user.role == 'Publisher'">مقدار حافظه استفاده شده : {{(user.strogeUsage - (user.strogeUsage%1024)) / 1024}}KB از {{systemInfo.maxStroge / 1024}}KB</label>
+</fieldset>
+
+<fieldset id="userInfoFieldset2" class="userInfo-fieldset">
+	<legend ng-click="openOrCloseFieldset('2')">
+		<div class="btn-icon">
+			<i id="fieldset-icon2" class="demo-icon  icon-down-open" ></i>
+		</div>
+		<span>تغییر نام</span>
+	</legend>
+	
+		<label class="label">گذرواژه:</label>
+		<input class="input" type="password" maxlength="50" placeholder="گذرواژه" id="passwordForNameUpdate">
+		<label class="vlidation-message" id="PassFNUValidationMsg"></label>
+		<label class="label">نام جدید:</label>
+		<input class="input" type="text" ng-model="editDisplayName" placeholder="نام جدید">
+		<label class="vlidation-message" id="newNameValidationMsg"></label>
+		<div class="buttons-bar">
+		<div class="form-btn" ng-click="updateDisplayName()">
+			<span>
+				اعمال تغییر
+			</span>
+		</div>
+	</div>
+		
+</fieldset>
+
+<fieldset id="userInfoFieldset3" class="userInfo-fieldset">
+	<legend ng-click="openOrCloseFieldset('3')">
+		<div class="btn-icon">
+			<i id="fieldset-icon3" class="demo-icon  icon-down-open" ></i>
+		</div>
+		<span>تغییر گذرواژه</span>
+	</legend>
+	
+		<label class="label">گذرواژه فعلی:</label>
+		<input class="input" maxlength="50" type="password" id="passwordForUpdate" placeholder="گذرواژه فعلی">
+		<label class="vlidation-message" id="passForUpdateValidationMsg"></label>
+		<label class="label">گذرواژه جدید:</label>
+		<input class="input" maxlength="50" type="password" id="newPassword" placeholder="گذرواژه جدید">
+		<label class="vlidation-message" id="newPassValidationMsg"></label>
+		<div class="buttons-bar">
+		<div class="form-btn" ng-click="updatePassword()">
+			<span>
+				اعمال تغییر
+			</span>
+		</div>
+	</div>
+		
+</fieldset>
+
+<!--
+<fieldset id="userInfoFieldset4" class="userInfo-fieldset">
+	<legend ng-click="openOrCloseFieldset('4')">
+		<div class="btn-icon">
+			<i id="fieldset-icon4" class="demo-icon  icon-down-open" ></i>
+		</div>
+		<span>نشست های فعال</span>
+	</legend>
+	
+</fieldset>
+-->
+
+	<div class="buttons-bar">
+		<div class="form-btn" ng-click="hideUserInfoPanel()">
+			<span>
+				بازگشت
+			</span>
+		</div>
+	</div>
+</div>
+
 </body>
 </html>

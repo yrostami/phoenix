@@ -29,4 +29,6 @@ public interface SubscriberService {
 	public List<BoardPost> getBoardPostsBefore(int boardId, Timestamp timestampp, int maxResult);
 	public boolean isValidBoard(int BoardId);
 	public int deleteSubscribedBoardInfo(int userId, int boardId);
+	public List<BoardPost> getPostsAfter(int userId, Timestamp timestamp);
+	public long getPostsCountAfter(int userId, Timestamp timestamp);
 }

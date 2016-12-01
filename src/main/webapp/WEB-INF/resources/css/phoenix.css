@@ -60,38 +60,49 @@ body
 }
 
 .notification-icon{
-	float: right;
-	margin: 7px 20px 0px 0px;  
+	float: left;
+	/* margin: 7px 20px 0px 0px; */  
 	color: #ec3543;
-	font-size: 25px;
-	position: relative;
+	font-size: 30px;
 	cursor: default;
+	background-color: #00ABBD;
+	/* border: 1px solid #ec3543; */
+	border-radius: 50%;
+	position: fixed;
+	z-index: 2;
+	top: 5px;
+	-webkit-animation: notify 0.9s infinite;
+    animation: notify 0.9s infinite;
+    cursor: pointer;
 }
 
-.notification-icon #tooltip{
-	width: 200px;
+@keyframes notify {
+	0% { top: 5px; }
+    50% { top: 10px;}
+    100% { top: 5px; }
+}
+
+@-webkit-keyframes notify{
+	0% { top: 5px; }
+    50% { top: 10px;}
+    100% { top: 5px; }
+}
+
+.notification-icon .tooltip{
+	width: 320px;
 	visibility: hidden;
 	position: absolute;
 	z-index: 1;
 	margin: 0px;
 	border-top: 1px solid rgb(0,171,189);
 	border-bottom: 1px solid rgb(0,171,189);
-	/* border-radius: 5px; */
 	background-color: white;
+	text-align: center;
 	top: 50px;
+	right: -135px;
 }
 
-.notification-icon #tooltip::before{
-	content: "";
-    position: absolute;
-    top: -16px;
-    right: 8px;
-    border-width: 8px;
-    border-style: solid;
-    border-color: transparent transparent rgb(0,171,189) transparent;
-}
-
-.notification-icon:hover #tooltip{
+.notification-icon:hover .tooltip{
 	visibility: visible;
 	-webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
@@ -829,7 +840,7 @@ background-color: #98dde4;
 .modal{
 	display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 2; /* Sit on top */
     padding-top: 50px; /* Location of the box */
     left: 0;
     top: 0;
@@ -995,4 +1006,11 @@ legend{
 
 legend:hover{
 	color: #ec3543;
+}
+
+.userInfo-fieldset p
+{
+	padding-right: 10px;
+	color: #ec3543;
+	font-size: 18px;
 }

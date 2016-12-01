@@ -61,10 +61,6 @@ public class PublisherServiceImp implements PublisherService {
 		List list = userQuery.getResultList();
 		if(list.size() > 0){
 			publisher = (Publisher) list.get(0);
-//			Query deleteQuery= session.createQuery("DELETE FROM PostNotification AS PN "
-//					+ "WHERE PN.subscriberId = :xid");
-//			deleteQuery.setParameter("xid", userId);
-//			deleteQuery.executeUpdate();
 		}
 		return publisher;
 	}
@@ -112,11 +108,11 @@ public class PublisherServiceImp implements PublisherService {
 	public void deletePost(BoardPost post, int userId)
 	{
 		Session session = sessionFactory.getCurrentSession(); 
-		//حذف اعلان های پست
-		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN "
-				+ "WHERE PN.postId = :xpostId");
-		notificationDeleteQuery.setParameter("xpostId", post.getId());
-		notificationDeleteQuery.executeUpdate();
+//		//حذف اعلان های پست
+//		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN "
+//				+ "WHERE PN.postId = :xpostId");
+//		notificationDeleteQuery.setParameter("xpostId", post.getId());
+//		notificationDeleteQuery.executeUpdate();
 		//حذف پست و فایل مربوطه
 			if(post.getFileInfo() != null){
 				String fileName = post.getFileInfo().getFilePath();
@@ -152,7 +148,7 @@ public class PublisherServiceImp implements PublisherService {
 	public long savePost(BoardPost newPost) {
 		Session session = sessionFactory.getCurrentSession();
 		long postId = (long) session.save(newPost);
-		taskExecutor.execute(applicationContext.getBean(NotifyTask.class,newPost.getBoardId(),postId));
+//		taskExecutor.execute(applicationContext.getBean(NotifyTask.class,newPost.getBoardId(),postId));
 		return postId;
 	}
 	
@@ -261,10 +257,11 @@ public class PublisherServiceImp implements PublisherService {
 	public void deletePost(long postId, int boardId, int userId) throws IOException {
 		Session session = sessionFactory.getCurrentSession();
 		//حذف اعلان های پست
-		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN "
-				+ "WHERE PN.postId = :xpostId");
-		notificationDeleteQuery.setParameter("xpostId", postId);
-		notificationDeleteQuery.executeUpdate();
+//		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN "
+//				+ "WHERE PN.postId = :xpostId");
+//		notificationDeleteQuery.setParameter("xpostId", postId);
+//		notificationDeleteQuery.executeUpdate();
+		
 		//حذف پست و فایل مربوطه
 		Query query = session.createQuery("FROM BoardPost AS BP WHERE "
 				+ "BP.id = :xid AND BP.boardId = :xboardId");

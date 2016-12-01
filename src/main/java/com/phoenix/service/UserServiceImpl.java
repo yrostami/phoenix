@@ -17,9 +17,12 @@ import com.phoenix.data.entity.UserInfo;
 
 @Service
 public class UserServiceImpl implements UserService {
-	
+
 	@Autowired
 	SessionFactory sessionFactory;
+	
+	@Autowired
+	PublisherService publisherService;
 	
 	@Transactional
 	@Override
@@ -94,6 +97,7 @@ public class UserServiceImpl implements UserService {
 		query.setParameter("xdisplayName", displayName);
 		query.setParameter("xid", id);
 		query.setParameter("xpassword", password);
+		query.executeUpdate();
 		
 		Query userInfoQuery = session.createQuery("FROM UserInfo AS U WHERE U.id = :xid");
 		userInfoQuery.setParameter("xid", id);
@@ -116,6 +120,70 @@ public class UserServiceImpl implements UserService {
 		query.setParameter("xpassword", currentPassword);
 		
 		return query.executeUpdate();
+	}
+	
+	@Transactional
+	@Override
+	public void deleteAccount(int userId, String role) {
+		Session session = sessionFactory.getCurrentSession();
+		if(role.equals("Subscriber"))
+		{
+			//حذف بردهای دنبال شده توسط کاربر
+			Query subscribedBoardsDelete = session.createQuery("DELETE FROM SubscribedBoardInfo AS SBI"
+					+ " WHERE SBI.subscriberId = :xuserId");
+			subscribedBoardsDelete.setParameter("xuserId", userId);
+			subscribedBoardsDelete.executeUpdate();
+			
+			//حذف اطلاعات کاربر
+			Query subscriberDelete = session.createQuery("DELETE FROM UserInfo AS U"
+					+ " WHERE U.id = :xuserId");
+			subscriberDelete.setParameter("xuserId", userId);
+			subscriberDelete.executeUpdate();
+		}
+		else if(role.equals("Publisher"))
+		{
+			//حذف بردهای دنبال شده توسط کاربر
+			Query publisheSubscribedBoardsDelete = session.createQuery("DELETE FROM SubscribedBoardInfo AS SBI"
+					+ " WHERE SBI.subscriberId = :xuserId");
+			publisheSubscribedBoardsDelete.setParameter("xuserId", userId);
+			publisheSubscribedBoardsDelete.executeUpdate();
+			
+			//حذف بردهای ایجاد شده توسط کاربر
+			Query publisherBoards = session.createQuery("SELECT B.id FROM BoardInfo AS B"
+					+ " WHERE B.publisherId = :xuserId");
+			publisherBoards.setParameter("xuserId", userId);
+			List<Integer> boardsList = publisherBoards.getResultList();
+			
+			if(boardsList.size() > 0)
+			{
+				for(int i = boardsList.size() - 1 ; i >= 0 ; i--)
+					publisherService.deleteBoard(boardsList.get(i), userId);
+			}
+			
+			//حذف اطلاعات کاربر
+			Query publisherDelete = session.createQuery("DELETE FROM UserInfo AS U"
+					+ " WHERE U.id = :xuserId");
+			publisherDelete.setParameter("xuserId", userId);
+			publisherDelete.executeUpdate();
+		}
+		
+		Query query = session.createQuery("DELETE FROM RememberInfo AS R"
+				+ " WHERE R.userId = :xuserId");
+		query.setParameter("xuserId", userId);
+		query.executeUpdate();
+	}
+
+	@Transactional
+	@Override
+	public boolean isValidUser(int userId, String password) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("FROM UserInfo AS U"
+				+ " WHERE U.id = :xuserId AND U.password = :xpassword");
+		query.setParameter("xuserId", userId);
+		query.setParameter("xpassword", password);
+		List<UserInfo> list = query.getResultList();
+		
+		return (list.size() > 0);
 	}
 	
 }

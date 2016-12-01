@@ -11,7 +11,7 @@ function postscontroller($rootScope, $scope, userService) {
 	$scope.showBoard = {about: ' '};
 	$scope.postsControllerMainPanelShow = true;
 
-	$scope.showPosts = function(index, boardId) {
+	$rootScope.showPosts = function(index, boardId) {
 		if (index !== $scope.selectedBoardIndex && !httpBusy) {
 			$rootScope.classEditor.remove(document.getElementById('board'+ $scope.selectedBoardIndex), 'selected');
 			$rootScope.classEditor.add(document.getElementById('board'+index), 'selected');

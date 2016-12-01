@@ -198,6 +198,9 @@ public class SubscriberController {
 		if(!error.hasErrors())
 		{
 			int userId = (int) session.getAttribute("userId");
+			if(!userService.isValidUser(userId, nameUpdate.getPassword()))
+				return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
+			
 			UserInfo userInfo = userService.updateDisplayName(userId,
 					nameUpdate.getPassword(), nameUpdate.getDisplayName());
 			return new ResponseEntity<UserInfo> (userInfo,responseHeader,HttpStatus.OK);
@@ -220,5 +223,41 @@ public class SubscriberController {
 					HttpStatus.NOT_ACCEPTABLE);
 		}
 		throw new ValidationException(error);
+	}
+	
+	@RequestMapping(value="/posts/after/{time}", method=RequestMethod.GET)
+	public ResponseEntity<List<BoardPost>> getPostsAfter(HttpSession session,
+			@PathVariable long time)
+	{
+		Timestamp timestamp = new Timestamp(time);
+		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
+				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
+		{
+		int userId = (int) session.getAttribute("userId");
+		return new ResponseEntity<List<BoardPost>>(
+				subscriberService.getPostsAfter(userId, timestamp),
+				responseHeader,
+				HttpStatus.OK);
+		}
+		return new ResponseEntity<List<BoardPost>>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
+	}
+	
+	@RequestMapping(value="/postscount/after/{time}", method=RequestMethod.GET)
+	public ResponseEntity<PostsCount> getPostsCountAfter(HttpSession session,
+			@PathVariable long time)
+	{
+		Timestamp timestamp = new Timestamp(time);
+		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
+				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
+		{
+		int userId = (int) session.getAttribute("userId");
+		PostsCount postsCount = new PostsCount();
+		postsCount.setPostsCount(subscriberService.getPostsCountAfter(userId, timestamp));
+		return new ResponseEntity<PostsCount>(
+				postsCount,
+				responseHeader,
+				HttpStatus.OK);
+		}
+		return new ResponseEntity<PostsCount>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
 	}
 }

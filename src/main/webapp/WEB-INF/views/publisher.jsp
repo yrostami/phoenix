@@ -21,6 +21,15 @@
 </head>
 <body ng-app="phoenix" ng-controller="publisher" ng-cloak>
 
+<div class="notification-icon" ng-click="showNewPosts()" 
+ng-show="haveNotification" id="notificationLogoContainer">
+	<i class="demo-icon icon-bell-alt"></i>
+	<div class="tooltip">
+		<div class="popup-item"><span>{{notificationCount}} اطلاعیه جدید. برای دیدن اطلاعیه های جدید کلیک کنید.</span></div>
+	</div>
+	
+</div>
+
 <div id="globalMsg"></div>
 <div id="pageLoading" ng-show="showPageLoading">
 	<h3>
@@ -42,7 +51,7 @@
 						اطلاعات کاربری من
 					</span>
 				</div>
-				<div class="popup-item" onClick="location.href='<spring:url value="/logout" htmlEscape="true"/>'">
+				<div class="popup-item" ng-click="logout()">
 					<div class="mini-icon-container"><div><i class="demo-icon icon-logout"></i></div></div>
 					<span>
 						خروج
@@ -52,11 +61,12 @@
 		</div>
 		<span class="header-item">{{user.displayName}}</span>
 
-		<div class="notification-icon"><i class="demo-icon icon-bell"></i>
+		<!-- <div class="notification-icon"><i class="demo-icon icon-bell"></i>
 			<div id="tooltip">
 				<div class="popup-item"><span>{{notification.message}}</span></div>
 			</div>
-		</div>
+		</div> -->
+		
 	</div>
 
 	<div id="content" ng-show="mainContentShow">
@@ -567,6 +577,28 @@
 		</div>
 	</div>
 		
+</fieldset>
+
+<fieldset id="userInfoFieldset4" class="userInfo-fieldset">
+	<legend ng-click="openOrCloseFieldset('4')">
+		<div class="btn-icon">
+			<i id="fieldset-icon4" class="demo-icon  icon-down-open" ></i>
+		</div>
+		<span>حذف حساب کاربری</span>
+	</legend>
+	<p>پس از حذف حساب کاربری همه اطلاعات مربوط به حساب کاربری شما حذف خواهد شد و به هیچ وجه قابل بازیابی نخواهد بود.</p>
+	
+	<label class="label">گذرواژه:</label>
+		<input class="input" type="password" maxlength="50" placeholder="گذرواژه" id="passForDeleteAccount">
+		<label class="vlidation-message" id="passForDeleteAccountValidationMsg"></label>
+	
+	<div class="buttons-bar">
+		<div class="form-btn" ng-click="deleteAccount()">
+			<span>
+				حذف حساب
+			</span>
+		</div>
+	</div>
 </fieldset>
 
 <!--

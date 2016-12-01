@@ -12,4 +12,6 @@ public interface UserService {
 	public int saveUserInfo(UserInfo userInfo);
 	public UserInfo updateDisplayName(int id, String password, String displayName);
 	public int updatePassword(int id, String currentPassword, String newPassword);
+	public void deleteAccount(int userId, String role);
+	public boolean isValidUser(int userId, String password);
 }

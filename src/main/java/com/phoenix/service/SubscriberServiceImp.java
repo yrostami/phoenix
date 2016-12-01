@@ -14,6 +14,8 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -227,6 +229,49 @@ public class SubscriberServiceImp implements SubscriberService {
 		query.setParameter("xboardId", boardId);
 		int rows = query.executeUpdate();
 		return rows;
+	}
+
+	@Transactional
+	@Override
+	public List<BoardPost> getPostsAfter(int userId, Timestamp timestamp) {
+		Session session = sessionFactory.getCurrentSession();
+		
+		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
+				+ "WHERE SBI.subscriberId = :xuserId");
+		query.setParameter("xuserId", userId);
+		List<Long> boardsId = query.getResultList();
+		if(boardsId.size() > 0){
+		Criteria criteria = session.createCriteria(BoardPost.class);
+		criteria.add(Restrictions.in("boardId", boardsId));
+		criteria.add(Restrictions.gt("creationDate", timestamp));
+		criteria.addOrder(Order.desc("creationDate"));
+		List<BoardPost> list = criteria.list();
+		return list;
+		}
+		
+		return new ArrayList<BoardPost>();
+	}
+
+	@Transactional
+	@Override
+	public long getPostsCountAfter(int userId, Timestamp timestamp) {
+		Session session = sessionFactory.getCurrentSession();
+		long postsCount = 0;
+		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
+				+ "WHERE SBI.subscriberId = :xuserId");
+		query.setParameter("xuserId", userId);
+		List<Long> boardsId = query.getResultList();
+		if(boardsId.size() > 0){
+		Criteria criteria = session.createCriteria(BoardPost.class);
+		criteria.add(Restrictions.in("boardId", boardsId));
+		criteria.add(Restrictions.gt("creationDate", timestamp));
+		criteria.addOrder(Order.desc("creationDate"));
+		criteria.setProjection(Projections.rowCount());
+		postsCount = (long) criteria.uniqueResult();
+		
+		}
+		
+		return postsCount;
 	}
 	
 }

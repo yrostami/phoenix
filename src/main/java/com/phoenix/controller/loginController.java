@@ -10,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.phoenix.controller.AuthenticationResponse;
+import com.phoenix.data.entity.UserInfo;
 import com.phoenix.service.UserService;
 
 @Controller
@@ -53,17 +53,17 @@ public class loginController {
 	
 	@RequestMapping("/appLogin")
 	@ResponseBody
-	public ResponseEntity<AuthenticationResponse> appLogin(HttpSession  session)
+	public ResponseEntity<UserInfo> appLogin(HttpSession  session)
 	{
-		AuthenticationResponse user = null;
+		UserInfo user = null;
 		if((boolean) session.getAttribute("Authenticated") == true)
 		{
 			int userId = (int) session.getAttribute("userId");
-			user = userService.getAuthenticationResponse(userId);
+			user = userService.getUserInfo(userId);
 		}
 		if(user != null)
-			return new ResponseEntity<AuthenticationResponse>(user, responseHeader, HttpStatus.OK);
+			return new ResponseEntity<UserInfo>(user, responseHeader, HttpStatus.OK);
 
-		return new ResponseEntity<AuthenticationResponse>(user,HttpStatus.NOT_ACCEPTABLE);
+		return new ResponseEntity<UserInfo>(user,HttpStatus.NOT_ACCEPTABLE);
 	}
 }

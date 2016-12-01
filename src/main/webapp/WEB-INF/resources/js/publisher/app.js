@@ -1,7 +1,7 @@
 var app = angular.module('phoenix', ['ngProgress']);
-app.controller('publisher', ['$sce', '$rootScope', '$scope', 'userService',
+app.controller('publisher', ['$window', '$anchorScroll', '$interval', '$sce', '$rootScope', '$scope', 'userService',
 		'ngProgressFactory', publisher]);
-function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
+function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, userService, ngProgressFactory) {
 	$rootScope.classEditor = {
 		add : function(element, newClass) {
 			if (element.className.lastIndexOf(" ") !== (element.className.length - 1))
@@ -38,13 +38,12 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 	$scope.abtouched = false;
 	$rootScope.progress = ngProgressFactory.createInstance();
 	$rootScope.progress.setParent(document.getElementById('pageLoadingBar'));
-	$rootScope.progress.setHeight('6px');
+	$rootScope.progress.setHeight('5px');
 	$rootScope.progress.setColor('#ec3543');
 	$rootScope.progress.start();
-	$rootScope.notification = {
-		message : "هیچ اعلانی وجود ندارد.",
-		count : 0
-	};
+	$rootScope.haveNotification = false;
+	$rootScope.notificationCount = 0;
+	$rootScope.lastPostDate = -1;
 	$rootScope.user = {};
 	$rootScope.posts = new Array();
 	$rootScope.targetPosts = new Array();
@@ -56,6 +55,9 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 			document.getElementById('myBoards'),
 			document.getElementById('allBoards')];
 	$rootScope.classEditor.add($scope.tabsElement[0], 'selected');
+	
+	var nlc = document.getElementById('notificationLogoContainer');
+	nlc.style.left = (window.innerWidth - nlc.offsetWidth) / 2 + 'px';
 
 	userService.getUser().then(
 			function success(user) {
@@ -74,6 +76,7 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 							if(data.length == 0)
 								$rootScope.showGlobalMsg("هیچ اطلاعیه ای وجود ندارد." + msg, 4);
 							$rootScope.posts = data;
+							$rootScope.lastPostDate = getLastPostDate(data);
 							$rootScope.targetPosts = $rootScope.posts;
 							$rootScope.progress.complete();
 							$rootScope.progress.setHeight('5px');
@@ -219,14 +222,14 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 		}
 		if(flag)
 		{
-			var data = 
+			var updateData = 
 			{
 				password: pass,
 				displayName: $scope.editDisplayName
 			};
 			
 			$rootScope.progress.start();
-			userService.updateDisplayName(data).then(
+			userService.updateDisplayName(updateData).then(
 				function success(data)
 				{
 					$rootScope.user.displayName = data.displayName;
@@ -239,6 +242,22 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 				});
 		}
 	};
+	
+	$scope.logout = function()
+	{
+		$rootScope.progress.start();
+		userService.logout().then(
+				function success()
+				{
+					window.location.href = 'http://localhost:8080/phoenix/';
+					$rootScope.progress.complete();
+				},
+				function()
+				{
+					$rootScope.progress.complete();
+					$rootScope.showGlobalMsg("انجام نشد." + "\n" + msg, 4);
+				});
+	}
 	
 	function isValidDisplayName(displayName) {
 	    if (displayName.length == 0 || displayName == null)
@@ -279,23 +298,108 @@ function publisher($sce, $rootScope, $scope, userService, ngProgressFactory) {
 		}
 		if(flag)
 		{
-			var data=
+			var updateData=
 			{
-				currentpassword: currentPass,
+				currentPassword: currentPass,
 				newPassword: newPass
 			};
 			$rootScope.progress.start();
-			userService.updatePassword(data).then(
+			userService.updatePassword(updateData).then(
 					function success(data)
 					{
 						$rootScope.progress.complete();
+						$rootScope.showGlobalMsg("انجام شد.", 4);
 					},
-					function fail()
+					function fail(msg)
 					{
 						$rootScope.progress.complete();
 						$rootScope.showGlobalMsg("انجام نشد." + "\n" + msg, 4);
 					});
 		}
+	}
+	
+	$scope.deleteAccount  = function()
+	{
+		var passForDelete = document.getElementById('passForDeleteAccount').value;
+		if(passForDelete.length > 7 && passForDelete.length <= 50)
+		{
+			$rootScope.progress.start();
+			userService.deleteAccount(passForDelete).then(
+					function success()
+					{
+						$rootScope.progress.complete();
+						$rootScope.showGlobalMsg("انجام شد.", 4);
+						window.location.href = 'http://localhost:8080/phoenix/';
+					},
+					function fail(msg)
+					{
+						$rootScope.progress.complete();
+						$rootScope.showGlobalMsg("انجام نشد." + "\n" + msg, 4);
+					});
+		}else{
+			document.getElementById('passForDeleteAccountValidationMsg')
+			.innerText = "گذرواژه باید شامل حداقل 8 حرف باشد.";
+		}
+	}
+	
+	$scope.getNewPosts = function()
+	{
+		if($rootScope.lastPostDate == -1)
+		{
+			userService.getPosts().then(
+					function success(data)
+					{
+						if(data.length == 0)
+							$rootScope.showGlobalMsg("هیچ اطلاعیه ای وجود ندارد." + msg, 4);
+						$rootScope.posts = data;
+						$rootScope.lastPostDate = getLastPostDate(data);
+						$rootScope.targetPosts = $rootScope.posts;
+						$rootScope.notificationCount = data.length;
+					},
+					function fail(msg)
+					{
+						
+					});
+		}
+		else{
+			userService.getPostsAfter($rootScope.lastPostDate).then(
+					function success(data)
+					{
+						if(data.length > 0){
+							$rootScope.posts = $rootScope.posts.concat(data);
+							$rootScope.lastPostDate = getLastPostDate(data);
+							$rootScope.haveNotification = true;
+							$rootScope.notificationCount = data.length;
+						}
+					},
+					function fail()
+					{
+						
+					});
+		}
+	}
+	
+	$scope.showNewPosts = function()
+	{
+		$rootScope.haveNotification = false;
+		$rootScope.targetPosts = $rootScope.posts;
+		$rootScope.showPosts(-1);
+		$scope.openTab(0);
+		$scope.hideUserInfoPanel();
+		$window.scrollTo(60, 0);
+	}
+	
+	$interval($scope.getNewPosts, 60 * 1000);
+	
+	function getLastPostDate(postList)
+	{
+		var date = 0;
+		for(var i = postList.length - 1 ; i >= 0 ; i--)
+		{
+			if(postList[i].creationDate > date)
+				date = postList[i].creationDate;
+		}
+		return date;
 	}
 	
 	$rootScope.getDate = function(miliseconds)

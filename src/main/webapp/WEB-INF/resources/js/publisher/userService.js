@@ -313,6 +313,52 @@ function userService($http, $q) {
 		});
 	}
 	
+	function logout()
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'GET',
+			url : '/phoenix/logout'
+		}).then(function success(response) {
+			deferred.resolve(response);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
+	function deleteAccount(password)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'post',
+			data: password,
+			url : '/phoenix/deleteaccount'
+		}).then(function success(response) {
+			deferred.resolve(response);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
+	function getPostsAfter(date)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'GET',
+			url : '/phoenix/subscriber/posts/after/' + date
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
 	var services = {
 		getUser : getUser,
 		getAllCategories : getAllCategories,
@@ -332,7 +378,10 @@ function userService($http, $q) {
 		getBoardPostsBefore : getBoardPostsBefore,
 		unsubscribe : unsubscribe,
 		updateDisplayName : updateDisplayName,
-		updatePassword : updatePassword
+		updatePassword : updatePassword,
+		logout : logout,
+		deleteAccount : deleteAccount,
+		getPostsAfter : getPostsAfter
 	};
 	
 	return services;

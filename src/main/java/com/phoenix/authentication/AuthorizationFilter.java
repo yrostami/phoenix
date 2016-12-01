@@ -37,11 +37,8 @@ public class AuthorizationFilter implements Filter {
 		}
 
 		// عدم کنترل درخواست برای صفحه ورود و منابع ایستا
-		if (path.equals("/") || path.equals("")
-				|| path.startsWith("/registration")
-				|| path.startsWith("/resources/") 
-				|| path.startsWith("/test")
-				||path.startsWith("/login"))
+		if (path.equals("/") || path.equals("") || path.startsWith("/registration") || path.startsWith("/resources/")
+				|| path.startsWith("/test") || path.startsWith("/login"))
 			chain.doFilter(request, response);
 
 		// کنترل دسترسی با استفاده از اطلاعات ذخیره شده در نشست
@@ -51,13 +48,12 @@ public class AuthorizationFilter implements Filter {
 			if (session.getAttribute("Authenticated") == null)
 				session.setAttribute("Authenticated", false);
 
-			if ((boolean) session.getAttribute("Authenticated") == true 
-					&& session.getAttribute("role") != null) {
-				
+			if ((boolean) session.getAttribute("Authenticated") == true && session.getAttribute("role") != null) {
+
 				String role = (String) session.getAttribute("role");
-				if ((role.equals("Subscriber") && path.startsWith("/subscriber/"))
-						|| (role.equals("Publisher")
-								&& (path.startsWith("/subscriber/") || path.startsWith("/publisher/")))
+				if ((role.equals("Subscriber") && (path.startsWith("/subscriber/") || path.startsWith("/deleteaccount")))
+						|| (role.equals("Publisher") && (path.startsWith("/subscriber/")
+								|| path.startsWith("/publisher/") || path.startsWith("/deleteaccount")))
 						|| (role.equals("Admin") && path.startsWith("/admin/")))
 					chain.doFilter(request, response);
 				else {
@@ -65,8 +61,7 @@ public class AuthorizationFilter implements Filter {
 					return;
 				}
 
-			}
-			else {
+			} else {
 				httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}

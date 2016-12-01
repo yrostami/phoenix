@@ -58,6 +58,8 @@ public class AuthenticationFilter implements Filter {
 		AuthenticationInfo authInfo = null;
 		String path = httpRequest.getServletPath();
 		
+		System.out.println(path);
+		
 		if ((boolean) httpSession.getAttribute("Authenticated") == false
 				&& (path.startsWith("/login/webLogin")
 						|| path.startsWith("/login/appLogin")))
@@ -66,10 +68,12 @@ public class AuthenticationFilter implements Filter {
 		try{
 		authInfo = mapper.readValue(httpRequest.getInputStream(), AuthenticationInfo.class);
 		}catch (JsonMappingException e) {
+			e.printStackTrace();
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}catch (JsonParseException e) {
+			e.printStackTrace();
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -103,14 +107,13 @@ public class AuthenticationFilter implements Filter {
 							session.save(rememberInfo);
 							Cookie rememberCookie = new Cookie(rememberInfo.getCookieName(), rememberInfo.getToken());
 							rememberCookie.setMaxAge(30 * 24 * 60 * 60);
-							rememberCookie.setPath("/");
+							rememberCookie.setPath(httpRequest.getContextPath());
 							httpResponse.addCookie(rememberCookie);
 						}
 					
 				}
 				tx.commit();
 			} catch (Exception ex) {
-				ex.printStackTrace();
 				tx.rollback();
 				logger.error("AuthenticationFilter\n",ex);
 			}

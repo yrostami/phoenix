@@ -87,7 +87,7 @@ public class RememberMeFilter implements Filter {
 			httpSession.setAttribute("role", remember.getUserRole());
 
 			cookie.setMaxAge(30 * 24 * 60 * 60);
-			cookie.setPath("/");
+			cookie.setPath(request.getContextPath());
 			response.addCookie(cookie);
 			
 			remember.setAgent(request.getHeader("User-Agent"));

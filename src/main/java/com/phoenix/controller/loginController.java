@@ -53,17 +53,18 @@ public class loginController {
 	
 	@RequestMapping("/appLogin")
 	@ResponseBody
-	public ResponseEntity<UserInfo> appLogin(HttpSession  session)
+	public ResponseEntity<AuthenticationResponse> appLogin(HttpSession  session)
 	{
-		UserInfo user = null;
+		AuthenticationResponse user = null;
 		if((boolean) session.getAttribute("Authenticated") == true)
 		{
 			int userId = (int) session.getAttribute("userId");
-			user = userService.getUserInfo(userId);
+//			user = userService.getUserInfo(userId);
+			user = userService.getAuthenticationResponse(userId);
 		}
 		if(user != null)
-			return new ResponseEntity<UserInfo>(user, responseHeader, HttpStatus.OK);
+			return new ResponseEntity<AuthenticationResponse>(user, responseHeader, HttpStatus.OK);
 
-		return new ResponseEntity<UserInfo>(user,HttpStatus.NOT_ACCEPTABLE);
+		return new ResponseEntity<AuthenticationResponse>(user,HttpStatus.NOT_ACCEPTABLE);
 	}
 }

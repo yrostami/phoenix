@@ -111,7 +111,7 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 		userService.getAllCategories().then(
 				function(data) {
 					$rootScope.allCategories = data;
-					userService.getAllBoards().then(
+					userService.getAllBoards(0).then(
 							function(data) {
 								$rootScope.allBoards = data;
 								checkAllBoardsSubscribing();
@@ -168,6 +168,16 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 	{
 		$scope.mainContentShow = false;
 		$scope.userInfoPanelShow = true;
+		if($rootScope.user.publishReqs == undefined)
+			userService.getpublishRequests()
+			.then(function success(data)
+			{
+				$rootScope.user.publishReqs = data;
+			},
+			function fail(msg)
+			{
+				
+			});
 	};
 
 	$scope.hideUserInfoPanel = function()
@@ -350,7 +360,7 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 					function success(data)
 					{
 						if(data.length == 0)
-							$rootScope.showGlobalMsg("هیچ اطلاعیه ای وجود ندارد." + msg, 4);
+							$rootScope.showGlobalMsg("هیچ اطلاعیه ای وجود ندارد.", 4);
 						$rootScope.posts = data;
 						$rootScope.lastPostDate = getLastPostDate(data);
 						$rootScope.targetPosts = $rootScope.posts;
@@ -400,6 +410,56 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 				date = postList[i].creationDate;
 		}
 		return date;
+	}
+	
+	$scope.sendPublishRequest = function()
+	{
+		document.getElementById('publishReqvalidationMsg').innerText = '';
+		var reqDescription = document.getElementById('publishReqDescription').value;
+		var validRD = false;
+		if (reqDescription.length !== 0 && reqDescription !== null)
+			validRD = true;
+		for (var i = 0; i < reqDescription.length; i--) {
+			if (reqDescription.charAt(i) !== ' ') {
+				validRD = true;
+			    break;
+			}
+		}
+		
+		if(validRD)
+		{
+			$rootScope.progress.start();
+			var req = {description : reqDescription};
+			userService.sendPublishRequest(req).then(
+					function success(data)
+					{
+						$rootScope.user.publishReqs.push(data);
+						$rootScope.progress.complete();
+					},
+					function fail(msg)
+					{
+						$rootScope.progress.complete();
+						$rootScope.showGlobalMsg("انجام نشد." + "\n" + msg, 5);
+					});
+		}
+		else
+			document.getElementById('publishReqvalidationMsg').innerText = 'توضیحات درخواست نباید خالی باشد.';
+	}
+	
+	$scope.deletePublishRequest = function(reqId, index)
+	{
+		$rootScope.progress.start();
+		userService.deletePublishRequest(reqId).then(
+				function success(data)
+				{
+					$rootScope.user.publishReqs.splice(index, 1);
+					$rootScope.progress.complete();
+				},
+				function fail(msg)
+				{
+					$rootScope.progress.complete();
+					$rootScope.showGlobalMsg("انجام نشد." + "\n" + msg, 4);
+				});
 	}
 	
 	$rootScope.getDate = function(miliseconds)

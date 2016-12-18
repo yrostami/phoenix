@@ -68,12 +68,10 @@ public class AuthenticationFilter implements Filter {
 		try{
 		authInfo = mapper.readValue(httpRequest.getInputStream(), AuthenticationInfo.class);
 		}catch (JsonMappingException e) {
-			e.printStackTrace();
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}catch (JsonParseException e) {
-			e.printStackTrace();
 			HttpServletResponse httpResponse = (HttpServletResponse) response;
 			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return;

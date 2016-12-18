@@ -326,7 +326,7 @@ ng-show="haveNotification" id="notificationLogoContainer">
 			ng-model="newBoard.category" ng-change="editBoardChangeCheck(2)" class="input"></select>
 			<label class="vlidation-message" ng-hide="validationMessageHide[1]">&rsaquo; باید یک دسته بندی معتبر انتخاب کنید.</label>
 			<label class="label">&rsaquo; درباره برد اطلاع رسانی:</label>
-			<textarea ng-model="newBoard.about" ng-change="editBoardChangeCheck(3)" class="input texterea" rows="5" cols="40" maxlength="1000" placeholder="درباره این برد اطلاع رسانی بنویسید ..." ></textarea>
+			<textarea ng-model="newBoard.about" ng-change="editBoardChangeCheck(3)" class="input textarea" rows="5" cols="40" maxlength="1000" placeholder="درباره این برد اطلاع رسانی بنویسید ..." ></textarea>
 			<label class="vlidation-message" ng-hide="validationMessageHide[2]">&rsaquo; درباره برد نباید خالی باشد.</label>
 			
 			<label class="label" ng-if="boardEditMod">
@@ -383,7 +383,7 @@ ng-show="haveNotification" id="notificationLogoContainer">
 				<input ng-model="newPost.title" class="input" type="text" placeholder="عنوان اطلاعیه را اینجا وارد کنید">
 				<label class="vlidation-message" ng-hide="validationMessageHide[0]">&rsaquo; عنوان اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 150 حرف باشد.</label>
 				<label class="label">&rsaquo; متن اطلاعیه:</label>
-				<textarea ng-model="newPost.content" class="input texterea" rows="5" cols="40" maxlength="1500" placeholder="متن اطلاعیه را اینجا بنویسید ..." ></textarea>
+				<textarea ng-model="newPost.content" class="input textarea" rows="5" cols="40" maxlength="1500" placeholder="متن اطلاعیه را اینجا بنویسید ..." ></textarea>
 				<label class="vlidation-message" ng-hide="validationMessageHide[1]">&rsaquo; متن اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 1500 حرف باشد.</label>
  				<div>
  					<div ng-show="imageCheckShow" class="checkbox"><input type="checkbox" id="imageCheck" ng-click="checked('imageCheck')">پیوست عکس</div>
@@ -441,14 +441,14 @@ ng-show="haveNotification" id="notificationLogoContainer">
 		<!-- all boards panel -->
 		<div class="tabContent" ng-controller="allboardscontroller" ng-hide="tabsHide[2]">
 		<div class="toolsbar">
-			<div class="button" ng-click="reload()">
+			<!-- <div class="button" ng-click="reload()">
 			<div class="btn-icon">
 				<i class="demo-icon  icon-arrows-cw"></i>
 			</div>
 			<span>
 			بار گذاری مجدد
 			</span>
-			</div>
+			</div> -->
 			<div class="tools"><input type="text" class="input" ng-model="searchBoardName" placeholder="جستجوی برد ..." ></div>
 		</div>
 		<div class="list">
@@ -468,6 +468,7 @@ ng-show="haveNotification" id="notificationLogoContainer">
 		<div class="no-selected-msg" ng-show="allBoards.length == 0">
 				هیچ بردی وجود ندارد.
 			</div>
+			
 			<div class="accordion-item" ng-repeat="board in allBoards | filter: filterByCatObj | filter: {name:searchBoardName}">
 				<div class="accordion-item-header" 
 				ng-click="openOrCloseAccordion($index, board.isSubscribed)">
@@ -503,9 +504,23 @@ ng-show="haveNotification" id="notificationLogoContainer">
 				<p>صاحب برد : {{board.publisher.displayName}}</p>
 				<p>دسته بندی : {{board.category.name}}</p>
 				<p>درباره این برد : </p>
-				<P ng-bind-html="getMultiline(board.about);" ></P>
+				<P ng-bind-html="getMultiline(board.about)" ></P>
 				</div>
 			</div>
+			
+			<div class="more-post" ng-click="loadMoreBoard()">
+					<div ng-show="!moreBoardsLoad">
+						<span ng-show="!moreBoardLoadFail">بردهای بیشتر</span>
+						<span ng-show="moreBoardLoadFail">تلاش دوباره</span>
+					</div>
+					<div ng-show="moreBoardsLoad">
+						<div class="loader mini-loader"></div>
+						<span>
+							صبر کنید
+						</span>
+					</div>
+				</div>
+			
 		</div>
 		</div>
 	</div>	
@@ -601,17 +616,50 @@ ng-show="haveNotification" id="notificationLogoContainer">
 	</div>
 </fieldset>
 
-<!--
-<fieldset id="userInfoFieldset4" class="userInfo-fieldset">
-	<legend ng-click="openOrCloseFieldset('4')">
+
+<fieldset id="userInfoFieldset5" class="userInfo-fieldset" ng-if="user.role == 'Publisher'">
+	<legend ng-click="openOrCloseFieldset('5')">
 		<div class="btn-icon">
-			<i id="fieldset-icon4" class="demo-icon  icon-down-open" ></i>
+			<i id="fieldset-icon5" class="demo-icon  icon-down-open" ></i>
 		</div>
-		<span>نشست های فعال</span>
+		<span>ارتقاء کاربری به منتشر کننده</span>
 	</legend>
 	
+	<span class="info-span">با ارتقاع حساب کاربری به منتشر کننده شما خواهید توانست برد اطلاع رسانی ایجاد کرده و روی آنها اطلاعیه منتشر کنید. ارتقاع حساب کاربری شما با تایید مدیر سامانه انجام خواهد شد.</span>
+	<label class="label" ng-if="user.publishReqs.length > 0">درخواست ها : </label>
+	<div class="publish-req" ng-repeat="request in user.publishReqs">
+		<div class="publish-req-info">
+			<span class="publish-req-info-cell">{{getDate(request.creationDate)}}</span>
+			<span class="publish-req-info-cell">بررسی شده : 
+				<span ng-if="request.checked">بله</span>
+				<span ng-if="!request.checked">خیر</span>
+			</span>
+			
+			<span class="publish-req-info-cell">تایید شده :
+				<span ng-if="!request.checked">نامعلوم</span>
+				<span ng-if="request.checked && request.agreement">بله</span>
+				<span ng-if="request.checked && !request.agreement">خیر</span> 
+			</span>	
+			<div class="req-delete-btn" ng-click="deletePublishRequest(request.id, $index)">
+				<i class="demo-icon  icon-trash"></i>
+			</div>
+		</div>
+		
+		<div class="publish-req-description" ng-bind-html="getMultiline(request.description)"></div>
+	</div>
+		<br/>
+		<label class="label">توضیحات درخواست جدید</label>
+		<textarea class="input normal-textarea" id="publishReqDescription" placeholder="توضیح درخواست" rows="5" cols="150" maxlength="1000"></textarea>
+		<label class="vlidation-message" id="publishReqvalidationMsg"></label>
+		<div class="buttons-bar">
+		<div class="form-btn" ng-click="sendPublishRequest()">
+			<span>
+				ثبت درخواست
+			</span>
+		</div>
+	</div>
 </fieldset>
--->
+
 
 	<div class="buttons-bar">
 		<div class="form-btn" ng-click="hideUserInfoPanel()">

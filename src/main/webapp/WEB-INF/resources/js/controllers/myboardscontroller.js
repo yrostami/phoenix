@@ -39,6 +39,7 @@ function myboardscontroller ($compile, $sce, $scope, $rootScope, userService)
 				$scope.boardContentShow = true;
 				$scope.morePostLoad = false;
 				board.firstLoad = false;
+				board.loadFail = false;
 		    },
 		    function fail(msg)
 		    {

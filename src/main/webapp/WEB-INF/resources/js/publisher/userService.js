@@ -5,7 +5,7 @@ function userService($http, $q) {
 		if (response.status == 400) {
 			msg = "خطا: درخواست اشتباه است." + response.data.message;
 			if (response.data.errors !== undefined)
-				msg += "<br />" + response.data.errors.join("<br />");
+				msg += " " + response.data.errors.join("<br />");
 			return msg;
 		}
 		if (response.status == 401)
@@ -52,11 +52,11 @@ function userService($http, $q) {
 		});
 	};
 
-	function getAllBoards() {
+	function getAllBoards(firstResult) {
 		var deferred = $q.defer();
 		return $http({
 			method : 'GET',
-			url : '/phoenix/subscriber/allboards'
+			url : '/phoenix/subscriber/allboards/' + firstResult
 		}).then(function success(response) {
 			deferred.resolve(response.data);
 			return deferred.promise;
@@ -359,6 +359,52 @@ function userService($http, $q) {
 		});
 	}
 	
+	function getpublishRequests()
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'GET',
+			url : '/phoenix/subscriber/publishrequest'
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
+	function sendPublishRequest(postData)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'POST',
+			data : postData,
+			url : '/phoenix/subscriber/publishrequest'
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
+	function deletePublishRequest(reqId)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'DELETE',
+			url : '/phoenix/subscriber/publishrequest/' + reqId
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
 	var services = {
 		getUser : getUser,
 		getAllCategories : getAllCategories,
@@ -381,7 +427,10 @@ function userService($http, $q) {
 		updatePassword : updatePassword,
 		logout : logout,
 		deleteAccount : deleteAccount,
-		getPostsAfter : getPostsAfter
+		getPostsAfter : getPostsAfter,
+		getpublishRequests : getpublishRequests,
+		sendPublishRequest : sendPublishRequest,
+		deletePublishRequest : deletePublishRequest 
 	};
 	
 	return services;

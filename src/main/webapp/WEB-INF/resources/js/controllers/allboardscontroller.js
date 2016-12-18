@@ -3,6 +3,8 @@ function allboardscontroller($rootScope, $scope, userService)
 {
 	$scope.filterByCatObj={};
 	$scope.listIndex = -1;
+	$scope.moreBoardLoadFail = false;
+	$scope.moreBoardsLoad = false;
 	
 	$scope.openOrCloseAccordion = function(index, condition){
 		if(!condition)
@@ -31,7 +33,8 @@ function allboardscontroller($rootScope, $scope, userService)
 				    
 				},
 				function fail(message){
-					$rootScope.globalMessage = message;
+					$rootScope.showGlobalMsg(
+							"انجام نشد." + "\n" + msg, 4);
 					$rootScope.classEditor.toggle(document.getElementById('flwbtn'+index), 'hidden');
 					$rootScope.classEditor.toggle(document.getElementById('flwbtnwt'+index), 'hidden');
 				}
@@ -49,10 +52,34 @@ $scope.filterByCat = function(index){
 		$scope.listIndex = index;
 	};
 
-	$scope.reload = function(){
-		$rootScope.initAllBoards();
-		$scope.filterByCat(-1);
-	};
+//	$scope.reload = function(){
+//		$rootScope.initAllBoards();
+//		$scope.filterByCat(-1);
+//	};
+	
+	$scope.loadMoreBoard = function()
+	{
+		$scope.moreBoardsLoad = true;
+		
+		userService.getAllBoards($rootScope.allBoards.length).
+			then(function success(data)
+			{
+				if(data.length > 0)
+					$rootScope.allBoards = $rootScope.allBoards.concat(data);
+				else $rootScope.showGlobalMsg(
+						"برد دیگری وجود ندارد." + "\n", 4);
+				$scope.moreBoardLoadFail = false;
+				$scope.moreBoardsLoad = false;
+				$scope.filterByCat(-1);
+			},
+			function fail(msg)
+			{
+				$scope.moreBoardLoadFail = true;
+				$scope.moreBoardsLoad = false;
+				$rootScope.showGlobalMsg(
+						"بار گذاری بردها بردها انجام نشد." + "\n" + msg, 4);
+			});
+	}
 	
 	$scope.isSubscribed = function(boardId)
 	{

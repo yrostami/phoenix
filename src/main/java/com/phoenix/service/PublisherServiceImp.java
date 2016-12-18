@@ -108,11 +108,6 @@ public class PublisherServiceImp implements PublisherService {
 	public void deletePost(BoardPost post, int userId)
 	{
 		Session session = sessionFactory.getCurrentSession(); 
-//		//حذف اعلان های پست
-//		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN "
-//				+ "WHERE PN.postId = :xpostId");
-//		notificationDeleteQuery.setParameter("xpostId", post.getId());
-//		notificationDeleteQuery.executeUpdate();
 		//حذف پست و فایل مربوطه
 			if(post.getFileInfo() != null){
 				String fileName = post.getFileInfo().getFilePath();

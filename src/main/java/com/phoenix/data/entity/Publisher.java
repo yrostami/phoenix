@@ -47,13 +47,6 @@ public class Publisher
 		inverseJoinColumns={@JoinColumn(name="board_id")})
 	@Fetch(FetchMode.JOIN)
 	private List<Board> subscribedBoards;
-	
-//	@ManyToMany
-//	@JoinTable(name="post_notification",
-//		joinColumns={@JoinColumn(name="subscriber_id")},
-//		inverseJoinColumns={@JoinColumn(name="post_id")})
-//	@Fetch(FetchMode.JOIN)
-//	private List<BoardPost> newPosts;
 
 	@Column(name="stroge_usage")
 	private long strogeUsage;

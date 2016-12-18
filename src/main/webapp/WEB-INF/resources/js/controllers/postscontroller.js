@@ -111,6 +111,7 @@ function postscontroller($rootScope, $scope, userService) {
 						}
 						httpBusy = false;
 						$scope.morePostLoad = false;
+						$scope.loadFail = false;
 					},
 					function fail(msg)
 					{

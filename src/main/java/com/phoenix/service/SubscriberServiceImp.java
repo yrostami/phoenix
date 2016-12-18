@@ -14,7 +14,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import com.phoenix.data.entity.Board;
 import com.phoenix.data.entity.BoardCategory;
 import com.phoenix.data.entity.BoardPost;
 import com.phoenix.data.entity.BoardStatistics;
+import com.phoenix.data.entity.PublishRequest;
 import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.Subscriber;
 import com.phoenix.data.entity.SystemInfo;
@@ -51,10 +51,13 @@ public class SubscriberServiceImp implements SubscriberService {
 	
 	@Transactional
 	@Override
-	public List<Board> getAllBoards() {
+	public List<Board> getAllBoards(int fristResult, int maxResult) {
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("FROM Board");
-		List<Board> list = query.getResultList();
+		Criteria query = session.createCriteria(Board.class);
+		query.addOrder(Order.asc("id"));
+		query.setFirstResult(fristResult);
+		query.setMaxResults(maxResult);
+		List<Board> list = query.list();
 		return list;
 	}
 	
@@ -272,6 +275,50 @@ public class SubscriberServiceImp implements SubscriberService {
 		}
 		
 		return postsCount;
+	}
+
+	@Override
+	@Transactional
+	public void savePublishRequest(PublishRequest publishReq) {
+		Session session = sessionFactory.getCurrentSession();
+		session.save(publishReq);
+	}
+	
+	@Override
+	@Transactional
+	public List<PublishRequest> getPublishRequests(int userId) {
+		
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("FROM PublishRequest as PR WHERE "
+				+ "PR.userId = :xuserId");
+		query.setParameter("xuserId", userId);
+		List<PublishRequest> list = query.getResultList();
+		return list;
+	}
+
+	@Override
+	@Transactional
+	public boolean userHaveUncheckedPublishRequest(int userId) {
+		Session session = sessionFactory.getCurrentSession();
+		Criteria query = session.createCriteria(PublishRequest.class);
+		query.add(Restrictions.eq("userId", userId));
+		query.add(Restrictions.eq("checked", false));
+		query.setProjection(Projections.rowCount());
+		long rowCount = (long) query.uniqueResult();
+		if(rowCount>0)
+			return true;
+		return false;
+	}
+
+	@Override
+	@Transactional
+	public int deletePublishRequest(int reqId, int userId) {
+		Session session = sessionFactory.getCurrentSession();
+		Query query = session.createQuery("DELETE FROM PublishRequest AS PR "
+				+ "WHERE PR.id = :xid AND PR.userId = :xuserId");
+		query.setParameter("xid", reqId);
+		query.setParameter("xuserId", userId);
+		return query.executeUpdate();
 	}
 	
 }

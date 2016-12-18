@@ -27,6 +27,7 @@ import com.phoenix.data.entity.Board;
 import com.phoenix.data.entity.BoardCategory;
 import com.phoenix.data.entity.BoardPost;
 import com.phoenix.data.entity.BoardStatistics;
+import com.phoenix.data.entity.PublishRequest;
 import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.Subscriber;
 import com.phoenix.data.entity.SystemInfo;
@@ -59,10 +60,10 @@ public class SubscriberController {
 		return new ResponseEntity<Subscriber> (subscriber, HttpStatus.NOT_FOUND);
 	}
 	
-	@RequestMapping(value="/allboards")
-	public ResponseEntity<List<Board>> getAllBoards()
+	@RequestMapping(value="/allboards/{firstResult}")
+	public ResponseEntity<List<Board>> getAllBoards(@PathVariable int firstResult)
 	{
-		List<Board> list = subscriberService.getAllBoards();
+		List<Board> list = subscriberService.getAllBoards(firstResult, 25);
 		return new ResponseEntity<List<Board>> (list,responseHeader,HttpStatus.OK);
 	}
 	
@@ -260,4 +261,43 @@ public class SubscriberController {
 		}
 		return new ResponseEntity<PostsCount>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
 	}
+	
+	@RequestMapping(value="/publishrequest", method= RequestMethod.POST)
+	public ResponseEntity<PublishRequest> createPublishRequest(@Valid @RequestBody PublishRequest publishReq,
+			Errors errors, HttpSession session) throws ValidationException
+	{
+		if(!errors.hasErrors()){
+			int userId = (int) session.getAttribute("userId");	
+			if (subscriberService.userHaveUncheckedPublishRequest(userId)) {
+				throw new ValidationException(new Error("تا زمانی که درخواست قبلی شما بررسی نشده است اجازه ثبت در خواست جدید ندارید."));
+			}
+			publishReq.setAgreement(false);
+			publishReq.setChecked(false);
+			publishReq.setUserId(userId);
+			publishReq.setCreationDate(new Timestamp(System.currentTimeMillis()));
+			subscriberService.savePublishRequest(publishReq);
+			return new ResponseEntity(publishReq, responseHeader, HttpStatus.OK);
+		}
+		throw new ValidationException(errors);
+	}
+	
+	@RequestMapping(value="/publishrequest", method= RequestMethod.GET)
+	public ResponseEntity<List<PublishRequest>> getPublishRequests(HttpSession session)
+	{
+		int userId = (int) session.getAttribute("userId");
+		return new ResponseEntity<List<PublishRequest>>(subscriberService.getPublishRequests(userId),
+				responseHeader, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/publishrequest/{requestId}", method= RequestMethod.DELETE)
+	public ResponseEntity<OperationStatus> deletePublishRequest(HttpSession session, 
+			@PathVariable int requestId)
+	{
+		int userId = (int) session.getAttribute("userId");
+		if(subscriberService.deletePublishRequest(requestId, userId) > 0)
+			return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,
+					responseHeader, HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
+	}
+	
 }

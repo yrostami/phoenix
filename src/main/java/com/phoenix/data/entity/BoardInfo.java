@@ -35,7 +35,6 @@ public class BoardInfo {
 	@Column(name="about", length=1000)
 	private String about;
 	
-	@NotNull(message="شناسه صاحب نباید خالی باشد.")
 	@Column(name="publisher_id")
 	private int publisherId;
 	

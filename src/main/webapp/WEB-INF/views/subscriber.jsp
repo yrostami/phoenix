@@ -5,31 +5,21 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>سامانه بردهای اطلاع رسانی ققنوس</title>
+<title> سامانه بردهای اطلاع رسانی ققنوس</title>
 
 <link href="<spring:url value="/resources/css/phoenix-icons.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
-<%-- <link href="<spring:url value="/resources/css/iconAnimation.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/> --%>
+
 <link href="<spring:url value="/resources/css/phoenix.css" htmlEscape="true"/>" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="<spring:url value="/resources/js/angular.min.js" htmlEscape="true"/>"></script>
 <script type="text/javascript" src="<spring:url value="/resources/js/ngprogress.min.js" htmlEscape="true"/>"></script>
-<script type="text/javascript" src="<spring:url value="/resources/js/publisher/app.js" htmlEscape="true"/>"></script>
+<script type="text/javascript" src="<spring:url value="/resources/js/subscriber/app.js" htmlEscape="true"/>"></script>
 <script type="text/javascript" src="<spring:url value="/resources/js/service/userService.js" htmlEscape="true"/>"></script>
 <script type="text/javascript" src="<spring:url value="/resources/js/controllers/allboardscontroller.js" htmlEscape="true"/>"></script>
-<script type="text/javascript" src="<spring:url value="/resources/js/controllers/myboardscontroller.js" htmlEscape="true"/>"></script>
 <script type="text/javascript" src="<spring:url value="/resources/js/controllers/postscontroller.js" htmlEscape="true"/>"></script>
 
 </head>
-<body ng-app="phoenix" ng-controller="publisher" ng-cloak>
+<body ng-app="phoenix" ng-controller="subscriber" ng-cloak>
 
-<!-- <div class="notification-icon" ng-click="showNewPosts()" 
-ng-show="haveNotification" id="notificationLogoContainer">
-	<i class="demo-icon icon-bell-alt"></i>
-	<div class="tooltip">
-		<div class="popup-item"><span>{{notificationCount}} اطلاعیه جدید. برای دیدن اطلاعیه های جدید کلیک کنید.</span></div>
-	</div>
-	
-</div>
- -->
 <div id="globalMsg"></div>
 <div id="pageLoading" ng-show="showPageLoading">
 	<h3>
@@ -65,13 +55,11 @@ ng-show="haveNotification" id="notificationLogoContainer">
 
 	<div id="content" ng-show="mainContentShow">
 		<div id="tabs">
-			<div class="tab" id="news" ng-click="openTab(0);">
+			<div class="tab subscriber-tab" id="news" ng-click="openTab(0);">
 				اطلاعیه های جدید
 			</div>
-			<div class="tab" id="myBoards" ng-click="openTab(1);">
-				بردهای من
-			</div>
-			<div class="tab" id="allBoards" ng-click="openTab(2);">
+			
+			<div class="tab subscriber-tab" id="allBoards" ng-click="openTab(1);">
 				همه ی بردها
 			</div>
 		</div>
@@ -211,264 +199,9 @@ ng-show="haveNotification" id="notificationLogoContainer">
 			
 		</div>
 		
-		<!-- my boards panel -->
-		<div class="tabContent" ng-hide="tabsHide[1]" ng-controller="myboardscontroller">
-		<div ng-show="myBoardsMainPanelShow">
-		<div class="toolsbar">
-			<div class="button" ng-click="showNewBoardPanel()">
-			<div class="btn-icon">
-			<i class="demo-icon  icon-plus"></i>
-			</div>
-			<span>
-			برد اطلاع رسانی جدید 
-			</span>
-			</div>
-			
-			<div class="button" ng-click="showNewPostPanel()" ng-show="boardContentShow">
-					<div class="btn-icon">
-						<i class="demo-icon  icon-pin"></i>
-					</div>
-					<span>
-						نصب اطلاعیه جدید روی برد
-					</span>
-				</div>
-			
-		</div>
-			<div class="list">
-			
-			<div class="list-item" ng-show="user.myBoards.length == 0">
-				<span class="item-name wide-item no-item">
-					هیچ بردی وجود ندارد.
-				</span>
-			</div>
-			
-			<div class="list-item" ng-repeat="board in user.myBoards">
-				<div class="item-modal-btn" ng-click="showMyBoardInfo($index)">
-					<i class="demo-icon icon-ellipsis-vert"></i>
-				</div>
-				<span id="myBoard{{$index}}" class="item-name" ng-click="selectBoard($index)">
-					{{board.name}}
-				</span>
-			</div>	
-			</div>
-			
-			<div class="list-item-content">
-			
-			<div class="no-selected-msg" ng-show="user.myBoards.length == 0">
-				شما هیچ بردی ندارید.<br />
-				برای ایجاد برد جدید روی گزینه "برد اطلاع رسانی جدید" کلیک کنید. 
-			</div>
-			
-			<div class="no-selected-msg" ng-show="user.myBoards.length !== 0 && boardIndex == -1">
-				برای دیدن اطلاعیه ها روی برد مورد نظر کلیک کنید.
-			</div>
-			
-			<div class="no-selected-msg" ng-show="selectedBoard.posts.length == 0 && boardIndex !== -1">
-				هیچ اطلاعیه ای وجود ندارد. 
-				</div>
-
-			<div class="board-content" ng-show="boardContentShow">
-				<div class="post-container" ng-repeat="post in selectedBoard.posts | orderBy : '-creationDate'">
-				<div class="post-title"><span>{{post.title}}</span>
-				<div class="delete-btn" ng-click="deletePostDialogShow(post.id)">
-					<div class="btn-icon">
-						<i class="demo-icon  icon-trash"></i>
-					</div>
-				</div></div>
-				<div class="image-div" id="myPostImageDiv{{$index}}"></div>
-				<div id="postContent{{$index}}" class="post-content">
-					<p class="post-text" ng-bind-html="getMultiline(post.content)"></p>
-					<div class="post-footer">
-						<span id="myPostImageTitle{{$index}}" ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1">
-						این اطلاعیه دارای عکس می باشد:</span> 
-						<span ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') == -1">
-						این اطلاعیه دارای فایل می باشد:</span>
-						<div class="download-file">
-							<span ng-if=" post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1" 
-								id="myPostImageViewTitle{{$index}}" ng-click="getImage($index, post.fileInfo.filePath)">نمایش داده شود</span>
-								
-    						<a ng-if="post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') == -1"
-    						 target="_blank" ng-href="/phoenix/subscriber/getfile{{post.fileInfo.filePath}}">دانلود شود</a>
-						</div>
-						<div id="myPostImageLoader{{$index}}" class="loader micro-loader post-image-loader" 
-								ng-if=" post.fileInfo !== null && post.fileInfo.fileType.indexOf('image') !== -1"></div>
-						<span class="post-date-container">{{getDate(post.creationDate)}}</span>
-					</div>
-				</div>
-				</div>
-				
-				<div class="more-post" ng-click="loadMorePost()" ng-show="!selectedBoard.posts.length == 0">
-					<div ng-show="!morePostLoad">
-						<span ng-show="!$scope.selectedBoard.loadFail">دیدن اطلاعیه های بیشتر</span>
-						<span ng-show="$scope.selectedBoard.loadFail">تلاش دوباره</span>
-					</div>
-					<div ng-show="morePostLoad">
-						<div class="loader mini-loader"></div>
-						<span>
-							صبر کنید
-						</span>
-					</div>
-				</div>
-				
-				</div>
-			</div>			
-			
-		</div>
-		
-		<div class="form-container" ng-show="newBoardPanelShow">
-			<div class="panel-title" ng-hide="boardEditMod">ایجاد برد اطلاع رسانی جدید</div>
-			<div class="panel-title" ng-show="boardEditMod">ویرایش اطلاعات برد اطلاع رسانی</div>
-			<div class="form-content">
-			<label class="label">&rsaquo; نام برد اطلاع رسانی:</label>
-			<input ng-model="newBoard.name" ng-change="editBoardChangeCheck(1)" class="input" type="text" placeholder="نام را اینجا وارد کنید">
-			<label class="vlidation-message" ng-hide="validationMessageHide[0]">&rsaquo; نام برد اطلاع رسانی باید شامل حداقل پنج و حداکثر صد حرف باشد.</label>
-			<label class="label">&rsaquo; دسته بندی برد اطلاع رسانی:</label>
-			<select ng-options="category as category.name for category in allCategories track by category.id" 
-			ng-model="newBoard.category" ng-change="editBoardChangeCheck(2)" class="input"></select>
-			<label class="vlidation-message" ng-hide="validationMessageHide[1]">&rsaquo; باید یک دسته بندی معتبر انتخاب کنید.</label>
-			<label class="label">&rsaquo; درباره برد اطلاع رسانی:</label>
-			<textarea ng-model="newBoard.about" ng-change="editBoardChangeCheck(3)" class="input textarea" rows="5" cols="40" maxlength="1000" placeholder="درباره این برد اطلاع رسانی بنویسید ..." ></textarea>
-			<label class="vlidation-message" ng-hide="validationMessageHide[2]">&rsaquo; درباره برد نباید خالی باشد.</label>
-			
-			<label class="label" ng-if="boardEditMod" 
-				ng-class="{'clickable-span': editBoard.subscriberCount 
-				!== undefined && editBoard.subscriberCount !== undefined 
-				&& editBoard.subscriberCount >0}"
-				ng-click="showBoardSubscribers()">
-			<span>&rsaquo; تعداد دنبال کننده ها: </span>
-			<span ng-if="editBoard.subscriberCount !== undefined">{{editBoard.subscriberCount}}</span>
-			<div class="loader micro-loader" ng-if="editBoard.subscriberCount == undefined"></div>
-			</label>
-			
-			<label class="label" ng-if="boardEditMod" >
-			<span>&rsaquo; تعداد اطلاعیه ها: </span>
-			<span ng-if="editBoard.postCount !== undefined">{{editBoard.postCount}}</span>
-			<div class="loader micro-loader" ng-if="editBoard.postCount == undefined"></div>
-			</label>
-			</div>
-		
-			<div class="buttons-bar" ng-show="boardEditMod">
-				<div class="form-btn" ng-click="hideNewBoardPanel()">
-					<span>
-						بازگشت
-					</span>
-				</div>
-				<div ng-click="boardValidationAndUpdate()" 
-				ng-class="{'disable-btn': !editBoardChange , 'form-btn': editBoardChange}">
-					<span>
-						اعمال تغییرات
-					</span>
-				</div>
-				<div class="form-btn" ng-click="deleteBoardDialogShow()">
-					<span>
-						حذف برد
-					</span>
-				</div>
-			</div>
-			
-			<div class="buttons-bar" ng-hide="boardEditMod">
-				<div class="form-btn" ng-click="hideNewBoardPanel()">
-					<span>
-						منصرف شدم
-					</span>
-				</div>
-				<div class="form-btn" ng-click="newBoardValidationAndSend()">
-					<span>
-						ایجاد کن
-					</span>
-				</div>
-			</div>
-			
-		</div>
-		
-		<div class="form-container" ng-show="newPostPanelShow">
-		<div class="panel-title">نصب اطلاعیه جدید</div>
-			<div class="form-content">
-				<label class="label">&rsaquo; عنوان اطلاعیه:</label>
-				<input ng-model="newPost.title" class="input" type="text" placeholder="عنوان اطلاعیه را اینجا وارد کنید">
-				<label class="vlidation-message" ng-hide="validationMessageHide[0]">&rsaquo; عنوان اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 150 حرف باشد.</label>
-				<label class="label">&rsaquo; متن اطلاعیه:</label>
-				<textarea ng-model="newPost.content" class="input textarea" rows="5" cols="40" maxlength="1500" placeholder="متن اطلاعیه را اینجا بنویسید ..." ></textarea>
-				<label class="vlidation-message" ng-hide="validationMessageHide[1]">&rsaquo; متن اطلاعیه نباید خالی باشد و می تواند شامل حداکثر 1500 حرف باشد.</label>
- 				<div>
- 					<div ng-show="imageCheckShow" class="checkbox"><input type="checkbox" id="imageCheck" ng-click="checked('imageCheck')">پیوست عکس</div>
- 					<div ng-show="fileCheckShow" class="checkbox"><input type="checkbox" id="fileCheck" ng-click="checked('fileCheck')">پیوست فایل</div>
-				</div>
-				<div ng-show="fileUploadShow" class="file-upload-container">
-					<div class="form-btn file-upload"> 
-    					<span>{{uploadInputTitle}}</span>
-    					<input id="uploadFile" type="file" class="upload" file-upload>
-					</div>
-					<label>{{fileName}}</label>
-					<span ng-show="uploadStrogeMsgShow()" class="stroge-msg">{{strogeSize}}</span>
-				</div>
-			</div>
-			<div class="buttons-bar">
-				<div class="form-btn" ng-click="hideNewPostPanel()">
-					<span>
-						منصرف شدم
-					</span>
-				</div>
-				<div class="form-btn" ng-click="newPostValidationAndSend()">
-					<span>
-						نصب کن
-					</span>
-				</div>
-			</div>
-		</div>
-		
-		<div class="modal" id="subscribersNameContainer">
-			<div class="modal-content dialog">
-				<span>اسامی دنبال کننده های {{editBoard.name}}</span>
-				<p class="subscriber-name" ng-repeat="subscriber in myBoardSubscribers">
-				{{subscriber.displayName}}
-				</p>
-				<div class="loader normal-loader" ng-hide="myBoardSubscribersLoaded"></div>
-				<div class="buttons-bar">
-					<div class="form-btn" onclick="document.getElementById('subscribersNameContainer').style.display='none'">
-					<span>
-						بازگشت
-					</span>
-				</div>
-				</div>
-			</div>	
-		</div>
-		
-		<div class="modal" id="dialogModal">
-		<div class="modal-content dialog"><span>آیا برای حذف مطمئن هستید؟</span>
-		<div class="buttons-bar">
-				<div class="form-btn" onclick="document.getElementById('dialogModal').style.display='none';">
-					<span>
-						خیر
-					</span>
-				</div>
-				<div class="form-btn" ng-click="deletePost()" ng-hide="boardEditMod">
-					<span>
-						بله
-					</span>
-				</div>
-				<div class="form-btn" ng-click="deleteBoard()" ng-show="boardEditMod">
-					<span>
-						بله
-					</span>
-				</div>
-			</div>
-		</div>
-		</div>
-		
-		</div>
-
 		<!-- all boards panel -->
-		<div class="tabContent" ng-controller="allboardscontroller" ng-hide="tabsHide[2]">
+		<div class="tabContent" ng-controller="allboardscontroller" ng-hide="tabsHide[1]">
 		<div class="toolsbar">
-			<!-- <div class="button" ng-click="reload()">
-			<div class="btn-icon">
-				<i class="demo-icon  icon-arrows-cw"></i>
-			</div>
-			<span>
-			بار گذاری مجدد
-			</span>
-			</div> -->
 			<div class="tools"><input type="text" class="input" ng-model="searchBoardName" placeholder="جستجوی برد ..." ></div>
 		</div>
 		<div class="list">

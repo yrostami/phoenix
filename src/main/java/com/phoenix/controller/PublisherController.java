@@ -23,13 +23,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.phoenix.data.entity.BoardInfo;
 import com.phoenix.data.entity.BoardPost;
-import com.phoenix.data.entity.BoardStatistics;
 import com.phoenix.data.entity.FileInfo;
 import com.phoenix.data.entity.Publisher;
+import com.phoenix.data.entity.UserInfo;
 import com.phoenix.service.OperationStatus;
 import com.phoenix.service.PublisherService;
 import com.phoenix.service.SubscriberService;
-import com.sun.mail.iap.Response;
 
 @RestController
 @RequestMapping(value = "/publisher")
@@ -59,8 +58,9 @@ public class PublisherController {
 	{
 		if (!error.hasErrors()) {
 			int userId = (int) session.getAttribute("userId");
-			if (newBoard.getPublisherId() == userId && publisherService.isValid(newBoard.getCategory())) 
+			if (publisherService.isValid(newBoard.getCategory())) 
 			{
+				newBoard.setPublisherId(userId);
 				int boardId = publisherService.saveBoard(newBoard);
 				newBoard.setId(boardId);
 				return new ResponseEntity<BoardInfo>(newBoard, HttpStatus.CREATED);
@@ -76,8 +76,7 @@ public class PublisherController {
 	{
 		if (!error.hasErrors()) {
 			int userId = (int) session.getAttribute("userId");
-			if (board.getPublisherId() == userId 
-					&& publisherService.isValid(board.getCategory())
+			if (publisherService.isValid(board.getCategory())
 					&& publisherService.isValidOwnership(userId, board.getId())) 
 			{
 				publisherService.updateBoard(board);
@@ -97,6 +96,19 @@ public class PublisherController {
 			publisherService.deleteBoard(boardId, userId);
 			return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,responseHeader, HttpStatus.OK);
 		}
+		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
+	}
+	
+	@RequestMapping(value="/board/{boardId}/subscribers", method=RequestMethod.GET)
+	public ResponseEntity<List<UserInfo>> getBoardSubscribers(@PathVariable int boardId, HttpSession httpSession)
+	{
+		int userId = (int) httpSession.getAttribute("userId");
+		if(publisherService.isValidOwnership(userId, boardId))
+		{
+			return new ResponseEntity<List<UserInfo>>(publisherService.getBoardSubscribers(boardId)
+					, responseHeader, HttpStatus.OK);
+		}
+		
 		return new ResponseEntity<>(null,HttpStatus.NOT_ACCEPTABLE);
 	}
 	

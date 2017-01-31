@@ -29,6 +29,6 @@ public class RegistrationResponse {
 	public static RegistrationResponse getSuccess()
 	{
 		return new RegistrationResponse(true, "ثبت نام با موفقیت انجام شد."
-				+"\n"+"یک ایمیل برای تایید برای شما ارسال شد. حساب کاربری شما پس از تایید ایمیل فعال خواهد شد.");
+				+"\n"+"هم اکنون میتوانید از حساب کاربری خود استفاده کنید.");
 	}
 }

@@ -21,7 +21,7 @@ public interface PublisherService {
 	public void updateBoard(BoardInfo board);
 	public void deleteBoard(int boardId, int userId);
 	public long savePost(BoardPost newPost);
-	public List<UserInfo> getChannelSubscribers();
+	public List<UserInfo> getBoardSubscribers(int boardId);
 	public boolean isValid(BoardCategory category);
 	public String saveFile(MultipartFile file, String parentDir, String fileName)throws IllegalStateException, IOException;
 	public boolean savePermission(int userId, long fileSize);

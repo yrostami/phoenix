@@ -27,17 +27,7 @@
         </div>
 
         <div id="content">
-        	<label class="errorMessage">
-        	<%
-        		/* if(session.getAttribute("login") != null)
-        		{
-        			if((boolean) session.getAttribute("login") == false)
-						out.print("نام کاربری یا گذر واژه اشتباه است.");
-        			session.removeAttribute("login");
-        		} */
-        	%>
-        	<%--method="post" action="<spring:url value="//registration" htmlEscape="true"/>" --%>
-        	</label>
+        
             <div>
                 <label>
                 &rsaquo; نام کاربری:
@@ -70,9 +60,9 @@
 				ثبت نام در سامانه
             </a></p>
             
-            <p class="link"><a href="">
+            <!-- <p class="link"><a href="">
 				رمز عبور را فراموش کرده ام.!
-            </a></p>
+            </a></p> -->
 
             <div id="footer">
                 تمامی حقوق این سایت محفوظ می باشد. &copy;

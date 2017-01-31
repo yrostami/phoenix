@@ -11,92 +11,84 @@ function postscontroller($rootScope, $scope, userService) {
 	$scope.showBoard = {about: ' '};
 	$scope.postsControllerMainPanelShow = true;
 
-	$rootScope.showPosts = function(index, boardId) {
+	$rootScope.showPosts = function(index, board) {
 		if (index !== $scope.selectedBoardIndex && !httpBusy) {
-			$rootScope.classEditor.remove(document.getElementById('board'+ $scope.selectedBoardIndex), 'selected');
+			if($scope.selectedBoardIndex !== -1)
+				$rootScope.classEditor.remove(document.getElementById('board'+ $scope.selectedBoardIndex), 'selected');
+			
 			$rootScope.classEditor.add(document.getElementById('board'+index), 'selected');
-			if (index !== -1){
 				
 				var postsArray = new Array();
-				for(var i=$rootScope.posts.length - 1; i>=0; i--)
-					if($rootScope.posts[i].boardId == boardId)
-						postsArray.push($rootScope.posts[i]);
 				
 				for(var i=implicitPosts.length - 1; i>=0; i--)
-					if(implicitPosts[i].boardId == boardId)
+					if(implicitPosts[i].boardId == board.id)
 						postsArray.push(implicitPosts[i]);
 				
 				if(postsArray.length == 0)
 				{	
 					httpBusy = true;
 					$rootScope.progress.start();
-					getBoardPosts(boardId);
+					getBoardPosts(board);
+				}else {
+					$rootScope.targetPosts = postsArray;
+					if(board.notificationCount > 0)
+					{
+						httpBusy = true;
+						$rootScope.progress.start();
+						getBoardNewPosts(board);
+					}
 				}
-				else $rootScope.targetPosts = postsArray; 
-			}
-			else
-				$rootScope.targetPosts = $rootScope.posts;
 			
 			$scope.selectedBoardIndex = index;
-			$scope.selectedBoardId = boardId;
+			$scope.selectedBoardId = board.id;
 			$scope.loadFail = false;
 		}
 	};
+	
+	function getBoardPostsAfter(board)
+	{
+		var length = $rootScope.targetPosts.length;
+		var date = $rootScope.targetPosts[0].creationDate;
+		
+		for(var i = 1; i < length -1 ; i++)
+			if($rootScope.targetPosts[i].creationDate > date )
+				date = $rootScope.targetPosts[i].creationDate;
+		
+		$rootScope.progress.start();
+		userService.getBoardPostsAfter(board.id , date)
+			.then(function success(data)
+			{
+				httpBusy = false;
+				$rootScope.targetPosts = $rootScope.targetPosts.concat(data);
+				implicitPosts = implicitPosts.concat(data);
+				board.notificationCount = 0;
+				$rootScope.progress.complete();
+			},
+			function fail(msg)
+			{
+				httpBusy = false;
+				$rootScope.progress.complete();
+				$rootScope.showGlobalMsg("بار گذاری اطلاهیه های جدید انجام نشد." + msg, 4);
+			});
+	}
 	
 	$scope.loadMorePosts = function()
 	{
 		if(httpBusy)
 			return;
-		$scope.morePostLoad = true;
-		if($scope.selectedBoardId == -1)
-		{
-			if($rootScope.targetPosts !== 0){
+	
+		var length = $rootScope.targetPosts.length;
+		var date = $rootScope.targetPosts[length].creationDate;
+		
+		for(var i = 0; i < length -2 ; i++)
+			if(date > $rootScope.targetPosts[i].creationDate)
+				date = $rootScope.targetPosts[i].creationDate;
+		
+			$scope.morePostLoad = true;
 			httpBusy = true;
+			if(length !== 0){
 			userService
-			.getPostsBefore($rootScope.posts[$rootScope.posts.length - 1].creationDate)
-			.then(function success(data)
-			{
-				if(data.length == 0)
-						$rootScope.showGlobalMsg("اطلاعیه دیگری وجود ندارد.", 4);
-				else{
-					$rootScope.posts = $rootScope.posts.concat(data);
-					$rootScope.targetPosts = $rootScope.posts;
-				}
-				httpBusy = false;
-				$scope.morePostLoad = false;
-			},
-			function fail(msg)
-			{
-				$rootScope.showGlobalMsg("بار گذاری اطلاهیه ها انجام نشد." + msg, 4);
-				httpBusy = false;
-				$scope.morePostLoad = false;
-				$scope.loadFail = true;
-			});
-			}else{
-				userService.getPosts().then(
-						function success(data)
-						{
-							$rootScope.posts = data;
-							$rootScope.targetPosts = $rootScope.posts;
-							httpBusy = false;
-							$scope.morePostLoad = false;
-						},
-						function fail(msg)
-						{
-							$rootScope.showGlobalMsg("بار گذاری اطلاهیه ها انجام نشد." + msg, 4);
-							httpBusy = false;
-							$scope.morePostLoad = false;
-						});
-			}
-			
-		}
-		else
-		{
-			httpBusy = true;
-			if($rootScope.targetPosts.length !== 0){
-			userService
-			.getBoardPostsBefore($scope.selectedBoardId,
-					$rootScope.targetPosts[$rootScope.targetPosts.length - 1].creationDate)
+			.getBoardPostsBefore($scope.selectedBoardId, date)
 					.then(function success(data)
 					{
 						if(data.length == 0){
@@ -124,13 +116,12 @@ function postscontroller($rootScope, $scope, userService) {
 				$rootScope.progress.start();
 				getBoardPosts($scope.selectedBoardId)
 			}
-		}
 	}
 	
-	function getBoardPosts(boardId)
+	function getBoardPosts(board)
 	{
 		$rootScope.progress.start();
-		userService.getBoardsPosts(boardId)
+		userService.getBoardsPosts(board.id)
 		.then(
 			function success(data) {
 				if(data.length == 0){
@@ -144,6 +135,7 @@ function postscontroller($rootScope, $scope, userService) {
 				$rootScope.progress.complete();
 				httpBusy = false;
 				$scope.morePostLoad = false;
+				board.notificationCount = 0;
 			},
 			function fail(msg) {
 				$rootScope.progress.complete();

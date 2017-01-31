@@ -41,11 +41,7 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 	$rootScope.progress.setHeight('5px');
 	$rootScope.progress.setColor('#ec3543');
 	$rootScope.progress.start();
-	$rootScope.haveNotification = false;
-	$rootScope.notificationCount = 0;
-	$rootScope.lastPostDate = -1;
 	$rootScope.user = {};
-	$rootScope.posts = new Array();
 	$rootScope.targetPosts = new Array();
 	$rootScope.allBoards = new Array();
 	$rootScope.allCategories = new Array();
@@ -55,11 +51,8 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 			document.getElementById('myBoards'),
 			document.getElementById('allBoards')];
 	$rootScope.classEditor.add($scope.tabsElement[0], 'selected');
-	
-	var nlc = document.getElementById('notificationLogoContainer');
-	nlc.style.left = (window.innerWidth - nlc.offsetWidth) / 2 + 'px';
 
-	userService.getUser().then(
+	userService.getPublisherUser().then(
 			function success(user) {
 				$rootScope.user = user;
 				if(user.subscribedBoards.length == 0){
@@ -70,14 +63,12 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 					$scope.showApp = true;
 					return;
 				}
-				userService.getPosts().then(
+
+				userService.getPostNotifications().then(
 						function success(data)
 						{
-							if(data.length == 0)
-								$rootScope.showGlobalMsg("هیچ اطلاعیه ای وجود ندارد." + msg, 4);
-							$rootScope.posts = data;
-							$rootScope.lastPostDate = getLastPostDate(data);
-							$rootScope.targetPosts = $rootScope.posts;
+							if(data.length > 0)
+							setBoardsNotifications(data);
 							$rootScope.progress.complete();
 							$rootScope.progress.setHeight('5px');
 							$rootScope.progress.setParent(document.getElementById('progressBar'));
@@ -91,12 +82,24 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 							$rootScope.progress.setParent(document.getElementById('progressBar'));
 							$scope.showPageLoading = false;
 							$scope.showApp = true;
-							$rootScope.showGlobalMsg("بار گذاری اطلاهیه ها انجام نشد." + msg, 4);
+							$rootScope.showGlobalMsg("بار گذاری اطلاعات کامل انجام نشد."+ "\n" + msg, 5);
 						});
 			},
 			function fail(msg) {
-				$rootScope.showGlobalMsg("بار گذاری اظلاعات کاربری انجام نشد."+ "\n" + msg, 5);
+				$rootScope.showGlobalMsg("بار گذاری اطلاعات کاربری انجام نشد."+ "\n" + msg, 5);
 			});
+	
+	function setBoardsNotifications(notifications){
+		
+		for(var j = $rootScope.user.subscribedBoards.length -1; j >= 0; j--)
+			$rootScope.user.subscribedBoards[j].notificationCount = 0;
+		
+		for(var i = notifications.length -1; i>=0; i--)
+			for(var j = $rootScope.user.subscribedBoards.length -1; j >= 0; j--)
+				if($rootScope.user.subscribedBoards[j].id == notifications[i].boardId )
+					$rootScope.user.subscribedBoards[j].notificationCount += 1;
+	};
+	
 	userService.getSystemInfo().then(function(data) {
 		$rootScope.systemInfo = data;
 	});
@@ -352,41 +355,51 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 		}
 	}
 	
-	$scope.getNewPosts = function()
+	$scope.getNotifications = function()
 	{
-		if($rootScope.lastPostDate == -1)
-		{
-			userService.getPosts().then(
+			userService.getPostNotifications().then(
 					function success(data)
 					{
 						if(data.length == 0)
-							$rootScope.showGlobalMsg("هیچ اطلاعیه ای وجود ندارد.", 4);
-						$rootScope.posts = data;
-						$rootScope.lastPostDate = getLastPostDate(data);
-						$rootScope.targetPosts = $rootScope.posts;
-						$rootScope.notificationCount = data.length;
-					},
-					function fail(msg)
-					{
+							return;
+							
+						var boardsNotificationCount = new Array();
+						for(var j = 0; j<$rootScope.user.subscribedBoards.length ; j++)
+							boardsNotificationCount.push($rootScope.user.subscribedBoards[j].notificationCount);
+							
+						setBoardsNotifications(data);
 						
-					});
-		}
-		else{
-			userService.getPostsAfter($rootScope.lastPostDate).then(
-					function success(data)
-					{
-						if(data.length > 0){
-							$rootScope.posts = $rootScope.posts.concat(data);
-							$rootScope.lastPostDate = getLastPostDate(data);
-							$rootScope.haveNotification = true;
-							$rootScope.notificationCount = data.length;
+						var boardCount = 0;
+						var	postCount = 0;
+						
+						for(var j = $rootScope.user.subscribedBoards.length -1; j >= 0; j--)
+						{
+							if($rootScope.user.subscribedBoards[j].notificationCount > boardsNotificationCount[j])
+							{
+								boardCount++;
+								postCount += $rootScope.user.subscribedBoards[j].notificationCount - boardsNotificationCount[j];
+								
+							}
 						}
+						
+						console.log("boardCount : "+boardCount);
+						console.log("postCount : "+postCount);
+						
+						if(boardCount == 0)
+							return;
+						
+						if(boardCount == 1)
+						{
+							var msg = postCount +" اطلاعیه جدید ارسال شده است.";
+						}else
+							var msg = postCount +" اطلاعیه جدید در "+boardCount+"برد ارسال شده است.";
+						
+						$rootScope.showGlobalMsg(msg,6);
 					},
 					function fail()
 					{
 						
 					});
-		}
 	}
 	
 	$scope.showNewPosts = function()
@@ -399,7 +412,7 @@ function publisher($window, $anchorScroll, $interval, $sce, $rootScope, $scope, 
 		$window.scrollTo(60, 0);
 	}
 	
-	$interval($scope.getNewPosts, 60 * 1000);
+	$interval($scope.getNotifications, 60 * 1000);
 	
 	function getLastPostDate(postList)
 	{

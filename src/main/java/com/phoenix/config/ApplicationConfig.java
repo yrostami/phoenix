@@ -24,10 +24,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
-import com.phoenix.realtimeNotify.NotifyTask;
-
 @Configuration
-//@EnableAsync
 @EnableTransactionManagement
 @ComponentScan({ "com.phoenix" })
 @PropertySource(value = { "classpath:hibernate.properties" })
@@ -88,7 +85,7 @@ public class ApplicationConfig {
 	public TaskExecutor TaskExecutor()
 	{
 		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-		taskExecutor.setCorePoolSize(2);
+		taskExecutor.setCorePoolSize(5);
 		taskExecutor.setMaxPoolSize(10);
 		taskExecutor.setQueueCapacity(100);
 		return taskExecutor;

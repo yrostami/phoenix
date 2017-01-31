@@ -51,7 +51,7 @@ public class RegistrationController {
 			if(userService.emailDuplication(userInfo.getEmail()))
 				throw new ValidationException(new Error("ایمیل  قبلا استفاده شده  است."));
 			
-			userInfo.setActive(false);
+			userInfo.setActive(true);
 			userInfo.setRole("Subscriber");
 			userService.saveUserInfo(userInfo);
 			return new ResponseEntity<RegistrationResponse>(RegistrationResponse.getSuccess(), responseHeader,
@@ -73,6 +73,11 @@ public class RegistrationController {
 				
 				String role = (String) session.getAttribute("role");
 				userService.deleteAccount(userId, role);
+				session.removeAttribute("Authenticated");
+				session.removeAttribute("role");
+				session.removeAttribute("userId");
+				session.invalidate();
+				
 				return new ResponseEntity<OperationStatus>(OperationStatus.SUCCESSFUL,
 						responseHeader,HttpStatus.OK);
 			}

@@ -29,7 +29,7 @@ public class UserInfo {
 	@JsonIgnore
 	@NotBlank(message="ایمیل نباید خالی باشد.")
 	@Length(max=320, message="ایمیل باید دارای حداکثر 320 حرف باشد.")
-	@Email
+	@Email(message="ایمیل معتبر نیست.")
 	@Column(name="email", length=320)
 	private String email;
 	

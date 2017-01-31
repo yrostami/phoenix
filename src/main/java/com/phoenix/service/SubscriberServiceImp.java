@@ -24,6 +24,7 @@ import com.phoenix.data.entity.Board;
 import com.phoenix.data.entity.BoardCategory;
 import com.phoenix.data.entity.BoardPost;
 import com.phoenix.data.entity.BoardStatistics;
+import com.phoenix.data.entity.PostNotification;
 import com.phoenix.data.entity.PublishRequest;
 import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.Subscriber;
@@ -144,57 +145,48 @@ public class SubscriberServiceImp implements SubscriberService {
 	
 	@Transactional
 	@Override
-	public List<BoardPost> getPosts(int userId, int maxResult) {
+	public List<PostNotification> getPostNotifications(int userId) {
 		Session session = sessionFactory.getCurrentSession();
-		
-		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
-				+ "WHERE SBI.subscriberId = :xuserId");
+		Query query = session.createQuery("FROM PostNotification AS PN"
+				+ " WHERE PN.userId = :xuserId");
 		query.setParameter("xuserId", userId);
-		List<Long> boardsId = query.getResultList();
-		if(boardsId.size() > 0){
-		Criteria criteria = session.createCriteria(BoardPost.class);
-		criteria.add(Restrictions.in("boardId", boardsId));
-		criteria.addOrder(Order.desc("creationDate"));
-		criteria.setMaxResults(maxResult);
-		List<BoardPost> list = criteria.list();
-		return list;
-		}
+		return query.getResultList();
+	}
+	
+	@Transactional
+	@Override
+	public List<BoardPost> getBoardPosts(int userId, int boardId, int maxResult) {
+		Session session = sessionFactory.getCurrentSession();
+		Query postsQuery = session.createQuery("FROM BoardPost AS BP WHERE BP.boardId = :xboardId");
+		postsQuery.setParameter("xboardId", boardId);
 		
-		return new ArrayList<BoardPost>();
+		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN"
+				+ " WHERE PN.userId = :xuserId AND PN.boardId = :xboardId");
+		notificationDeleteQuery.setParameter("xuserId", userId);
+		notificationDeleteQuery.setParameter("xboardId", boardId);
+		notificationDeleteQuery.executeUpdate();
+		 
+		return (List<BoardPost>) postsQuery.getResultList();
 	}
 
 	@Transactional
 	@Override
-	public List<BoardPost> getBoardPosts(int boardId, int maxResult) {
+	public List<BoardPost> getBoardPostsAfter(int userId, int boardId, Timestamp timestamp) {
 		Session session = sessionFactory.getCurrentSession();
+		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN"
+				+ " WHERE PN.userId = :xuserId AND PN.boardId = :xboardId");
+		notificationDeleteQuery.setParameter("xuserId", userId);
+		notificationDeleteQuery.setParameter("xboardId", boardId);
+		
 		Criteria criteria = session.createCriteria(BoardPost.class);
 		criteria.add(Restrictions.eq("boardId", boardId));
+		criteria.add(Restrictions.gt("creationDate", timestamp));
 		criteria.addOrder(Order.desc("creationDate"));
-		criteria.setMaxResults(maxResult);
-		List<BoardPost> list = criteria.list();
-		return list;
-	}
-
-	@Transactional
-	@Override
-	public List<BoardPost> getPostsBefore(int userId, Timestamp timestamp, int maxResult) {
-		Session session = sessionFactory.getCurrentSession();
 		
-		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
-				+ "WHERE SBI.subscriberId = :xuserId");
-		query.setParameter("xuserId", userId);
-		List<Long> boardsId = query.getResultList();
-		if(boardsId.size() > 0){
-		Criteria criteria = session.createCriteria(BoardPost.class);
-		criteria.add(Restrictions.in("boardId", boardsId));
-		criteria.add(Restrictions.lt("creationDate", timestamp));
-		criteria.addOrder(Order.desc("creationDate"));
-		criteria.setMaxResults(maxResult);
-		List<BoardPost> list = criteria.list();
-		return list;
-		}
+		notificationDeleteQuery.executeUpdate();
 		
-		return new ArrayList<BoardPost>();
+		return criteria.list();
+		
 	}
 
 	@Transactional
@@ -226,55 +218,22 @@ public class SubscriberServiceImp implements SubscriberService {
 	@Override
 	public int deleteSubscribedBoardInfo(int userId, int boardId) {
 		Session session = sessionFactory.getCurrentSession();
+		//حذف اطلاعات مربوط به دنبال کردن برد
 		Query query = session.createQuery("DELETE FROM SubscribedBoardInfo AS SB "
 				+ "WHERE SB.subscriberId = :xuserId AND SB.boardId = :xboardId");
 		query.setParameter("xuserId", userId);
 		query.setParameter("xboardId", boardId);
 		int rows = query.executeUpdate();
+		//حذف اعلان های کاربر از برد
+		if(rows>0)
+		{
+			Query pndelete = session.createQuery("DELETE FROM PostNotification AS PN"
+					+ " WHERE PN.userId = :xuserId AND PN.boardId = :xboardId");
+			pndelete.setParameter("xuserId", userId);
+			pndelete.setParameter("xboardId", boardId);
+			pndelete.executeUpdate();
+		}
 		return rows;
-	}
-
-	@Transactional
-	@Override
-	public List<BoardPost> getPostsAfter(int userId, Timestamp timestamp) {
-		Session session = sessionFactory.getCurrentSession();
-		
-		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
-				+ "WHERE SBI.subscriberId = :xuserId");
-		query.setParameter("xuserId", userId);
-		List<Long> boardsId = query.getResultList();
-		if(boardsId.size() > 0){
-		Criteria criteria = session.createCriteria(BoardPost.class);
-		criteria.add(Restrictions.in("boardId", boardsId));
-		criteria.add(Restrictions.gt("creationDate", timestamp));
-		criteria.addOrder(Order.desc("creationDate"));
-		List<BoardPost> list = criteria.list();
-		return list;
-		}
-		
-		return new ArrayList<BoardPost>();
-	}
-
-	@Transactional
-	@Override
-	public long getPostsCountAfter(int userId, Timestamp timestamp) {
-		Session session = sessionFactory.getCurrentSession();
-		long postsCount = 0;
-		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
-				+ "WHERE SBI.subscriberId = :xuserId");
-		query.setParameter("xuserId", userId);
-		List<Long> boardsId = query.getResultList();
-		if(boardsId.size() > 0){
-		Criteria criteria = session.createCriteria(BoardPost.class);
-		criteria.add(Restrictions.in("boardId", boardsId));
-		criteria.add(Restrictions.gt("creationDate", timestamp));
-		criteria.addOrder(Order.desc("creationDate"));
-		criteria.setProjection(Projections.rowCount());
-		postsCount = (long) criteria.uniqueResult();
-		
-		}
-		
-		return postsCount;
 	}
 
 	@Override
@@ -320,5 +279,92 @@ public class SubscriberServiceImp implements SubscriberService {
 		query.setParameter("xuserId", userId);
 		return query.executeUpdate();
 	}
+
+	/*	
+	@Transactional
+	@Override
+	public List<BoardPost> getPosts(int userId, int maxResult) {
+		Session session = sessionFactory.getCurrentSession();
+		
+		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
+				+ "WHERE SBI.subscriberId = :xuserId");
+		query.setParameter("xuserId", userId);
+		List<Long> boardsId = query.getResultList();
+		if(boardsId.size() > 0){
+		Criteria criteria = session.createCriteria(BoardPost.class);
+		criteria.add(Restrictions.in("boardId", boardsId));
+		criteria.addOrder(Order.desc("creationDate"));
+		criteria.setMaxResults(maxResult);
+		List<BoardPost> list = criteria.list();
+		return list;
+		}
+		
+		return new ArrayList<BoardPost>();
+	}
 	
+	@Transactional
+	@Override
+	public List<BoardPost> getPostsBefore(int userId, Timestamp timestamp, int maxResult) {
+		Session session = sessionFactory.getCurrentSession();
+		
+		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
+				+ "WHERE SBI.subscriberId = :xuserId");
+		query.setParameter("xuserId", userId);
+		List<Long> boardsId = query.getResultList();
+		if(boardsId.size() > 0){
+		Criteria criteria = session.createCriteria(BoardPost.class);
+		criteria.add(Restrictions.in("boardId", boardsId));
+		criteria.add(Restrictions.lt("creationDate", timestamp));
+		criteria.addOrder(Order.desc("creationDate"));
+		criteria.setMaxResults(maxResult);
+		List<BoardPost> list = criteria.list();
+		return list;
+		}
+		
+		return new ArrayList<BoardPost>();
+	} 
+
+	@Transactional
+	@Override
+	public List<BoardPost> getPostsAfter(int userId, Timestamp timestamp) {
+		Session session = sessionFactory.getCurrentSession();
+		
+		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI"
+				+ " WHERE SBI.subscriberId = :xuserId");
+		query.setParameter("xuserId", userId);
+		List<Long> boardsId = query.getResultList();
+		if(boardsId.size() > 0)
+		{
+			Criteria criteria = session.createCriteria(BoardPost.class);
+			criteria.add(Restrictions.in("boardId", boardsId));
+			criteria.add(Restrictions.gt("creationDate", timestamp));
+			criteria.addOrder(Order.desc("creationDate"));
+			List<BoardPost> list = criteria.list();
+			return list;
+		}
+		
+		return new ArrayList<BoardPost>();
+	}
+	@Transactional
+	@Override
+	public long getPostsCountAfter(int userId, Timestamp timestamp) {
+		Session session = sessionFactory.getCurrentSession();
+		long postsCount = 0;
+		Query query = session.createQuery("SELECT SBI.boardId FROM SubscribedBoardInfo AS SBI "
+				+ "WHERE SBI.subscriberId = :xuserId");
+		query.setParameter("xuserId", userId);
+		List<Long> boardsId = query.getResultList();
+		if(boardsId.size() > 0){
+		Criteria criteria = session.createCriteria(BoardPost.class);
+		criteria.add(Restrictions.in("boardId", boardsId));
+		criteria.add(Restrictions.gt("creationDate", timestamp));
+		criteria.addOrder(Order.desc("creationDate"));
+		criteria.setProjection(Projections.rowCount());
+		postsCount = (long) criteria.uniqueResult();
+		
+		}
+		
+		return postsCount;
+	}
+*/
 }

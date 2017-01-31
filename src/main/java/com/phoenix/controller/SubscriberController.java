@@ -27,6 +27,7 @@ import com.phoenix.data.entity.Board;
 import com.phoenix.data.entity.BoardCategory;
 import com.phoenix.data.entity.BoardPost;
 import com.phoenix.data.entity.BoardStatistics;
+import com.phoenix.data.entity.PostNotification;
 import com.phoenix.data.entity.PublishRequest;
 import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.Subscriber;
@@ -125,34 +126,34 @@ public class SubscriberController {
 		}
 	}
 	
-	@RequestMapping(value="/posts", method=RequestMethod.GET)
-	public ResponseEntity<List<BoardPost>> getPosts(HttpSession session)
+	@RequestMapping(value="/postnotifications", method=RequestMethod.GET)
+	public ResponseEntity<List<PostNotification>> getPostNotifications(HttpSession httpSession)
 	{
-		int userId = (int) session.getAttribute("userId");
-		return new ResponseEntity<List<BoardPost>>(subscriberService.getPosts(userId, 12),
-				responseHeader,HttpStatus.OK);
+		int userId = (int) httpSession.getAttribute("userId"); 
+		return new ResponseEntity<List<PostNotification>>
+			(subscriberService.getPostNotifications(userId), responseHeader, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/board/{boardId}/posts", method=RequestMethod.GET)
-	public ResponseEntity<List<BoardPost>> getBoardPosts(@PathVariable int boardId)
+	public ResponseEntity<List<BoardPost>> getBoardPosts(@PathVariable int boardId, HttpSession httpSession)
 	{
-		return new ResponseEntity<List<BoardPost>>(subscriberService.getBoardPosts(boardId,6),
-				responseHeader, HttpStatus.OK);
+		int userId = (int) httpSession.getAttribute("userId");
+		return new ResponseEntity<List<BoardPost>>(subscriberService.getBoardPosts(userId, boardId,10)
+				,responseHeader, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/posts/before/{time}", method=RequestMethod.GET)
-	public ResponseEntity<List<BoardPost>> getPostsBefore(HttpSession session,
-			@PathVariable long time)
+	@RequestMapping(value="/board/{boardId}/posts/after/{time}", method=RequestMethod.GET)
+	public ResponseEntity<List<BoardPost>> getBoardPostAfter(@PathVariable int boardId
+			, @PathVariable long time, HttpSession httpSession)
 	{
 		Timestamp timestamp = new Timestamp(time);
 		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
 				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
 		{
-		int userId = (int) session.getAttribute("userId");
+		int userId = (int) httpSession.getAttribute("userId");
 		return new ResponseEntity<List<BoardPost>>(
-				subscriberService.getPostsBefore(userId, timestamp, 10),
-				responseHeader,
-				HttpStatus.OK);
+				subscriberService.getBoardPostsAfter(userId, boardId, timestamp)
+				, responseHeader, HttpStatus.OK);
 		}
 		return new ResponseEntity<List<BoardPost>>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
 	}
@@ -165,7 +166,7 @@ public class SubscriberController {
 		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
 				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
 		return new ResponseEntity<List<BoardPost>>(
-				subscriberService.getBoardPostsBefore(boardId, timestamp,6),
+				subscriberService.getBoardPostsBefore(boardId, timestamp,10),
 				responseHeader,
 				HttpStatus.OK);
 		
@@ -226,42 +227,6 @@ public class SubscriberController {
 		throw new ValidationException(error);
 	}
 	
-	@RequestMapping(value="/posts/after/{time}", method=RequestMethod.GET)
-	public ResponseEntity<List<BoardPost>> getPostsAfter(HttpSession session,
-			@PathVariable long time)
-	{
-		Timestamp timestamp = new Timestamp(time);
-		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
-				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
-		{
-		int userId = (int) session.getAttribute("userId");
-		return new ResponseEntity<List<BoardPost>>(
-				subscriberService.getPostsAfter(userId, timestamp),
-				responseHeader,
-				HttpStatus.OK);
-		}
-		return new ResponseEntity<List<BoardPost>>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
-	}
-	
-	@RequestMapping(value="/postscount/after/{time}", method=RequestMethod.GET)
-	public ResponseEntity<PostsCount> getPostsCountAfter(HttpSession session,
-			@PathVariable long time)
-	{
-		Timestamp timestamp = new Timestamp(time);
-		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
-				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
-		{
-		int userId = (int) session.getAttribute("userId");
-		PostsCount postsCount = new PostsCount();
-		postsCount.setPostsCount(subscriberService.getPostsCountAfter(userId, timestamp));
-		return new ResponseEntity<PostsCount>(
-				postsCount,
-				responseHeader,
-				HttpStatus.OK);
-		}
-		return new ResponseEntity<PostsCount>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
-	}
-	
 	@RequestMapping(value="/publishrequest", method= RequestMethod.POST)
 	public ResponseEntity<PublishRequest> createPublishRequest(@Valid @RequestBody PublishRequest publishReq,
 			Errors errors, HttpSession session) throws ValidationException
@@ -299,5 +264,67 @@ public class SubscriberController {
 					responseHeader, HttpStatus.ACCEPTED);
 		return new ResponseEntity<>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
 	}
+
+	/*@RequestMapping(value="/posts/before/{time}", method=RequestMethod.GET)
+	public ResponseEntity<List<BoardPost>> getPostsBefore(HttpSession session,
+			@PathVariable long time)
+	{
+		Timestamp timestamp = new Timestamp(time);
+		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
+				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
+		{
+		int userId = (int) session.getAttribute("userId");
+		return new ResponseEntity<List<BoardPost>>(
+				subscriberService.getPostsBefore(userId, timestamp, 10),
+				responseHeader,
+				HttpStatus.OK);
+		}
+		return new ResponseEntity<List<BoardPost>>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
+	}*/
 	
+/*	@RequestMapping(value="/posts/after/{time}", method=RequestMethod.GET)
+	public ResponseEntity<List<BoardPost>> getPostsAfter(HttpSession session,
+			@PathVariable long time)
+	{
+		Timestamp timestamp = new Timestamp(time);
+		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
+				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
+		{
+		int userId = (int) session.getAttribute("userId");
+		return new ResponseEntity<List<BoardPost>>(
+				subscriberService.getPostsAfter(userId, timestamp),
+				responseHeader,
+				HttpStatus.OK);
+		}
+		return new ResponseEntity<List<BoardPost>>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
+	}*/
+	
+	/*@RequestMapping(value="/postscount/after/{time}", method=RequestMethod.GET)
+	public ResponseEntity<PostsCount> getPostsCountAfter(HttpSession session,
+			@PathVariable long time)
+	{
+		Timestamp timestamp = new Timestamp(time);
+		if(timestamp.after(new Timestamp(2016-1900,1,1,0,0,0,0)) 
+				&& timestamp.before(new Timestamp(System.currentTimeMillis())))
+		{
+		int userId = (int) session.getAttribute("userId");
+		PostsCount postsCount = new PostsCount();
+		postsCount.setPostsCount(subscriberService.getPostsCountAfter(userId, timestamp));
+		return new ResponseEntity<PostsCount>(
+				postsCount,
+				responseHeader,
+				HttpStatus.OK);
+		}
+		return new ResponseEntity<PostsCount>(null, responseHeader, HttpStatus.NOT_ACCEPTABLE);
+	}
+	*/
+	
+	/*	@RequestMapping(value="/posts", method=RequestMethod.GET)
+	public ResponseEntity<List<BoardPost>> getPosts(HttpSession session)
+	{
+		int userId = (int) session.getAttribute("userId");
+		return new ResponseEntity<List<BoardPost>>(subscriberService.getPosts(userId, 12),
+				responseHeader,HttpStatus.OK);
+	}*/
+
 }

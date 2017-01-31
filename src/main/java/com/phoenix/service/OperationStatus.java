@@ -7,17 +7,17 @@ public enum OperationStatus {
 	FAIL("تغییرات انجام نشد.",1),
 	PERMISSIONFAIL("شما اجازه دسترسی ندارید.",2);
 	
-	private final String massege;
+	private final String message;
 	private final int code;
 	
 	OperationStatus(String msg,int xcode)
 	{
-		massege=msg;
+		message=msg;
 		code=xcode;
 	}
 
 	public String getMassege() {
-		return massege;
+		return message;
 	}
 
 	public int getCode() {

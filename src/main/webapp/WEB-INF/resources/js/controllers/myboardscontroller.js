@@ -16,6 +16,8 @@ function myboardscontroller ($compile, $sce, $scope, $rootScope, userService)
 	$scope.boardContentShow = false;
 	$scope.morePostLoad = false;
 	$scope.editBoard = {};
+	$scope.myBoardSubscribers = [];
+	$scope.myBoardSubscribersLoaded = false;
 	$scope.boardEditMod = false;
 	$scope.editBoardChange = false;
 	var httpBusy = false;
@@ -208,6 +210,9 @@ function myboardscontroller ($compile, $sce, $scope, $rootScope, userService)
 				$scope.editBoardChange = false;
 				$scope.newBoard = {};
 				$scope.validationMessageHide= [true,true,true];
+				
+				$scope.myBoardSubscribers = [];
+				$scope.myBoardSubscribersLoaded = false;
 			};
 			
 			var doNewBoardValidatin = function(){
@@ -429,4 +434,24 @@ function myboardscontroller ($compile, $sce, $scope, $rootScope, userService)
 							$rootScope.progress.complete();
 						});
 			};
+			
+			$scope.showBoardSubscribers = function()
+			{
+				document.getElementById('subscribersNameContainer').style.display = 'block';
+				loadBoardSubscribers($scope.editBoard.id);
+			};
+			
+			function loadBoardSubscribers(boardId)
+			{
+				userService.loadBoardSubscribers(boardId).then(
+						function success(data)
+						{
+							$scope.myBoardSubscribers = data;
+							$scope.myBoardSubscribersLoaded = true;
+						},
+						function fail(msg)
+						{
+							$rootScope.showGlobalMsg("بارگزاری اطلاعات دنبال کننده ها انجام نشد."+"\n"+msg, 4);
+						});
+			}
 }

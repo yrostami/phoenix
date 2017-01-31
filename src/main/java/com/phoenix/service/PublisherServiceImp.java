@@ -10,32 +10,27 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.expression.Operation;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.phoenix.authentication.AuthenticationFilter;
 import com.phoenix.authentication.MD5Hash;
 import com.phoenix.data.entity.BoardCategory;
 import com.phoenix.data.entity.BoardInfo;
 import com.phoenix.data.entity.BoardPost;
 import com.phoenix.data.entity.FileInfo;
-import com.phoenix.data.entity.PostNotification;
 import com.phoenix.data.entity.Publisher;
-import com.phoenix.data.entity.SubscribedBoardInfo;
 import com.phoenix.data.entity.UserInfo;
-import com.phoenix.realtimeNotify.Notification;
-import com.phoenix.realtimeNotify.NotifierManager;
-import com.phoenix.realtimeNotify.NotifyTask;
 
 @Service
 public class PublisherServiceImp implements PublisherService {
@@ -89,14 +84,20 @@ public class PublisherServiceImp implements PublisherService {
 				+ "WHERE SBI.boardId = :xboardId");
 		subscribersQuery.setParameter("xboardId", boardId);
 		subscribersQuery.executeUpdate();
+		// حذف اعلان های پست
+		Query npDelete = session.createQuery("DELETE FROM PostNotification AS NP "
+				+ "WHERE NP.boardId = :xboardId");
+		npDelete.setParameter("xboardId", boardId);
 		//حذف پست های برد
 		Query postsQuery = session.createQuery("FROM BoardPost AS P "
 				+ "WHERE P.boardId = :xboardId");
 		postsQuery.setParameter("xboardId", boardId);
 		List<BoardPost> posts = postsQuery.getResultList();
-		if(posts.size() > 0){
+		if(posts.size() > 0)
+		{
 			for(BoardPost post : posts)
-				deletePost(post, userId);}
+				deletePostForBoardDelete(post, userId);
+		}
 		//حذف برد
 		Query boardDeleteQuery = session.createQuery("DELETE FROM BoardInfo AS B "
 				+ "WHERE B.id = :xboardId");
@@ -105,10 +106,10 @@ public class PublisherServiceImp implements PublisherService {
 	}
 	
 	@Transactional
-	public void deletePost(BoardPost post, int userId)
+	public void deletePostForBoardDelete(BoardPost post, int userId)
 	{
 		Session session = sessionFactory.getCurrentSession(); 
-		//حذف پست و فایل مربوطه
+		//حذف فایل مربوطه
 			if(post.getFileInfo() != null){
 				String fileName = post.getFileInfo().getFilePath();
 				fileName = fileName.substring(fileName.lastIndexOf("/")+1);
@@ -120,6 +121,12 @@ public class PublisherServiceImp implements PublisherService {
 				updateStrogeUsage(userId, post.getFileInfo().getFileSize(), Operation.SUBTRACT);
 				session.delete(post.getFileInfo());
 			}
+			// حذف اعلان های پست
+			Query npDelete = session.createQuery("DELETE FROM PostNotification AS NP "
+					+ "WHERE NP.boardId = :xboardId");
+			npDelete.setParameter("xboardId", post.getBoardId());
+			
+			//حذف پست
 			session.delete(post);
 	}
 
@@ -143,7 +150,7 @@ public class PublisherServiceImp implements PublisherService {
 	public long savePost(BoardPost newPost) {
 		Session session = sessionFactory.getCurrentSession();
 		long postId = (long) session.save(newPost);
-//		taskExecutor.execute(applicationContext.getBean(NotifyTask.class,newPost.getBoardId(),postId));
+		taskExecutor.execute(new NotifyTask(newPost.getBoardId(),postId));
 		return postId;
 	}
 	
@@ -251,11 +258,6 @@ public class PublisherServiceImp implements PublisherService {
 	@Override
 	public void deletePost(long postId, int boardId, int userId) throws IOException {
 		Session session = sessionFactory.getCurrentSession();
-		//حذف اعلان های پست
-//		Query notificationDeleteQuery = session.createQuery("DELETE FROM PostNotification AS PN "
-//				+ "WHERE PN.postId = :xpostId");
-//		notificationDeleteQuery.setParameter("xpostId", postId);
-//		notificationDeleteQuery.executeUpdate();
 		
 		//حذف پست و فایل مربوطه
 		Query query = session.createQuery("FROM BoardPost AS BP WHERE "
@@ -273,6 +275,13 @@ public class PublisherServiceImp implements PublisherService {
 				updateStrogeUsage(userId, post.getFileInfo().getFileSize(), Operation.SUBTRACT);
 				session.delete(post.getFileInfo());
 			}
+			
+			// حذف اعلان های پست
+			Query npDelete = session.createQuery("DELETE FROM PostNotification AS NP "
+					+ "WHERE NP.postId = :xpostId");
+			npDelete.setParameter("xpostId", post.getId());
+						
+			//حذف پست			
 			session.delete(post);
 		}
 	}
@@ -285,9 +294,18 @@ public class PublisherServiceImp implements PublisherService {
 			Files.delete(filePath);
 	}
 
+	@Transactional
 	@Override
-	public List<UserInfo> getChannelSubscribers() {
-		return null;
+	public List<UserInfo> getBoardSubscribers(int boardId) {
+		Session session = sessionFactory.getCurrentSession();
+		Query subscribersId = session.createQuery("SELECT SBI.subscriberId FROM SubscribedBoardInfo AS SBI"
+				+ " WHERE SBI.boardId = :xboardId");
+		subscribersId.setParameter("xboardId", boardId);
+		List<Integer> usersId = subscribersId.getResultList();
+		
+		Criteria criteria = session.createCriteria(UserInfo.class);
+		criteria.add(Restrictions.in("id", usersId));
+		return criteria.list();
 	}
 
 }

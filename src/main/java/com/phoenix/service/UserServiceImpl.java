@@ -167,23 +167,32 @@ public class UserServiceImpl implements UserService {
 			publisherDelete.executeUpdate();
 		}
 		
-		Query query = session.createQuery("DELETE FROM RememberInfo AS R"
+		Query notificationDelete = session.createQuery("DELETE FROM PostNotification AS PN"
+				+ " WHERE PN.userId = :xuserId");
+		notificationDelete.setParameter("xuserId", userId);
+		notificationDelete.executeUpdate();
+		
+		//حذف اطلاعات مربوط به  مرا به یاد داشته باش
+		Query RMDeletequery = session.createQuery("DELETE FROM RememberInfo AS R"
 				+ " WHERE R.userId = :xuserId");
-		query.setParameter("xuserId", userId);
-		query.executeUpdate();
+		RMDeletequery.setParameter("xuserId", userId);
+		RMDeletequery.executeUpdate();
 	}
 
 	@Transactional
 	@Override
 	public boolean isValidUser(int userId, String password) {
 		Session session = sessionFactory.getCurrentSession();
-		Query query = session.createQuery("FROM UserInfo AS U"
-				+ " WHERE U.id = :xuserId AND U.password = :xpassword");
+		Query query = session.createQuery("FROM UserInfo AS User"
+				+ " WHERE User.id = :xuserId AND User.password = :xpassword");
 		query.setParameter("xuserId", userId);
 		query.setParameter("xpassword", password);
-		List<UserInfo> list = query.getResultList();
 		
-		return (list.size() > 0);
+		List<UserInfo> list = query.getResultList();
+		if(list.size() > 0){
+			return true;
+		}
+		return false;
 	}
 	
 }

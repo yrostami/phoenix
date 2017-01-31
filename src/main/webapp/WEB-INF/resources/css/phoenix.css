@@ -55,18 +55,18 @@ body
 	height: 55px;
 	background-color: rgb(0,171,189);
 	position: fixed;
-	z-index: 1;
+	z-index: 2;
 	padding-bottom: 3px;
 }
 
-.notification-icon{
+/* .notification-icon{
 	float: left;
-	/* margin: 7px 20px 0px 0px; */  
+	margin: 7px 20px 0px 0px;  
 	color: #ec3543;
 	font-size: 30px;
 	cursor: default;
 	background-color: #00ABBD;
-	/* border: 1px solid #ec3543; */
+	border: 1px solid #ec3543;
 	border-radius: 50%;
 	position: fixed;
 	z-index: 2;
@@ -106,7 +106,7 @@ body
 	visibility: visible;
 	-webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
-}
+} */
 
 .icon-container
 {
@@ -236,6 +236,7 @@ body
 	clear: both;
 	background-color: #00ABBD;
 	margin-bottom: 2px;
+	z-index: 3;
 }
 
 #content{
@@ -263,6 +264,11 @@ body
 	border-bottom: 1px solid #00ABBD;
 	border-top: 1px solid #BCE8ED;
 	transition: 0.4s ease-in-out;
+}
+
+.subscriber-tab
+{
+	width: 50%;
 }
 
 .tab:hover{
@@ -301,7 +307,9 @@ body
 	margin-top: 5px;
 	width: 240px;
 	height: 35px;
+	position: relative;
 }
+
 
 .list-item .item-modal-btn{
 	width: 30px;
@@ -331,6 +339,23 @@ body
 	background-color: #bce8ed;
 	overflow: hidden;
 	transition: 0.4s ease-in-out;
+}
+
+.notification-count
+{
+	width: 33px;
+	height: 27px;
+	background-color:  #ec3543;
+	border-radius: 50%;
+	position: absolute;
+	z-index: 1;
+	color: white;
+	right: 200px;
+	text-align: center;
+	padding-top: 5px;
+	margin-top: 1px;
+	font-size: 15px;
+	cursor: default;
 }
 
 .wide-item{
@@ -548,6 +573,12 @@ body
 	background-color: #ec3543;
 }
 
+.float-right-btn{
+	float: right;
+	margin-right: 5px;
+	width: 100px;
+}
+
 .disable-btn{
 	width: 150px;
 	height: 34px;
@@ -629,7 +660,7 @@ body
     text-align: center; 
     padding: 5px; 
     position: fixed; 
-    z-index: 2;
+    z-index: 3;
     top: 35px;
     font-size: 18px;
     font-weight: 500;
@@ -655,6 +686,15 @@ body
 .loader{
     border-radius: 50%;
     animation: spin 0.9s linear infinite;
+}
+
+.normal-loader{
+	margin: 0px auto;
+	margin-top: 15px;
+	width: 35px;
+    height: 35px;
+    border: 2px solid #00ABBD;
+    border-top: 2px solid #88f3ff;
 }
 
 .mini-loader{
@@ -887,6 +927,7 @@ background-color: #98dde4;
     border-top: 2px solid #00ABBD;
     border-bottom: 2px solid #00ABBD;
     margin-top: 15%;
+    overflow-y: auto; 
 }
 
 .board-info
@@ -990,7 +1031,7 @@ background-color: #98dde4;
 }
 
 .open-fieldset{
-	max-height: 900px;
+	max-height: 500px;
 	padding-bottom: 20px;
 	overflow-y: auto; 
 }
@@ -1028,8 +1069,11 @@ legend:hover{
 }
 
 .publish-req{
-	width: 100%;
+	width: 90%;
+	margin: 0px auto;
 	margin-top: 5px;
+	background-color: #D2EFF2;
+	padding-bottom: 10px;
 }
 
 .publish-req-info{
@@ -1068,4 +1112,68 @@ legend:hover{
 .publish-req-description{
 	padding-right: 10px;
 	background-color: #D2EFF2;
+}
+
+.users-item
+{
+	width: 585px;
+	height:35px;
+	cursor: pointer;
+	background-color: #98DDE4;	
+	margin-top: 10px;
+}
+
+.users-item span
+{
+	height:35px;
+	float: right;
+	color: black;
+	padding-right: 10px;
+	padding-left: 10px;
+	display: inline-block; 
+}
+
+.user-info-cell
+{
+	border-right: 1px solid #008291;
+}
+
+.clickable-span:HOVER {
+	text-decoration: underline;
+	color: #ec3543;
+	cursor: pointer;
+}
+
+.subscriber-name
+{
+	color: black;
+	background-color: #98DDE4;
+	cursor: default;
+	display: block;
+	text-align: center;
+	width: 70%;
+	margin: 0px auto;
+	margin-top: 5px;
+}
+
+.float-right{
+	float: right;
+}
+
+.category-name{
+	background-color: #98DDE4;
+	color: black;
+	text-align: center;
+	overflow: hidden;
+	float: right;
+	width: 210px;
+	height: 35px;
+	font-size: 18px;
+	margin-right: 5px;
+	margin-top: 5px;
+	cursor: pointer;
+}
+
+.category-name:HOVER {
+	background-color: rgba(236,53,67,0.2);	
 }

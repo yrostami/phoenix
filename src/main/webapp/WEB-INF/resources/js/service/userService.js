@@ -24,11 +24,25 @@ function userService($http, $q) {
 			return "  خطا: انجام نشد." + "\nstatus : " + response.status;
 	};
 
-	function getUser() {
+	function getPublisherUser() {
 		var deferred = $q.defer();
 		return $http({
 			method : 'GET',
 			url : '/phoenix/publisher/user'
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	};
+	
+	function getSubscriberUser() {
+		var deferred = $q.defer();
+		return $http({
+			method : 'GET',
+			url : '/phoenix/subscriber/user'
 		}).then(function success(response) {
 			deferred.resolve(response.data);
 			return deferred.promise;
@@ -208,11 +222,11 @@ function userService($http, $q) {
 		});
 	}
 	
-	function getPosts() {
+	function getPostNotifications() {
 		var deferred = $q.defer();
 		return $http({
 			method : 'GET',
-			url : '/phoenix/subscriber/posts'
+			url : '/phoenix/subscriber/postnotifications'
 		}).then(function success(response) {
 			deferred.resolve(response.data);
 			return deferred.promise;
@@ -236,20 +250,6 @@ function userService($http, $q) {
 			return deferred.promise;
 		});
 	}
-
-	function getPostsBefore(date) {
-		var deferred = $q.defer();
-		return $http({
-			method : 'GET',
-			url : '/phoenix/subscriber/posts/before/'+date
-		}).then(function success(response) {
-			deferred.resolve(response.data);
-			return deferred.promise;
-		}, function fail(response) {
-			deferred.reject(getErrorMessage(response));
-			return deferred.promise;
-		});
-	};
 	
 	function getBoardPostsBefore(boardId,date)
 	{
@@ -344,12 +344,12 @@ function userService($http, $q) {
 		});
 	}
 	
-	function getPostsAfter(date)
+	function getBoardPostsAfter(boardId,date)
 	{
 		var deferred = $q.defer();
 		return $http({
 			method : 'GET',
-			url : '/phoenix/subscriber/posts/after/' + date
+			url : '/phoenix/subscriber/board/'+boardId+'/posts/after/' + date
 		}).then(function success(response) {
 			deferred.resolve(response.data);
 			return deferred.promise;
@@ -405,8 +405,24 @@ function userService($http, $q) {
 		});
 	}
 	
+	function loadBoardSubscribers(boardId)
+	{
+		var deferred = $q.defer();
+		return $http({
+			method : 'GET',
+			url : '/phoenix/publisher/board/' + boardId + '/subscribers'
+		}).then(function success(response) {
+			deferred.resolve(response.data);
+			return deferred.promise;
+		}, function fail(response) {
+			deferred.reject(getErrorMessage(response));
+			return deferred.promise;
+		});
+	}
+	
 	var services = {
-		getUser : getUser,
+		getSubscriberUser : getSubscriberUser,
+		getPublisherUser : getPublisherUser,
 		getAllCategories : getAllCategories,
 		getAllBoards : getAllBoards,
 		subscribe : subscribe,
@@ -418,19 +434,19 @@ function userService($http, $q) {
 		updateBoard : updateBoard,
 		deleteBoard : deleteBoard,
 		getBoardStatistics : getBoardStatistics,
-		getPosts : getPosts,
+		getPostNotifications : getPostNotifications,
 		getBoardsPosts : getBoardsPosts,
-		getPostsBefore : getPostsBefore,
 		getBoardPostsBefore : getBoardPostsBefore,
+		getBoardPostsAfter : getBoardPostsAfter,
 		unsubscribe : unsubscribe,
 		updateDisplayName : updateDisplayName,
 		updatePassword : updatePassword,
 		logout : logout,
 		deleteAccount : deleteAccount,
-		getPostsAfter : getPostsAfter,
 		getpublishRequests : getpublishRequests,
 		sendPublishRequest : sendPublishRequest,
-		deletePublishRequest : deletePublishRequest 
+		deletePublishRequest : deletePublishRequest,
+		loadBoardSubscribers : loadBoardSubscribers 
 	};
 	
 	return services;

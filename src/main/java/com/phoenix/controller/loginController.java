@@ -31,9 +31,8 @@ public class loginController {
 		{
 			String role = (String)session.getAttribute("role");
 			if(role.equals("Subscriber")) return "subscriber";
-			else if(role.equals("Publisher")) return "publisher";
-			else if(role.equals("Admin")) return "admin";
-			return "redirect:/";
+			if(role.equals("Publisher")) return "publisher";
+			if(role.equals("Admin")) return "admin";
 		}
 //		session.setAttribute("login", false);
 		return "redirect:/";

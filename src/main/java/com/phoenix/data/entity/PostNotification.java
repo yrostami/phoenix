@@ -21,11 +21,14 @@ public class PostNotification {
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pnSeq")
 	private long id;
 	
-	@Column(name="subscriber_id")
-	private int subscriberId;
+	@Column(name="user_id")
+	private int userId;
 	
 	@Column(name="post_id")
 	private long postId;
+	
+	@Column(name="board_id")
+	private int boardId;
 
 	public long getId() {
 		return id;
@@ -35,12 +38,12 @@ public class PostNotification {
 		this.id = id;
 	}
 
-	public int getSubscriberId() {
-		return subscriberId;
+	public int getUserId() {
+		return userId;
 	}
 
-	public void setSubscriberId(int subscriberId) {
-		this.subscriberId = subscriberId;
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 	public long getPostId() {
@@ -51,13 +54,22 @@ public class PostNotification {
 		this.postId = postId;
 	}
 
+	public int getBoardId() {
+		return boardId;
+	}
+
+	public void setBoardId(int boardId) {
+		this.boardId = boardId;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + boardId;
 		result = prime * result + (int) (id ^ (id >>> 32));
 		result = prime * result + (int) (postId ^ (postId >>> 32));
-		result = prime * result + subscriberId;
+		result = prime * result + userId;
 		return result;
 	}
 
@@ -70,20 +82,21 @@ public class PostNotification {
 		if (getClass() != obj.getClass())
 			return false;
 		PostNotification other = (PostNotification) obj;
+		if (boardId != other.boardId)
+			return false;
 		if (id != other.id)
 			return false;
 		if (postId != other.postId)
 			return false;
-		if (subscriberId != other.subscriberId)
+		if (userId != other.userId)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "PostNotification [id=" + id + ", subscriberId=" + subscriberId + ", postId=" + postId + "]";
+		return "PostNotification [id=" + id + ", userId=" + userId + ", postId=" + postId + ", boardId=" + boardId
+				+ "]";
 	}
-	
-	
 	
 }
